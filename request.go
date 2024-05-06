@@ -7,8 +7,8 @@ import (
 	"io"
 	"mime/multipart"
 	"os"
+	"time"
 
-	"github.com/fatih/color"
 	"github.com/valyala/fasthttp"
 )
 
@@ -20,7 +20,7 @@ import (
 // 	}
 // }
 
-func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}) (interface{}, error) {
+func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
 
 	client := &fasthttp.Client{}
 
@@ -35,26 +35,27 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		defer fasthttp.ReleaseResponse(resp)
 
 		if err := client.Do(req, resp); err != nil {
-			fmt.Println(req.URI())
 			return nil, fmt.Errorf("ошибка при запросе: %s", err)
 		}
 
-		var response interface{}
-		err = json.Unmarshal(resp.Body(), &response)
-		if err != nil {
-			color.Green("Body: %s", req.Body())
-			return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
-		}
+		// var response interface{}
+		// err = json.Unmarshal(resp.Body(), &response)
+		// if err != nil {
+		// 	color.Green("Body: %s", req.Body())
+		// 	return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
+		// }
 
-		return response, nil
+		return &ApiResponse{
+			StatusCode: resp.StatusCode(),
+			Body:       string(resp.Body()),
+			Timestamp:  time.Now().Format("15:04:05.000"),
+		}, nil
 	}
 
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 
-	url := a.getRequestURL(APImethod)
-	fmt.Println("url: ", url)
-	req.SetRequestURI(url)
+	req.SetRequestURI(a.getRequestURL(APImethod))
 
 	req.Header.SetMethod(httpMethod)
 
@@ -64,8 +65,6 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 	}
 	req.SetBody([]byte(jsonData))
 
-	fmt.Println(req.Body())
-
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
@@ -74,14 +73,18 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		return nil, fmt.Errorf("ошибка при запросе: %s", err)
 	}
 
-	var response interface{}
-	err = json.Unmarshal(resp.Body(), &response)
-	if err != nil {
-		color.Green("Body: %s", req.Body())
-		return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
-	}
+	// var response interface{}
+	// err = json.Unmarshal(resp.Body(), &response)
+	// if err != nil {
+	// 	color.Green("Body: %s", req.Body())
+	// 	return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
+	// }
 
-	return response, nil
+	return &ApiResponse{
+		StatusCode: resp.StatusCode(),
+		Body:       string(resp.Body()),
+		Timestamp:  time.Now().Format("15:04:05.000"),
+	}, nil
 }
 
 func (a GreenAPI) getRequestURL(APIMethod string) string {

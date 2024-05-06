@@ -9,4 +9,7 @@ type GreenAPI struct {
 }
 
 type ApiResponse struct {
+	StatusCode int         `json:"status_code"`
+	Body       interface{} `json:"body"`
+	Timestamp  string      `json:"timestamp"`
 }

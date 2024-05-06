@@ -33,7 +33,7 @@ func WithLinkPreview(linkPreview bool) sendMessageOption {
 }
 
 // https://green-api.com/en/docs/api/sending/SendMessage/
-func (c SendingCategory) SendMessage(chatId, message string, options ...sendMessageOption) (interface{}, error) {
+func (c SendingCategory) SendMessage(chatId, message string, options ...sendMessageOption) (any, error) {
 
 	r := &requestSendMessage{
 		ChatId:  chatId,
@@ -58,8 +58,6 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...sendMess
 	if err := json.Unmarshal(jsonData, &payload); err != nil {
 		return nil, err
 	}
-
-	fmt.Println(payload)
 
 	return c.GreenAPI.Request("POST", "sendMessage", payload)
 }
@@ -133,7 +131,7 @@ type requestSendFileByUpload struct {
 
 type sendFileByUploadOption func(*requestSendFileByUpload)
 
-func WithCaption(caption string) sendFileByUploadOption {
+func WithCaptionSendUpload(caption string) sendFileByUploadOption {
 	return func(r *requestSendFileByUpload) {
 		r.Caption = caption
 	}
@@ -173,4 +171,55 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 	//fmt.Println(payload)
 
 	return c.GreenAPI.Request("POST", "sendFileByUpload", payload)
+}
+
+// ------------------------------------------------------------------ SendFileByUrl block
+
+type requestSendFileByUrl struct {
+	ChatId          string `json:"chatId"`
+	UrlFile         string `json:"urlFile"`
+	FileName        string `json:"fileName"`
+	Caption         string `json:"caption"`
+	QuotedMessageId string `json:"quotedMessageId"`
+}
+
+type sendFileByUrlOption func(*requestSendFileByUrl)
+
+func WithCaptionSendUrl(caption string) sendFileByUrlOption {
+	return func(r *requestSendFileByUrl) {
+		r.Caption = caption
+	}
+}
+
+func WithQuotedMessageIdSendUrl(quotedMessageId string) sendFileByUrlOption {
+	return func(r *requestSendFileByUrl) {
+		r.QuotedMessageId = quotedMessageId
+	}
+}
+
+func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...sendFileByUrlOption) (interface{}, error) {
+	r := &requestSendFileByUrl{
+		ChatId:   chatId,
+		UrlFile:  urlFile,
+		FileName: fileName,
+	}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	fmt.Println(payload)
+
+	return c.GreenAPI.Request("POST", "sendFileByUrl", payload)
 }
