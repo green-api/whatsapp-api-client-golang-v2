@@ -1,0 +1,176 @@
+package greenapi
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type SendingCategory struct {
+	GreenAPI GreenAPIInterface
+}
+
+// ------------------------------------------------------------------ SendMessage block
+
+type requestSendMessage struct {
+	ChatId          string `json:"chatId"`
+	Message         string `json:"message"`
+	QuotedMessageId string `json:"quotedMessageId"`
+	LinkPreview     bool   `json:"linkPreview"`
+}
+
+type sendMessageOption func(*requestSendMessage)
+
+func WithQuotedMessageId(quotedMessageId string) sendMessageOption {
+	return func(r *requestSendMessage) {
+		r.QuotedMessageId = quotedMessageId
+	}
+}
+
+func WithLinkPreview(linkPreview bool) sendMessageOption {
+	return func(r *requestSendMessage) {
+		r.LinkPreview = linkPreview
+	}
+}
+
+// https://green-api.com/en/docs/api/sending/SendMessage/
+func (c SendingCategory) SendMessage(chatId, message string, options ...sendMessageOption) (interface{}, error) {
+
+	r := &requestSendMessage{
+		ChatId:  chatId,
+		Message: message,
+	}
+
+	//fmt.Println(r)
+
+	for _, o := range options {
+		o(r)
+	}
+
+	//fmt.Println(r)
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	fmt.Println(payload)
+
+	return c.GreenAPI.Request("POST", "sendMessage", payload)
+}
+
+// ------------------------------------------------------------------ SendPoll block
+
+type PollOption struct {
+	OptionName string `json:"optionName"`
+}
+
+type requestSendPoll struct {
+	ChatId          string       `json:"chatId"`
+	Message         string       `json:"message"`
+	PollOptions     []PollOption `json:"options"`
+	MultipleAnswers bool         `json:"multipleAnswers"`
+	QuotedMessageId string       `json:"quotedMessageId"`
+}
+
+type sendPollOption func(*requestSendPoll)
+
+func WithMultipleAnswers(multipleAnswers bool) sendPollOption {
+	return func(r *requestSendPoll) {
+		r.MultipleAnswers = multipleAnswers
+	}
+}
+
+func WithPollQuotedMessageId(quotedMessageId string) sendPollOption {
+	return func(r *requestSendPoll) {
+		r.QuotedMessageId = quotedMessageId
+	}
+}
+
+func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...sendPollOption) (interface{}, error) {
+
+	r := &requestSendPoll{
+		ChatId:  chatId,
+		Message: message,
+	}
+
+	for _, v := range pollOptions {
+		r.PollOptions = append(r.PollOptions, PollOption{OptionName: v})
+	}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendPoll", payload)
+}
+
+// ------------------------------------------------------------------ SendFileByUpload block
+
+type requestSendFileByUpload struct {
+	ChatId          string `json:"chatId"`
+	File            string `json:"file"`
+	FileName        string `json:"fileName"`
+	Caption         string `json:"caption"`
+	QuotedMessageId string `json:"quotedMessageId"`
+}
+
+type sendFileByUploadOption func(*requestSendFileByUpload)
+
+func WithCaption(caption string) sendFileByUploadOption {
+	return func(r *requestSendFileByUpload) {
+		r.Caption = caption
+	}
+}
+
+func WithQuotedMessageIdSendUpload(quotedMessageId string) sendFileByUploadOption {
+	return func(r *requestSendFileByUpload) {
+		r.QuotedMessageId = quotedMessageId
+	}
+}
+
+func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...sendFileByUploadOption) (interface{}, error) {
+
+	r := &requestSendFileByUpload{
+		ChatId:   chatId,
+		FileName: fileName,
+		File:     filePath,
+	}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	//fmt.Println("jsonData:", jsonData)
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	//fmt.Println(payload)
+
+	return c.GreenAPI.Request("POST", "sendFileByUpload", payload)
+}

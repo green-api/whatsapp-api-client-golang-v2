@@ -6,6 +6,10 @@ func (c GreenAPI) Account() AccountCategory {
 	return AccountCategory{GreenAPI: c}
 }
 
+func (c GreenAPI) Sending() SendingCategory {
+	return SendingCategory{GreenAPI: c}
+}
+
 // Device category presents methods for working with the device (phone).
 // https://green-api.com/en/docs/api/phone/
 // func (c GreenAPICategories) Device() DeviceCategory {
