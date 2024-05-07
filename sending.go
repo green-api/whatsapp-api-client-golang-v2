@@ -164,7 +164,7 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("POST", "sendFileByUpload", payload)
+	return c.GreenAPI.Request("POST", "sendFileByUpload", payload, WithFormData(true), WithMediaHost(true))
 }
 
 // ------------------------------------------------------------------ SendFileByUrl block
@@ -246,5 +246,5 @@ func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("POST", "uploadFile", payload)
+	return c.GreenAPI.Request("POST", "uploadFile", payload, WithSetMimetype(true), WithMediaHost(true))
 }

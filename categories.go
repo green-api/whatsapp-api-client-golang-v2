@@ -10,6 +10,12 @@ func (c GreenAPI) Sending() SendingCategory {
 	return SendingCategory{GreenAPI: c}
 }
 
+// Receiving category presents methods for working with receiving events.
+// https://green-api.com/en/docs/api/receiving/
+func (c GreenAPI) Receiving() ReceivingCategory {
+	return ReceivingCategory{GreenAPI: c}
+}
+
 // Device category presents methods for working with the device (phone).
 // https://green-api.com/en/docs/api/phone/
 // func (c GreenAPICategories) Device() DeviceCategory {
@@ -38,12 +44,6 @@ func (c GreenAPI) Sending() SendingCategory {
 // // https://green-api.com/en/docs/api/marks/
 // func (c GreenAPICategories) ReadMark() methods.ReadMarkCategory {
 // 	return methods.ReadMarkCategory{GreenAPI: c.GreenAPI}
-// }
-
-// // Receiving category presents methods for working with receiving events.
-// // https://green-api.com/en/docs/api/receiving/
-// func (c GreenAPICategories) Receiving() methods.ReceivingCategory {
-// 	return methods.ReceivingCategory{GreenAPI: c.GreenAPI}
 // }
 
 // // Sending category presents methods for sending different messages.

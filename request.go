@@ -20,12 +20,81 @@ import (
 // 	}
 // }
 
-func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
+type request struct {
+	GetParams   bool
+	FormData    bool
+	SetMimetype bool
+	Partner     bool
+	MediaHost   bool
+}
 
+type requestOptions func(*request)
+
+func WithGetParams(b bool) requestOptions {
+	return func(r *request) {
+		r.GetParams = b
+	}
+}
+
+func WithFormData(b bool) requestOptions {
+	return func(r *request) {
+		r.FormData = b
+	}
+}
+
+func WithSetMimetype(b bool) requestOptions {
+	return func(r *request) {
+		r.SetMimetype = b
+	}
+}
+
+func WithPartner(b bool) requestOptions {
+	return func(r *request) {
+		r.Partner = b
+	}
+}
+
+func WithMediaHost(b bool) requestOptions {
+	return func(r *request) {
+		r.MediaHost = b
+	}
+}
+
+func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}, options ...requestOptions) (any, error) {
 	client := &fasthttp.Client{}
 
-	if APImethod == "sendFileByUpload" {
-		req, err := MultipartRequest(APImethod, a.getRequestURL(APImethod), requestBody)
+	r := &request{}
+	for _, o := range options {
+		o(r)
+	}
+
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+
+	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.Host, a.IDInstance, APImethod, a.APITokenInstance))
+
+	req.Header.SetMethod(httpMethod)
+
+	if r.MediaHost {
+		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaHost, a.IDInstance, APImethod, a.APITokenInstance))
+	}
+
+	if r.Partner {
+		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.Host, APImethod, a.PartnerToken))
+	}
+
+	if r.GetParams {
+		var addUrl string
+		if v, ok := requestBody["addUrl"]; ok {
+			addUrl = v.(string)
+		} else {
+			return nil, fmt.Errorf("error while retreiving GET params and adding to URL")
+		}
+		req.SetRequestURI(req.URI().String() + addUrl)
+	}
+
+	if r.FormData {
+		req, err := MultipartRequest(APImethod, req.URI().String(), requestBody)
 		if err != nil {
 			return nil, err
 		}
@@ -34,12 +103,10 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		resp := fasthttp.AcquireResponse()
 		defer fasthttp.ReleaseResponse(resp)
 
-		fmt.Println(req.Header.ContentType())
-
 		if err := client.Do(req, resp); err != nil {
 			return nil, fmt.Errorf("ошибка при запросе: %s", err)
 		}
-
+		fmt.Println(req.URI())
 		return &ApiResponse{
 			StatusCode: resp.StatusCode(),
 			Body:       string(resp.Body()),
@@ -47,14 +114,7 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		}, nil
 	}
 
-	req := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(req)
-
-	req.SetRequestURI(a.getRequestURL(APImethod))
-
-	req.Header.SetMethod(httpMethod)
-
-	if APImethod == "uploadFile" {
+	if r.SetMimetype {
 		var mtype string
 		if v, ok := requestBody["mtype"]; ok {
 			mtype = v.(string)
@@ -74,8 +134,8 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
+	fmt.Println(req.URI())
 	if err := client.Do(req, resp); err != nil {
-		fmt.Println(req.URI())
 		return nil, fmt.Errorf("ошибка при запросе: %s", err)
 	}
 
@@ -84,17 +144,6 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		Body:       string(resp.Body()),
 		Timestamp:  time.Now().Format("15:04:05.000"),
 	}, nil
-}
-
-func (a GreenAPI) getRequestURL(APIMethod string) string {
-	switch APIMethod {
-	case "createInstance", "deleteInstanceAccount", "getInstances":
-		return fmt.Sprintf("%s/partner/%s/%s", a.Host, APIMethod, a.PartnerToken)
-	case "sendFileByUpload", "uploadFile":
-		return fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaHost, a.IDInstance, APIMethod, a.APITokenInstance)
-	default:
-		return fmt.Sprintf("%s/waInstance%s/%s/%s", a.Host, a.IDInstance, APIMethod, a.APITokenInstance)
-	}
 }
 
 func MultipartRequest(method, url string, requestBody map[string]interface{}) (*fasthttp.Request, error) {
@@ -109,9 +158,10 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 		return nil, fmt.Errorf("failed to retreive FilePath from requestBody")
 	}
 
-	delete(requestBody, "file")
-
 	for key, value := range requestBody {
+		if key == "file" {
+			continue
+		}
 		err := writer.WriteField(key, value.(string))
 		if err != nil {
 			return nil, err
@@ -146,7 +196,6 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	req := fasthttp.AcquireRequest()
 
 	req.SetRequestURI(url)
-	fmt.Println(req.URI())
 
 	req.Header.SetMethod("POST")
 
@@ -157,7 +206,7 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	return req, nil
 }
 
-// func (a GreenAPI) OldRequest(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
+// func (a GreenAPI) NetHttpRequest(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
 // 	client := &http.Client{}
 
 // 	var reqBody io.Reader
