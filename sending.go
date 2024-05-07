@@ -2,7 +2,9 @@ package greenapi
 
 import (
 	"encoding/json"
-	"fmt"
+	"os"
+
+	"github.com/gabriel-vasile/mimetype"
 )
 
 type SendingCategory struct {
@@ -40,13 +42,9 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...sendMess
 		Message: message,
 	}
 
-	//fmt.Println(r)
-
 	for _, o := range options {
 		o(r)
 	}
-
-	//fmt.Println(r)
 
 	jsonData, err := json.Marshal(r)
 	if err != nil {
@@ -160,15 +158,11 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 		return nil, err
 	}
 
-	//fmt.Println("jsonData:", jsonData)
-
 	var payload map[string]interface{}
 
 	if err := json.Unmarshal(jsonData, &payload); err != nil {
 		return nil, err
 	}
-
-	//fmt.Println(payload)
 
 	return c.GreenAPI.Request("POST", "sendFileByUpload", payload)
 }
@@ -219,7 +213,38 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 		return nil, err
 	}
 
-	fmt.Println(payload)
-
 	return c.GreenAPI.Request("POST", "sendFileByUrl", payload)
+}
+
+// ------------------------------------------------------------------ UploadFile block
+
+type requestUploadFile struct {
+	File  []byte `json:"file"`
+	Mtype string `json:"mtype"`
+}
+
+func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
+
+	binary, err := os.ReadFile(filepath)
+	if err != nil {
+		return nil, err
+	}
+
+	r := &requestUploadFile{
+		File:  binary,
+		Mtype: mimetype.Detect(binary).String(),
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "uploadFile", payload)
 }

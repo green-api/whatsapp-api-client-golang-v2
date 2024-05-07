@@ -8,6 +8,8 @@
 *.so
 *.dylib
 
+examples/
+
 # Test binary, built with `go test -c`
 *.test
 
@@ -26,5 +28,3 @@ go.work
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
-
-examples/sendMessage/main.go

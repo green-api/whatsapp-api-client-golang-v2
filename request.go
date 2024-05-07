@@ -34,16 +34,11 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		resp := fasthttp.AcquireResponse()
 		defer fasthttp.ReleaseResponse(resp)
 
+		fmt.Println(req.Header.ContentType())
+
 		if err := client.Do(req, resp); err != nil {
 			return nil, fmt.Errorf("ошибка при запросе: %s", err)
 		}
-
-		// var response interface{}
-		// err = json.Unmarshal(resp.Body(), &response)
-		// if err != nil {
-		// 	color.Green("Body: %s", req.Body())
-		// 	return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
-		// }
 
 		return &ApiResponse{
 			StatusCode: resp.StatusCode(),
@@ -59,6 +54,17 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 
 	req.Header.SetMethod(httpMethod)
 
+	if APImethod == "uploadFile" {
+		var mtype string
+		if v, ok := requestBody["mtype"]; ok {
+			mtype = v.(string)
+		} else {
+			return nil, fmt.Errorf("error while retreiving mimetype")
+		}
+		req.Header.SetContentType(mtype)
+		delete(requestBody, "mtype")
+	}
+
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
 		return nil, fmt.Errorf("ошибка при сериализации данных в JSON: %s", err)
@@ -73,13 +79,6 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		return nil, fmt.Errorf("ошибка при запросе: %s", err)
 	}
 
-	// var response interface{}
-	// err = json.Unmarshal(resp.Body(), &response)
-	// if err != nil {
-	// 	color.Green("Body: %s", req.Body())
-	// 	return nil, fmt.Errorf("error while unmarshal byte response: %s", err)
-	// }
-
 	return &ApiResponse{
 		StatusCode: resp.StatusCode(),
 		Body:       string(resp.Body()),
@@ -91,7 +90,7 @@ func (a GreenAPI) getRequestURL(APIMethod string) string {
 	switch APIMethod {
 	case "createInstance", "deleteInstanceAccount", "getInstances":
 		return fmt.Sprintf("%s/partner/%s/%s", a.Host, APIMethod, a.PartnerToken)
-	case "sendFileByUpload":
+	case "sendFileByUpload", "uploadFile":
 		return fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaHost, a.IDInstance, APIMethod, a.APITokenInstance)
 	default:
 		return fmt.Sprintf("%s/waInstance%s/%s/%s", a.Host, a.IDInstance, APIMethod, a.APITokenInstance)
@@ -157,3 +156,39 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 
 	return req, nil
 }
+
+// func (a GreenAPI) OldRequest(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
+// 	client := &http.Client{}
+
+// 	var reqBody io.Reader
+// 	if requestBody != nil {
+// 		jsonData, err := json.Marshal(requestBody)
+// 		if err != nil {
+// 			return nil, fmt.Errorf("ошибка при сериализации данных в JSON: %s", err)
+// 		}
+// 		reqBody = bytes.NewBuffer(jsonData)
+// 	}
+
+// 	req, err := http.NewRequest(httpMethod, a.getRequestURL(APImethod), reqBody)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("ошибка при создании запроса: %s", err)
+// 	}
+// 	req.Header.Set("Content-Type", "application/json")
+
+// 	resp, err := client.Do(req)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("ошибка при запросе: %s", err)
+// 	}
+// 	defer resp.Body.Close()
+
+// 	body, err := ioutil.ReadAll(resp.Body)
+// 	if err != nil {
+// 		return nil, fmt.Errorf("ошибка при чтении тела ответа: %s", err)
+// 	}
+
+// 	return &ApiResponse{
+// 		StatusCode: resp.StatusCode,
+// 		Body:       string(body),
+// 		Timestamp:  time.Now().Format("15:04:05.000"),
+// 	}, nil
+// }
