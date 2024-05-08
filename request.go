@@ -23,7 +23,7 @@ import (
 type request struct {
 	GetParams   bool
 	FormData    bool
-	SetMimetype bool
+	SetMimetype string
 	Partner     bool
 	MediaHost   bool
 }
@@ -42,9 +42,9 @@ func WithFormData(b bool) requestOptions {
 	}
 }
 
-func WithSetMimetype(b bool) requestOptions {
+func WithSetMimetype(mtype string) requestOptions {
 	return func(r *request) {
-		r.SetMimetype = b
+		r.SetMimetype = mtype
 	}
 }
 
@@ -114,15 +114,8 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		}, nil
 	}
 
-	if r.SetMimetype {
-		var mtype string
-		if v, ok := requestBody["mtype"]; ok {
-			mtype = v.(string)
-		} else {
-			return nil, fmt.Errorf("error while retreiving mimetype")
-		}
-		req.Header.SetContentType(mtype)
-		delete(requestBody, "mtype")
+	if r.SetMimetype != "" {
+		req.Header.SetContentType(r.SetMimetype)
 	}
 
 	jsonData, err := json.Marshal(requestBody)

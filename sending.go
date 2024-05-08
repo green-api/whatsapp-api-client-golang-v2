@@ -219,8 +219,7 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 // ------------------------------------------------------------------ UploadFile block
 
 type requestUploadFile struct {
-	File  []byte `json:"file"`
-	Mtype string `json:"mtype"`
+	File []byte `json:"file"`
 }
 
 func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
@@ -231,8 +230,7 @@ func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
 	}
 
 	r := &requestUploadFile{
-		File:  binary,
-		Mtype: mimetype.Detect(binary).String(),
+		File: binary,
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -246,5 +244,5 @@ func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("POST", "uploadFile", payload, WithSetMimetype(true), WithMediaHost(true))
+	return c.GreenAPI.Request("POST", "uploadFile", payload, WithSetMimetype(mimetype.Detect(binary).String()), WithMediaHost(true))
 }
