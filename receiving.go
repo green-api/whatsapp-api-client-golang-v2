@@ -49,3 +49,31 @@ func (c ReceivingCategory) ReceiveNotification(options ...receiveNotificationOpt
 
 	return c.GreenAPI.Request("GET", "receiveNotification", payload, WithGetParams(true))
 }
+
+// ------------------------------------------------------------------ DeleteNotification block
+
+type requestDeleteNotification struct {
+	ReceiptId int    `json:"receiptId"`
+	AddUrl    string `json:"addUrl"`
+}
+
+func (c ReceivingCategory) DeleteNotification(receiptId int) (interface{}, error) {
+	r := &requestDeleteNotification{
+		ReceiptId: receiptId,
+	}
+
+	r.AddUrl = fmt.Sprintf("/%v", receiptId)
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("DELETE", "deleteNotification", payload, WithGetParams(true))
+}

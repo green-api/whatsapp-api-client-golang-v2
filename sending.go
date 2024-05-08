@@ -16,8 +16,8 @@ type SendingCategory struct {
 type requestSendMessage struct {
 	ChatId          string `json:"chatId"`
 	Message         string `json:"message"`
-	QuotedMessageId string `json:"quotedMessageId"`
-	LinkPreview     bool   `json:"linkPreview"`
+	QuotedMessageId string `json:"quotedMessageId,omitempty"`
+	LinkPreview     bool   `json:"linkPreview,omitempty"`
 }
 
 type sendMessageOption func(*requestSendMessage)
@@ -70,8 +70,8 @@ type requestSendPoll struct {
 	ChatId          string       `json:"chatId"`
 	Message         string       `json:"message"`
 	PollOptions     []PollOption `json:"options"`
-	MultipleAnswers bool         `json:"multipleAnswers"`
-	QuotedMessageId string       `json:"quotedMessageId"`
+	MultipleAnswers bool         `json:"multipleAnswers,omitempty"`
+	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
 }
 
 type sendPollOption func(*requestSendPoll)
@@ -123,8 +123,8 @@ type requestSendFileByUpload struct {
 	ChatId          string `json:"chatId"`
 	File            string `json:"file"`
 	FileName        string `json:"fileName"`
-	Caption         string `json:"caption"`
-	QuotedMessageId string `json:"quotedMessageId"`
+	Caption         string `json:"caption,omitempty"`
+	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 }
 
 type sendFileByUploadOption func(*requestSendFileByUpload)
@@ -173,8 +173,8 @@ type requestSendFileByUrl struct {
 	ChatId          string `json:"chatId"`
 	UrlFile         string `json:"urlFile"`
 	FileName        string `json:"fileName"`
-	Caption         string `json:"caption"`
-	QuotedMessageId string `json:"quotedMessageId"`
+	Caption         string `json:"caption,omitempty"`
+	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 }
 
 type sendFileByUrlOption func(*requestSendFileByUrl)

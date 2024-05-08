@@ -52,11 +52,11 @@ func (c GreenAPI) Receiving() ReceivingCategory {
 // 	return methods.SendingCategory{GreenAPI: c.GreenAPI}
 // }
 
-// // Service category presents different service methods.
-// // https://green-api.com/en/docs/api/service/
-// func (c GreenAPICategories) Service() methods.ServiceCategory {
-// 	return methods.ServiceCategory{GreenAPI: c.GreenAPI}
-// }
+// Service category presents different service methods.
+// https://green-api.com/en/docs/api/service/
+func (c GreenAPI) Service() ServiceCategory {
+	return ServiceCategory{GreenAPI: c}
+}
 
 // // Partner category presents exclusive methods for partners.
 // // The partnership scheme involves deeper integration with the service
