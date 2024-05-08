@@ -6,6 +6,8 @@ func (c GreenAPI) Account() AccountCategory {
 	return AccountCategory{GreenAPI: c}
 }
 
+// Sending category presents methods for sending different messages.
+// https://green-api.com/en/docs/api/sending/
 func (c GreenAPI) Sending() SendingCategory {
 	return SendingCategory{GreenAPI: c}
 }

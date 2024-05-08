@@ -9,15 +9,14 @@ type AccountCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
+// ------------------------------------------------------------------ GetSettings block
+
 func (c AccountCategory) GetSettings() (interface{}, error) {
 	return c.GreenAPI.Request("GET", "getSettings", nil)
 }
 
-// func (c AccountCategory) GetInstances() (interface{}, error) {
-// 	return c.GreenAPI.Request("GET", "getInstances", map[string]interface{}{}) //обязательно передавать пустой интерфейс вместо nil
-// }
+// ------------------------------------------------------------------ SetSettings block
 
-// OptionsSetSettings contains available parameters for SetSettings
 type requestSetSettings struct {
 	WebhookUrl                        *string `json:"webhookUrl,omitempty"`
 	WebhookUrlToken                   *string `json:"webhookUrlToken,omitempty"`
@@ -36,99 +35,99 @@ type requestSetSettings struct {
 	IncomingCallWebhook               string  `json:"incomingCallWebhook,omitempty"`
 }
 
-type AccountOption func(*requestSetSettings)
+type setSettingsOption func(*requestSetSettings)
 
-func WithWebhookUrl(webhookUrl string) AccountOption {
+func WithWebhookUrl(webhookUrl string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.WebhookUrl = &webhookUrl
 	}
 }
 
-func WithWebhookUrlToken(webhookUrlToken string) AccountOption {
+func WithWebhookUrlToken(webhookUrlToken string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.WebhookUrlToken = &webhookUrlToken
 	}
 }
 
-func WithDelaySendMesssages(delaySendMessagesMilliseconds int) AccountOption {
+func WithDelaySendMesssages(delaySendMessagesMilliseconds int) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
 	}
 }
 
-func WithMarkIncomingMessagesRead(markIncomingMessagesReaded string) AccountOption {
+func WithMarkIncomingMessagesRead(markIncomingMessagesReaded string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.MarkIncomingMessagesReaded = markIncomingMessagesReaded
 	}
 }
 
-func WithMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply string) AccountOption {
+func WithMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.MarkIncomingMessagesReadedOnReply = markIncomingMessagesReadedOnReply
 	}
 }
 
-func WithOutgoingWebhook(outgoingWebhook string) AccountOption {
+func WithOutgoingWebhook(outgoingWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.OutgoingWebhook = outgoingWebhook
 	}
 }
 
-func WithOutgoingMessageWebhook(outgoingMessageWebhook string) AccountOption {
+func WithOutgoingMessageWebhook(outgoingMessageWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.OutgoingMessageWebhook = outgoingMessageWebhook
 	}
 }
 
-func WithOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook string) AccountOption {
+func WithOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.OutgoingAPIMessageWebhook = outgoingAPIMessageWebhook
 	}
 }
 
-func WithStateWebhook(stateWebhook string) AccountOption {
+func WithStateWebhook(stateWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.StateWebhook = stateWebhook
 	}
 }
 
-func WithIncomingWebhook(incomingWebhook string) AccountOption {
+func WithIncomingWebhook(incomingWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.IncomingWebhook = incomingWebhook
 	}
 }
 
-func WithDeviceWebhook(deviceWebhook string) AccountOption {
+func WithDeviceWebhook(deviceWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.DeviceWebhook = deviceWebhook
 	}
 }
 
-func WithKeepOnlineStatus(keepOnlineStatus string) AccountOption {
+func WithKeepOnlineStatus(keepOnlineStatus string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.KeepOnlineStatus = keepOnlineStatus
 	}
 }
 
-func WithPollMessageWebhook(pollMessageWebhook string) AccountOption {
+func WithPollMessageWebhook(pollMessageWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.PollMessageWebhook = pollMessageWebhook
 	}
 }
 
-func WithIncomingBlockWebhook(incomingBlockWebhook string) AccountOption {
+func WithIncomingBlockWebhook(incomingBlockWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.IncomingBlockWebhook = incomingBlockWebhook
 	}
 }
 
-func WithIncomingCallWebhook(incomingCallWebhook string) AccountOption {
+func WithIncomingCallWebhook(incomingCallWebhook string) setSettingsOption {
 	return func(r *requestSetSettings) {
 		r.IncomingCallWebhook = incomingCallWebhook
 	}
 }
 
-func (c AccountCategory) SetSettings(options ...AccountOption) (interface{}, error) {
+func (c AccountCategory) SetSettings(options ...setSettingsOption) (interface{}, error) {
 
 	r := &requestSetSettings{}
 	for _, o := range options {
