@@ -8,7 +8,7 @@ your [personal cabinet](https://console.green-api.com/) to use the library. Ther
 
 ## API
 
-The documentation for the REST API can be found at the [link](https://green-api.com/en/docs/). The library is a wrapper
+The documentation for the REST API can be found at the [link](https://green-api.com/en/docs/api). The library is a wrapper
 for the REST API, so the documentation at the link above also applies.
 
 ## Support links
