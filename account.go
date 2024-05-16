@@ -17,7 +17,7 @@ func (c AccountCategory) GetSettings() (interface{}, error) {
 
 // ------------------------------------------------------------------ SetSettings block
 
-type requestSetSettings struct {
+type RequestSetSettings struct {
 	WebhookUrl                        *string `json:"webhookUrl,omitempty"`
 	WebhookUrlToken                   *string `json:"webhookUrlToken,omitempty"`
 	DelaySendMessagesMilliseconds     *int    `json:"delaySendMessagesMilliseconds,omitempty"`
@@ -35,149 +35,164 @@ type requestSetSettings struct {
 	IncomingCallWebhook               string  `json:"incomingCallWebhook,omitempty"`
 }
 
-type setSettingsOption func(*requestSetSettings)
+type SetSettingsOption func(*RequestSetSettings) error
 
-func WithWebhookUrl(webhookUrl string) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionWebhookUrl(webhookUrl string) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		r.WebhookUrl = &webhookUrl
+		return nil
 	}
 }
 
-func WithWebhookUrlToken(webhookUrlToken string) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		r.WebhookUrlToken = &webhookUrlToken
+		return nil
 	}
 }
 
-func WithDelaySendMesssages(delaySendMessagesMilliseconds int) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionDelaySendMesssages(delaySendMessagesMilliseconds int) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
+		return nil
 	}
 }
 
-func WithMarkIncomingMessagesRead(markIncomingMessagesReaded bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionMarkIncomingMessagesRead(markIncomingMessagesReaded bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if markIncomingMessagesReaded {
 			r.MarkIncomingMessagesReaded = "yes"
 		} else {
 			r.MarkIncomingMessagesReaded = "no"
 		}
+		return nil
 	}
 }
 
-func WithMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if markIncomingMessagesReadedOnReply {
 			r.MarkIncomingMessagesReadedOnReply = "yes"
 		} else {
 			r.MarkIncomingMessagesReadedOnReply = "no"
 		}
+		return nil
 	}
 }
 
-func WithOutgoingWebhook(outgoingWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionOutgoingWebhook(outgoingWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if outgoingWebhook {
 			r.OutgoingWebhook = "yes"
 		} else {
 			r.OutgoingWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithOutgoingMessageWebhook(outgoingMessageWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionOutgoingMessageWebhook(outgoingMessageWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if outgoingMessageWebhook {
 			r.OutgoingMessageWebhook = "yes"
 		} else {
 			r.OutgoingMessageWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if outgoingAPIMessageWebhook {
 			r.OutgoingAPIMessageWebhook = "yes"
 		} else {
 			r.OutgoingAPIMessageWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithStateWebhook(stateWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionStateWebhook(stateWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if stateWebhook {
 			r.StateWebhook = "yes"
 		} else {
 			r.StateWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithIncomingWebhook(incomingWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionIncomingWebhook(incomingWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if incomingWebhook {
 			r.IncomingWebhook = "yes"
 		} else {
 			r.IncomingWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithDeviceWebhook(deviceWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionDeviceWebhook(deviceWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if deviceWebhook {
 			r.DeviceWebhook = "yes"
 		} else {
 			r.DeviceWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithKeepOnlineStatus(keepOnlineStatus bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionKeepOnlineStatus(keepOnlineStatus bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if keepOnlineStatus {
 			r.KeepOnlineStatus = "yes"
 		} else {
 			r.KeepOnlineStatus = "no"
 		}
+		return nil
 	}
 }
 
-func WithPollMessageWebhook(pollMessageWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionPollMessageWebhook(pollMessageWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if pollMessageWebhook {
 			r.PollMessageWebhook = "yes"
 		} else {
 			r.PollMessageWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithIncomingBlockWebhook(incomingBlockWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionIncomingBlockWebhook(incomingBlockWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if incomingBlockWebhook {
 			r.IncomingBlockWebhook = "yes"
 		} else {
 			r.IncomingBlockWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func WithIncomingCallWebhook(incomingCallWebhook bool) setSettingsOption {
-	return func(r *requestSetSettings) {
+func OptionIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
 		if incomingCallWebhook {
 			r.IncomingCallWebhook = "yes"
 		} else {
 			r.IncomingCallWebhook = "no"
 		}
+		return nil
 	}
 }
 
-func (c AccountCategory) SetSettings(options ...setSettingsOption) (interface{}, error) {
+func (c AccountCategory) SetSettings(options ...SetSettingsOption) (interface{}, error) {
 
-	r := &requestSetSettings{}
+	r := &RequestSetSettings{}
 	for _, o := range options {
 		o(r)
 	}

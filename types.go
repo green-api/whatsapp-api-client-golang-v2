@@ -1,15 +1,17 @@
 package greenapi
 
+import "encoding/json"
+
 type GreenAPI struct {
-	Host             string
-	MediaHost        string
+	APIURL           string
+	MediaURL         string
 	IDInstance       string
 	APITokenInstance string
 	PartnerToken     string
 }
 
-type ApiResponse struct {
-	StatusCode int         `json:"status_code"`
-	Body       interface{} `json:"body"`
-	Timestamp  string      `json:"timestamp"`
+type APIResponse struct {
+	StatusCode int             `json:"status_code"`
+	Body       json.RawMessage `json:"body"`
+	Timestamp  string          `json:"timestamp"`
 }

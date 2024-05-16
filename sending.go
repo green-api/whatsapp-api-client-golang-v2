@@ -13,31 +13,33 @@ type SendingCategory struct {
 
 // ------------------------------------------------------------------ SendMessage block
 
-type requestSendMessage struct {
+type RequestSendMessage struct {
 	ChatId          string `json:"chatId"`
 	Message         string `json:"message"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 	LinkPreview     bool   `json:"linkPreview,omitempty"`
 }
 
-type sendMessageOption func(*requestSendMessage)
+type SendMessageOption func(*RequestSendMessage) error
 
-func WithQuotedMessageId(quotedMessageId string) sendMessageOption {
-	return func(r *requestSendMessage) {
+func OptionQuotedMessageId(quotedMessageId string) SendMessageOption {
+	return func(r *RequestSendMessage) error {
 		r.QuotedMessageId = quotedMessageId
+		return nil
 	}
 }
 
-func WithLinkPreview(linkPreview bool) sendMessageOption {
-	return func(r *requestSendMessage) {
+func OptionLinkPreview(linkPreview bool) SendMessageOption {
+	return func(r *RequestSendMessage) error {
 		r.LinkPreview = linkPreview
+		return nil
 	}
 }
 
 // https://green-api.com/en/docs/api/sending/SendMessage/
-func (c SendingCategory) SendMessage(chatId, message string, options ...sendMessageOption) (any, error) {
+func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (any, error) {
 
-	r := &requestSendMessage{
+	r := &RequestSendMessage{
 		ChatId:  chatId,
 		Message: message,
 	}
@@ -66,7 +68,7 @@ type PollOption struct {
 	OptionName string `json:"optionName"`
 }
 
-type requestSendPoll struct {
+type RequestSendPoll struct {
 	ChatId          string       `json:"chatId"`
 	Message         string       `json:"message"`
 	PollOptions     []PollOption `json:"options"`
@@ -74,23 +76,25 @@ type requestSendPoll struct {
 	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
 }
 
-type sendPollOption func(*requestSendPoll)
+type SendPollOption func(*RequestSendPoll) error
 
-func WithMultipleAnswers(multipleAnswers bool) sendPollOption {
-	return func(r *requestSendPoll) {
+func OptionMultipleAnswers(multipleAnswers bool) SendPollOption {
+	return func(r *RequestSendPoll) error {
 		r.MultipleAnswers = multipleAnswers
+		return nil
 	}
 }
 
-func WithPollQuotedMessageId(quotedMessageId string) sendPollOption {
-	return func(r *requestSendPoll) {
+func OptionPollQuotedMessageId(quotedMessageId string) SendPollOption {
+	return func(r *RequestSendPoll) error {
 		r.QuotedMessageId = quotedMessageId
+		return nil
 	}
 }
 
-func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...sendPollOption) (interface{}, error) {
+func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (interface{}, error) {
 
-	r := &requestSendPoll{
+	r := &RequestSendPoll{
 		ChatId:  chatId,
 		Message: message,
 	}
@@ -119,7 +123,7 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 
 // ------------------------------------------------------------------ SendFileByUpload block
 
-type requestSendFileByUpload struct {
+type RequestSendFileByUpload struct {
 	ChatId          string `json:"chatId"`
 	File            string `json:"file"`
 	FileName        string `json:"fileName"`
@@ -127,23 +131,25 @@ type requestSendFileByUpload struct {
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 }
 
-type sendFileByUploadOption func(*requestSendFileByUpload)
+type SendFileByUploadOption func(*RequestSendFileByUpload) error
 
-func WithCaptionSendUpload(caption string) sendFileByUploadOption {
-	return func(r *requestSendFileByUpload) {
+func OptionCaptionSendUpload(caption string) SendFileByUploadOption {
+	return func(r *RequestSendFileByUpload) error {
 		r.Caption = caption
+		return nil
 	}
 }
 
-func WithQuotedMessageIdSendUpload(quotedMessageId string) sendFileByUploadOption {
-	return func(r *requestSendFileByUpload) {
+func OptionQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadOption {
+	return func(r *RequestSendFileByUpload) error {
 		r.QuotedMessageId = quotedMessageId
+		return nil
 	}
 }
 
-func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...sendFileByUploadOption) (interface{}, error) {
+func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (interface{}, error) {
 
-	r := &requestSendFileByUpload{
+	r := &RequestSendFileByUpload{
 		ChatId:   chatId,
 		FileName: fileName,
 		File:     filePath,
@@ -169,7 +175,7 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 
 // ------------------------------------------------------------------ SendFileByUrl block
 
-type requestSendFileByUrl struct {
+type RequestSendFileByUrl struct {
 	ChatId          string `json:"chatId"`
 	UrlFile         string `json:"urlFile"`
 	FileName        string `json:"fileName"`
@@ -177,22 +183,24 @@ type requestSendFileByUrl struct {
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 }
 
-type sendFileByUrlOption func(*requestSendFileByUrl)
+type SendFileByUrlOption func(*RequestSendFileByUrl) error
 
-func WithCaptionSendUrl(caption string) sendFileByUrlOption {
-	return func(r *requestSendFileByUrl) {
+func OptionCaptionSendUrl(caption string) SendFileByUrlOption {
+	return func(r *RequestSendFileByUrl) error {
 		r.Caption = caption
+		return nil
 	}
 }
 
-func WithQuotedMessageIdSendUrl(quotedMessageId string) sendFileByUrlOption {
-	return func(r *requestSendFileByUrl) {
+func OptionQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption {
+	return func(r *RequestSendFileByUrl) error {
 		r.QuotedMessageId = quotedMessageId
+		return nil
 	}
 }
 
-func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...sendFileByUrlOption) (interface{}, error) {
-	r := &requestSendFileByUrl{
+func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (interface{}, error) {
+	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
 		UrlFile:  urlFile,
 		FileName: fileName,
@@ -218,7 +226,7 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 
 // ------------------------------------------------------------------ UploadFile block
 
-type requestUploadFile struct {
+type RequestUploadFile struct {
 	File []byte `json:"file"`
 }
 
@@ -229,7 +237,7 @@ func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
 		return nil, err
 	}
 
-	r := &requestUploadFile{
+	r := &RequestUploadFile{
 		File: binary,
 	}
 

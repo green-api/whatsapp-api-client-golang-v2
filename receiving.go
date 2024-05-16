@@ -11,22 +11,23 @@ type ReceivingCategory struct {
 
 // ------------------------------------------------------------------ ReceiveNotification block
 
-type requestReceiveNotification struct {
+type RequestReceiveNotification struct {
 	ReceiveTimeout int    `json:"receiveTimeout"`
 	AddUrl         string `json:"addUrl"`
 }
 
-type receiveNotificationOption func(*requestReceiveNotification)
+type ReceiveNotificationOption func(*RequestReceiveNotification) error
 
-func WithReceiveTimeout(timeout int) receiveNotificationOption {
-	return func(r *requestReceiveNotification) {
+func OptionReceiveTimeout(timeout int) ReceiveNotificationOption {
+	return func(r *RequestReceiveNotification) error {
 		r.ReceiveTimeout = timeout
+		return nil
 	}
 }
 
-func (c ReceivingCategory) ReceiveNotification(options ...receiveNotificationOption) (interface{}, error) {
+func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOption) (interface{}, error) {
 
-	r := &requestReceiveNotification{}
+	r := &RequestReceiveNotification{}
 
 	for _, o := range options {
 		o(r)
@@ -52,13 +53,13 @@ func (c ReceivingCategory) ReceiveNotification(options ...receiveNotificationOpt
 
 // ------------------------------------------------------------------ DeleteNotification block
 
-type requestDeleteNotification struct {
+type RequestDeleteNotification struct {
 	ReceiptId int    `json:"receiptId"`
 	AddUrl    string `json:"addUrl"`
 }
 
 func (c ReceivingCategory) DeleteNotification(receiptId int) (interface{}, error) {
-	r := &requestDeleteNotification{
+	r := &RequestDeleteNotification{
 		ReceiptId: receiptId,
 	}
 

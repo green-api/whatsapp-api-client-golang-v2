@@ -30,6 +30,7 @@ type request struct {
 
 type requestOptions func(*request)
 
+// TODO: передавать сам addUrl вместо bool
 func WithGetParams(b bool) requestOptions {
 	return func(r *request) {
 		r.GetParams = b
@@ -60,7 +61,9 @@ func WithMediaHost(b bool) requestOptions {
 	}
 }
 
-func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}, options ...requestOptions) (any, error) {
+// TODO: добавить приватный request func
+// посмотреть в python sdk
+func (a *GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}, options ...requestOptions) (any, error) {
 	client := &fasthttp.Client{}
 
 	r := &request{}
@@ -71,16 +74,16 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 
-	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.Host, a.IDInstance, APImethod, a.APITokenInstance))
+	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.APIURL, a.IDInstance, APImethod, a.APITokenInstance))
 
 	req.Header.SetMethod(httpMethod)
 
 	if r.MediaHost {
-		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaHost, a.IDInstance, APImethod, a.APITokenInstance))
+		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaURL, a.IDInstance, APImethod, a.APITokenInstance))
 	}
 
 	if r.Partner {
-		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.Host, APImethod, a.PartnerToken))
+		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APImethod, a.PartnerToken))
 	}
 
 	if r.GetParams {
@@ -104,12 +107,12 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 		defer fasthttp.ReleaseResponse(resp)
 
 		if err := client.Do(req, resp); err != nil {
-			return nil, fmt.Errorf("ошибка при запросе: %s", err)
+			return nil, fmt.Errorf("request error: %s", err)
 		}
 		fmt.Println(req.URI())
-		return &ApiResponse{
+		return &APIResponse{
 			StatusCode: resp.StatusCode(),
-			Body:       string(resp.Body()),
+			Body:       resp.Body(),
 			Timestamp:  time.Now().Format("15:04:05.000"),
 		}, nil
 	}
@@ -120,7 +123,7 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 
 	jsonData, err := json.Marshal(requestBody)
 	if err != nil {
-		return nil, fmt.Errorf("ошибка при сериализации данных в JSON: %s", err)
+		return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
 	}
 	req.SetBody([]byte(jsonData))
 
@@ -129,12 +132,12 @@ func (a GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]i
 
 	fmt.Println(req.URI())
 	if err := client.Do(req, resp); err != nil {
-		return nil, fmt.Errorf("ошибка при запросе: %s", err)
+		return nil, fmt.Errorf("request error: %s", err)
 	}
 
-	return &ApiResponse{
+	return &APIResponse{
 		StatusCode: resp.StatusCode(),
-		Body:       string(resp.Body()),
+		Body:       resp.Body(),
 		Timestamp:  time.Now().Format("15:04:05.000"),
 	}, nil
 }

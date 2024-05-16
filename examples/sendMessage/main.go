@@ -9,13 +9,13 @@ import (
 
 func main() {
 	GreenAPI := greenapi.GreenAPI{
-		Host:             "https://api.green-api.com",
-		MediaHost:        "https://media.green-api.com",
+		APIURL:           "https://api.green-api.com",
+		MediaURL:         "https://media.green-api.com",
 		IDInstance:       "1101000001",
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us", "Hello")
+	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us", "Hello", greenapi.OptionLinkPreview(false))
 	if err != nil {
 		log.Fatal(err)
 	}

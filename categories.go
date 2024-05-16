@@ -2,19 +2,19 @@ package greenapi
 
 // Account category presents methods for working with the account.
 // https://green-api.com/en/docs/api/account/
-func (c GreenAPI) Account() AccountCategory {
+func (c *GreenAPI) Account() AccountCategory {
 	return AccountCategory{GreenAPI: c}
 }
 
 // Sending category presents methods for sending different messages.
 // https://green-api.com/en/docs/api/sending/
-func (c GreenAPI) Sending() SendingCategory {
+func (c *GreenAPI) Sending() SendingCategory {
 	return SendingCategory{GreenAPI: c}
 }
 
 // Receiving category presents methods for working with receiving events.
 // https://green-api.com/en/docs/api/receiving/
-func (c GreenAPI) Receiving() ReceivingCategory {
+func (c *GreenAPI) Receiving() ReceivingCategory {
 	return ReceivingCategory{GreenAPI: c}
 }
 
@@ -56,7 +56,7 @@ func (c GreenAPI) Receiving() ReceivingCategory {
 
 // Service category presents different service methods.
 // https://green-api.com/en/docs/api/service/
-func (c GreenAPI) Service() ServiceCategory {
+func (c *GreenAPI) Service() ServiceCategory {
 	return ServiceCategory{GreenAPI: c}
 }
 

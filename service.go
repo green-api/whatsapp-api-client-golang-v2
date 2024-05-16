@@ -8,13 +8,13 @@ type ServiceCategory struct {
 
 // ------------------------------------------------------------------ DeleteMessage block
 
-type requestDeleteMessage struct {
+type RequestDeleteMessage struct {
 	ChatId    string `json:"chatId"`
 	IdMessage string `json:"idMessage"`
 }
 
 func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (interface{}, error) {
-	r := &requestDeleteMessage{
+	r := &RequestDeleteMessage{
 		ChatId:    chatId,
 		IdMessage: idMessage,
 	}
