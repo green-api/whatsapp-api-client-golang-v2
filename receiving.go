@@ -18,14 +18,14 @@ type RequestReceiveNotification struct {
 
 type ReceiveNotificationOption func(*RequestReceiveNotification) error
 
-func OptionReceiveTimeout(timeout int) ReceiveNotificationOption {
+func OptionReceiveTimeout(seconds int) ReceiveNotificationOption {
 	return func(r *RequestReceiveNotification) error {
-		r.ReceiveTimeout = timeout
+		r.ReceiveTimeout = seconds
 		return nil
 	}
 }
 
-func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOption) (interface{}, error) {
+func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOption) (*APIResponse, error) {
 
 	r := &RequestReceiveNotification{}
 
@@ -48,7 +48,7 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("GET", "receiveNotification", payload, WithGetParams(true))
+	return c.GreenAPI.Request("GET", "receiveNotification", payload, WithGetParams(r.AddUrl))
 }
 
 // ------------------------------------------------------------------ DeleteNotification block
@@ -58,7 +58,7 @@ type RequestDeleteNotification struct {
 	AddUrl    string `json:"addUrl"`
 }
 
-func (c ReceivingCategory) DeleteNotification(receiptId int) (interface{}, error) {
+func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, error) {
 	r := &RequestDeleteNotification{
 		ReceiptId: receiptId,
 	}
@@ -76,5 +76,5 @@ func (c ReceivingCategory) DeleteNotification(receiptId int) (interface{}, error
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("DELETE", "deleteNotification", payload, WithGetParams(true))
+	return c.GreenAPI.Request("DELETE", "deleteNotification", payload, WithGetParams(r.AddUrl))
 }

@@ -11,7 +11,7 @@ type AccountCategory struct {
 
 // ------------------------------------------------------------------ GetSettings block
 
-func (c AccountCategory) GetSettings() (interface{}, error) {
+func (c AccountCategory) GetSettings() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getSettings", nil)
 }
 
@@ -190,7 +190,7 @@ func OptionIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
 	}
 }
 
-func (c AccountCategory) SetSettings(options ...SetSettingsOption) (interface{}, error) {
+func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse, error) {
 
 	r := &RequestSetSettings{}
 	for _, o := range options {

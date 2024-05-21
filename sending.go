@@ -37,7 +37,7 @@ func OptionLinkPreview(linkPreview bool) SendMessageOption {
 }
 
 // https://green-api.com/en/docs/api/sending/SendMessage/
-func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (any, error) {
+func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 
 	r := &RequestSendMessage{
 		ChatId:  chatId,
@@ -92,7 +92,7 @@ func OptionPollQuotedMessageId(quotedMessageId string) SendPollOption {
 	}
 }
 
-func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (interface{}, error) {
+func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
 
 	r := &RequestSendPoll{
 		ChatId:  chatId,
@@ -147,7 +147,7 @@ func OptionQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadOpt
 	}
 }
 
-func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (interface{}, error) {
+func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
 
 	r := &RequestSendFileByUpload{
 		ChatId:   chatId,
@@ -199,7 +199,7 @@ func OptionQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption {
 	}
 }
 
-func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (interface{}, error) {
+func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
 	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
 		UrlFile:  urlFile,
@@ -230,7 +230,7 @@ type RequestUploadFile struct {
 	File []byte `json:"file"`
 }
 
-func (c SendingCategory) UploadFile(filepath string) (interface{}, error) {
+func (c SendingCategory) UploadFile(filepath string) (*APIResponse, error) {
 
 	binary, err := os.ReadFile(filepath)
 	if err != nil {

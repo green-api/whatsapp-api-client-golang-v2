@@ -13,7 +13,7 @@ type RequestDeleteMessage struct {
 	IdMessage string `json:"idMessage"`
 }
 
-func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (interface{}, error) {
+func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (*APIResponse, error) {
 	r := &RequestDeleteMessage{
 		ChatId:    chatId,
 		IdMessage: idMessage,

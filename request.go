@@ -20,126 +20,58 @@ import (
 // 	}
 // }
 
-type request struct {
-	GetParams   bool
+type requestType struct {
+	GetParams   string
 	FormData    bool
 	SetMimetype string
 	Partner     bool
 	MediaHost   bool
 }
 
-type requestOptions func(*request)
+type requestOptions func(*requestType) error
 
-// TODO: передавать сам addUrl вместо bool
-func WithGetParams(b bool) requestOptions {
-	return func(r *request) {
-		r.GetParams = b
+func WithGetParams(addUrl string) requestOptions {
+	return func(r *requestType) error {
+		r.GetParams = addUrl
+		return nil
 	}
 }
 
 func WithFormData(b bool) requestOptions {
-	return func(r *request) {
+	return func(r *requestType) error {
 		r.FormData = b
+		return nil
 	}
 }
 
 func WithSetMimetype(mtype string) requestOptions {
-	return func(r *request) {
+	return func(r *requestType) error {
 		r.SetMimetype = mtype
+		return nil
 	}
 }
 
 func WithPartner(b bool) requestOptions {
-	return func(r *request) {
+	return func(r *requestType) error {
 		r.Partner = b
+		return nil
 	}
 }
 
 func WithMediaHost(b bool) requestOptions {
-	return func(r *request) {
+	return func(r *requestType) error {
 		r.MediaHost = b
+		return nil
 	}
 }
 
-// TODO: добавить приватный request func
-// посмотреть в python sdk
-func (a *GreenAPI) Request(httpMethod, APImethod string, requestBody map[string]interface{}, options ...requestOptions) (any, error) {
-	client := &fasthttp.Client{}
-
-	r := &request{}
+func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody map[string]interface{}, options ...requestOptions) (*APIResponse, error) {
+	r := &requestType{}
 	for _, o := range options {
 		o(r)
 	}
 
-	req := fasthttp.AcquireRequest()
-	defer fasthttp.ReleaseRequest(req)
-
-	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.APIURL, a.IDInstance, APImethod, a.APITokenInstance))
-
-	req.Header.SetMethod(httpMethod)
-
-	if r.MediaHost {
-		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaURL, a.IDInstance, APImethod, a.APITokenInstance))
-	}
-
-	if r.Partner {
-		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APImethod, a.PartnerToken))
-	}
-
-	if r.GetParams {
-		var addUrl string
-		if v, ok := requestBody["addUrl"]; ok {
-			addUrl = v.(string)
-		} else {
-			return nil, fmt.Errorf("error while retreiving GET params and adding to URL")
-		}
-		req.SetRequestURI(req.URI().String() + addUrl)
-	}
-
-	if r.FormData {
-		req, err := MultipartRequest(APImethod, req.URI().String(), requestBody)
-		if err != nil {
-			return nil, err
-		}
-		defer fasthttp.ReleaseRequest(req)
-
-		resp := fasthttp.AcquireResponse()
-		defer fasthttp.ReleaseResponse(resp)
-
-		if err := client.Do(req, resp); err != nil {
-			return nil, fmt.Errorf("request error: %s", err)
-		}
-		fmt.Println(req.URI())
-		return &APIResponse{
-			StatusCode: resp.StatusCode(),
-			Body:       resp.Body(),
-			Timestamp:  time.Now().Format("15:04:05.000"),
-		}, nil
-	}
-
-	if r.SetMimetype != "" {
-		req.Header.SetContentType(r.SetMimetype)
-	}
-
-	jsonData, err := json.Marshal(requestBody)
-	if err != nil {
-		return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
-	}
-	req.SetBody([]byte(jsonData))
-
-	resp := fasthttp.AcquireResponse()
-	defer fasthttp.ReleaseResponse(resp)
-
-	fmt.Println(req.URI())
-	if err := client.Do(req, resp); err != nil {
-		return nil, fmt.Errorf("request error: %s", err)
-	}
-
-	return &APIResponse{
-		StatusCode: resp.StatusCode(),
-		Body:       resp.Body(),
-		Timestamp:  time.Now().Format("15:04:05.000"),
-	}, nil
+	return a.request(HTTPMethod, APIMethod, r.GetParams, r.SetMimetype, r.FormData, r.Partner, r.MediaHost, requestBody)
 }
 
 func MultipartRequest(method, url string, requestBody map[string]interface{}) (*fasthttp.Request, error) {
@@ -200,6 +132,74 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	req.SetBody(buffer.Bytes())
 
 	return req, nil
+}
+
+func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody map[string]interface{}) (*APIResponse, error) {
+	client := &fasthttp.Client{}
+
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+
+	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.APIURL, a.IDInstance, APIMethod, a.APITokenInstance))
+
+	req.Header.SetMethod(HTTPMethod)
+
+	if MediaHost {
+		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaURL, a.IDInstance, APIMethod, a.APITokenInstance))
+	}
+
+	if Partner {
+		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APIMethod, a.PartnerToken))
+	}
+
+	if GetParams != "" {
+		req.SetRequestURI(req.URI().String() + GetParams)
+	}
+
+	if FormData {
+		req, err := MultipartRequest(APIMethod, req.URI().String(), requestBody)
+		if err != nil {
+			return nil, err
+		}
+		defer fasthttp.ReleaseRequest(req)
+
+		resp := fasthttp.AcquireResponse()
+		defer fasthttp.ReleaseResponse(resp)
+
+		if err := client.Do(req, resp); err != nil {
+			return nil, fmt.Errorf("request error: %s", err)
+		}
+		fmt.Println(req.URI())
+		return &APIResponse{
+			StatusCode: resp.StatusCode(),
+			Body:       resp.Body(),
+			Timestamp:  time.Now().Format("15:04:05.000"),
+		}, nil
+	}
+
+	if SetMimetype != "" {
+		req.Header.SetContentType(SetMimetype)
+	}
+
+	jsonData, err := json.Marshal(requestBody)
+	if err != nil {
+		return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
+	}
+	req.SetBody([]byte(jsonData))
+
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(resp)
+
+	fmt.Println(req.URI())
+	if err := client.Do(req, resp); err != nil {
+		return nil, fmt.Errorf("request error: %s", err)
+	}
+
+	return &APIResponse{
+		StatusCode: resp.StatusCode(),
+		Body:       resp.Body(),
+		Timestamp:  time.Now().Format("15:04:05.000"),
+	}, nil
 }
 
 // func (a GreenAPI) NetHttpRequest(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
