@@ -6,9 +6,13 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net/textproto"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/valyala/fasthttp"
 )
 
@@ -83,7 +87,7 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	if v, ok := requestBody["file"]; ok {
 		filePath = v.(string)
 	} else {
-		return nil, fmt.Errorf("failed to retreive FilePath from requestBody")
+		return nil, fmt.Errorf("failed to retrieve FilePath from requestBody")
 	}
 
 	for key, value := range requestBody {
@@ -100,8 +104,22 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 
-	part, err := writer.CreateFormFile("file", filePath)
+	//this is modified code of writer.CreateFormFile function
+	//the original function does not allow to set Content-Type of a particular field of Form-Data other than application/octet
+	h := make(textproto.MIMEHeader)
+
+	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
+		escapeQuotes("file"), escapeQuotes(filepath.Base(filePath))))
+
+	mtype, err := mimetype.DetectFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	h.Set("Content-Type", mtype.String())
+
+	part, err := writer.CreatePart(h)
 	if err != nil {
 		return nil, err
 	}
@@ -134,6 +152,7 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 	return req, nil
 }
 
+// TODO: добавить нормальную обработку ошибок
 func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody map[string]interface{}) (*APIResponse, error) {
 	client := &fasthttp.Client{}
 
@@ -169,11 +188,12 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 		if err := client.Do(req, resp); err != nil {
 			return nil, fmt.Errorf("request error: %s", err)
 		}
-		fmt.Println(req.URI())
+
 		return &APIResponse{
-			StatusCode: resp.StatusCode(),
-			Body:       resp.Body(),
-			Timestamp:  time.Now().Format("15:04:05.000"),
+			StatusCode:    resp.StatusCode(),
+			StatusMessage: resp.Header.StatusMessage(),
+			Body:          resp.Body(),
+			Timestamp:     time.Now(),
 		}, nil
 	}
 
@@ -181,59 +201,35 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 		req.Header.SetContentType(SetMimetype)
 	}
 
-	jsonData, err := json.Marshal(requestBody)
-	if err != nil {
-		return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
+	if requestBody != nil {
+		jsonData, err := json.Marshal(requestBody)
+		if err != nil {
+			return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
+		}
+		req.SetBody([]byte(jsonData))
 	}
-	req.SetBody([]byte(jsonData))
 
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
-	fmt.Println(req.URI())
+	// fmt.Println(req.URI())
 	if err := client.Do(req, resp); err != nil {
 		return nil, fmt.Errorf("request error: %s", err)
 	}
 
+	//fmt.Println(req.Body())
+
 	return &APIResponse{
-		StatusCode: resp.StatusCode(),
-		Body:       resp.Body(),
-		Timestamp:  time.Now().Format("15:04:05.000"),
+		StatusCode:    resp.StatusCode(),
+		StatusMessage: resp.Header.StatusMessage(),
+		Body:          resp.Body(),
+		Timestamp:     time.Now(),
 	}, nil
 }
 
-// func (a GreenAPI) NetHttpRequest(httpMethod, APImethod string, requestBody map[string]interface{}) (any, error) {
-// 	client := &http.Client{}
+// TODO: figure out what to do with this
+var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
-// 	var reqBody io.Reader
-// 	if requestBody != nil {
-// 		jsonData, err := json.Marshal(requestBody)
-// 		if err != nil {
-// 			return nil, fmt.Errorf("ошибка при сериализации данных в JSON: %s", err)
-// 		}
-// 		reqBody = bytes.NewBuffer(jsonData)
-// 	}
-
-// 	req, err := http.NewRequest(httpMethod, a.getRequestURL(APImethod), reqBody)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("ошибка при создании запроса: %s", err)
-// 	}
-// 	req.Header.Set("Content-Type", "application/json")
-
-// 	resp, err := client.Do(req)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("ошибка при запросе: %s", err)
-// 	}
-// 	defer resp.Body.Close()
-
-// 	body, err := ioutil.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return nil, fmt.Errorf("ошибка при чтении тела ответа: %s", err)
-// 	}
-
-// 	return &ApiResponse{
-// 		StatusCode: resp.StatusCode,
-// 		Body:       string(body),
-// 		Timestamp:  time.Now().Format("15:04:05.000"),
-// 	}, nil
-// }
+func escapeQuotes(s string) string {
+	return quoteEscaper.Replace(s)
+}

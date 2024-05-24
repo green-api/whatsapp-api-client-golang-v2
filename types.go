@@ -1,6 +1,9 @@
 package greenapi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 type GreenAPI struct {
 	APIURL           string
@@ -11,7 +14,8 @@ type GreenAPI struct {
 }
 
 type APIResponse struct {
-	StatusCode int             `json:"status_code"`
-	Body       json.RawMessage `json:"body"`
-	Timestamp  string          `json:"timestamp"`
+	StatusCode    int             `json:"status_code"`
+	StatusMessage []byte          `json:"status_message"`
+	Body          json.RawMessage `json:"body"`
+	Timestamp     time.Time       `json:"timestamp"`
 }

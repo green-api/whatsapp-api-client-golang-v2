@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
+	"github.com/fatih/color"
 	greenapi "github.com/green-api/whatsapp-api-client-golang"
 )
 
@@ -15,10 +15,15 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us", "Hello", greenapi.OptionLinkPreview(false))
+	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us",
+		"Hello",
+		greenapi.OptionLinkPreview(false))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Println(response)
+	color.Green("Status: %v %s \n\rResponse: %s\n\rTimestamp: %s", response.StatusCode,
+		response.StatusMessage,
+		response.Body,
+		response.Timestamp.Format("15:04:05.000"))
 }

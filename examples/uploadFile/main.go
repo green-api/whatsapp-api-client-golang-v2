@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
+	"github.com/fatih/color"
 	greenapi "github.com/green-api/whatsapp-api-client-golang"
 )
 
@@ -20,5 +20,8 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(response)
+	color.Green("Status: %v %s \n\rResponse: %s\n\rTimestamp: %s", response.StatusCode,
+		response.StatusMessage,
+		response.Body,
+		response.Timestamp.Format("15:04:05.000"))
 }

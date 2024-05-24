@@ -211,3 +211,89 @@ func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse
 	fmt.Println(payload)
 	return c.GreenAPI.Request("POST", "setSettings", payload)
 }
+
+// ------------------------------------------------------------------ GetStateInstance block
+
+func (c AccountCategory) GetStateInstance() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "getStateInstance", nil)
+}
+
+// ------------------------------------------------------------------ GetStatusInstance block
+
+func (c AccountCategory) GetStatusInstance() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "getStatusInstance", nil)
+}
+
+// ------------------------------------------------------------------ Reboot block
+
+func (c AccountCategory) Reboot() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "reboot", nil)
+}
+
+// ------------------------------------------------------------------ Logout block
+
+func (c AccountCategory) Logout() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "logout", nil)
+}
+
+// ------------------------------------------------------------------ QR block
+
+func (c AccountCategory) QR() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "qr", nil)
+}
+
+// ------------------------------------------------------------------ GetAuthorizationCode block
+
+type RequestGetAuthorizationCode struct {
+	PhoneNumber int `json:"phoneNumber"`
+}
+
+func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, error) {
+	r := &RequestGetAuthorizationCode{
+		PhoneNumber: phoneNumber,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "getAuthorizationCode", payload)
+}
+
+// ------------------------------------------------------------------ SetProfilePicture block
+
+type RequestSetProfilePicture struct {
+	File string `json:"file"`
+}
+
+func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error) {
+	r := &RequestSetProfilePicture{
+		File: filepath,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "setProfilePicture", payload, WithFormData(true))
+}
+
+// ------------------------------------------------------------------ GetWaSettings block
+
+func (c AccountCategory) GetWaSettings() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "getWaSettings", nil)
+}
