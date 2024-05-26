@@ -2,6 +2,7 @@ package greenapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -253,4 +254,64 @@ func (c SendingCategory) UploadFile(filepath string) (*APIResponse, error) {
 	}
 
 	return c.GreenAPI.Request("POST", "uploadFile", payload, WithSetMimetype(mimetype.Detect(binary).String()), WithMediaHost(true))
+}
+
+// ------------------------------------------------------------------ SendLocation block
+
+type RequestSendLocation struct {
+	ChatId          string  `json:"chatId"`
+	NameLocation    string  `json:"nameLocation,omitempty"`
+	Address         string  `json:"address,omitempty"`
+	Latitude        float32 `json:"latitude"`
+	Longitude       float32 `json:"longitude"`
+	QuotedMessageId string  `json:"quotedMessageId,omitempty"`
+}
+
+type SendLocationOption func(*RequestSendLocation) error
+
+func OptionNameLocation(nameLocation string) SendLocationOption {
+	return func(r *RequestSendLocation) error {
+		r.NameLocation = nameLocation
+		return nil
+	}
+}
+
+func OptionAddress(address string) SendLocationOption {
+	return func(r *RequestSendLocation) error {
+		r.Address = address
+		return nil
+	}
+}
+
+func OptionQuotedMessageIdLocation(quotedMessageId string) SendLocationOption {
+	return func(r *RequestSendLocation) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
+	r := &RequestSendLocation{
+		ChatId:    chatId,
+		Latitude:  latitude,
+		Longitude: longitude,
+	}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	fmt.Println(payload)
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendLocation", payload)
 }
