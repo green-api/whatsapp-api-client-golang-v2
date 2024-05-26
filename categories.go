@@ -36,11 +36,11 @@ func (c *GreenAPI) Journals() JournalsCategory {
 	return JournalsCategory{GreenAPI: c}
 }
 
-// // Queues category presents methods for working with a messages queue.
-// // https://green-api.com/en/docs/api/queues/
-// func (c GreenAPICategories) Queues() methods.QueuesCategory {
-// 	return methods.QueuesCategory{GreenAPI: c.GreenAPI}
-// }
+// Queues category presents methods for working with a messages queue.
+// https://green-api.com/en/docs/api/queues/
+func (c *GreenAPI) Queues() QueuesCategory {
+	return QueuesCategory{GreenAPI: c}
+}
 
 // // ReadMark category presents methods for working with chat read mark.
 // // https://green-api.com/en/docs/api/marks/

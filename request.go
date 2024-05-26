@@ -206,7 +206,7 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 		if err != nil {
 			return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
 		}
-		req.SetBody([]byte(jsonData))
+		req.SetBody(jsonData)
 	}
 
 	resp := fasthttp.AcquireResponse()
