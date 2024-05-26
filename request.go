@@ -69,7 +69,7 @@ func WithMediaHost(b bool) requestOptions {
 	}
 }
 
-func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody map[string]interface{}, options ...requestOptions) (*APIResponse, error) {
+func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody []byte, options ...requestOptions) (*APIResponse, error) {
 	r := &requestType{}
 	for _, o := range options {
 		o(r)
@@ -78,19 +78,23 @@ func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody map[string]
 	return a.request(HTTPMethod, APIMethod, r.GetParams, r.SetMimetype, r.FormData, r.Partner, r.MediaHost, requestBody)
 }
 
-func MultipartRequest(method, url string, requestBody map[string]interface{}) (*fasthttp.Request, error) {
+func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request, error) {
 	buffer := &bytes.Buffer{}
 	writer := multipart.NewWriter(buffer)
 
 	var filePath string
 
-	if v, ok := requestBody["file"]; ok {
+	var UnmarshaledBody map[string]interface{}
+
+	err := json.Unmarshal(requestBody, &UnmarshaledBody)
+
+	if v, ok := UnmarshaledBody["file"]; ok {
 		filePath = v.(string)
 	} else {
 		return nil, fmt.Errorf("failed to retrieve FilePath from requestBody")
 	}
 
-	for key, value := range requestBody {
+	for key, value := range UnmarshaledBody {
 		if key == "file" {
 			continue
 		}
@@ -153,7 +157,7 @@ func MultipartRequest(method, url string, requestBody map[string]interface{}) (*
 }
 
 // TODO: добавить нормальную обработку ошибок
-func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody map[string]interface{}) (*APIResponse, error) {
+func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{}
 
 	req := fasthttp.AcquireRequest()
@@ -202,22 +206,15 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 	}
 
 	if requestBody != nil {
-		jsonData, err := json.Marshal(requestBody)
-		if err != nil {
-			return nil, fmt.Errorf("error when serializing data to JSON: %s", err)
-		}
-		req.SetBody(jsonData)
+		req.SetBody(requestBody)
 	}
 
 	resp := fasthttp.AcquireResponse()
 	defer fasthttp.ReleaseResponse(resp)
 
-	// fmt.Println(req.URI())
 	if err := client.Do(req, resp); err != nil {
 		return nil, fmt.Errorf("request error: %s", err)
 	}
-
-	//fmt.Println(req.Body())
 
 	return &APIResponse{
 		StatusCode:    resp.StatusCode(),

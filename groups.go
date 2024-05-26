@@ -24,11 +24,5 @@ func (c GroupsCategory) CreateGroup(groupName string, chatIds []string) (*APIRes
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("GET", "createGroup", payload)
+	return c.GreenAPI.Request("GET", "createGroup", jsonData)
 }

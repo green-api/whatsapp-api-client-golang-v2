@@ -24,11 +24,5 @@ func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (*APIResponse, 
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "deleteMessage", payload)
+	return c.GreenAPI.Request("POST", "deleteMessage", jsonData)
 }

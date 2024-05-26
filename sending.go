@@ -53,13 +53,7 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...SendMess
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "sendMessage", payload)
+	return c.GreenAPI.Request("POST", "sendMessage", jsonData)
 }
 
 // ------------------------------------------------------------------ SendPoll block
@@ -112,13 +106,7 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "sendPoll", payload)
+	return c.GreenAPI.Request("POST", "sendPoll", jsonData)
 }
 
 // ------------------------------------------------------------------ SendFileByUpload block
@@ -164,13 +152,7 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "sendFileByUpload", payload, WithFormData(true), WithMediaHost(true))
+	return c.GreenAPI.Request("POST", "sendFileByUpload", jsonData, WithFormData(true), WithMediaHost(true))
 }
 
 // ------------------------------------------------------------------ SendFileByUrl block
@@ -215,13 +197,7 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "sendFileByUrl", payload)
+	return c.GreenAPI.Request("POST", "sendFileByUrl", jsonData)
 }
 
 // ------------------------------------------------------------------ UploadFile block
@@ -246,13 +222,7 @@ func (c SendingCategory) UploadFile(filepath string) (*APIResponse, error) {
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "uploadFile", payload, WithSetMimetype(mimetype.Detect(binary).String()), WithMediaHost(true))
+	return c.GreenAPI.Request("POST", "uploadFile", jsonData, WithSetMimetype(mimetype.Detect(binary).String()), WithMediaHost(true))
 }
 
 // ------------------------------------------------------------------ SendLocation block
@@ -305,13 +275,7 @@ func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "sendLocation", payload)
+	return c.GreenAPI.Request("POST", "sendLocation", jsonData)
 }
 
 // ------------------------------------------------------------------ ForwardMessages block
@@ -334,11 +298,5 @@ func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []s
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "forwardMessages", payload)
+	return c.GreenAPI.Request("POST", "forwardMessages", jsonData)
 }

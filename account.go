@@ -2,7 +2,6 @@ package greenapi
 
 import (
 	"encoding/json"
-	"fmt"
 )
 
 type AccountCategory struct {
@@ -202,14 +201,7 @@ func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	fmt.Println(payload)
-	return c.GreenAPI.Request("POST", "setSettings", payload)
+	return c.GreenAPI.Request("POST", "setSettings", jsonData)
 }
 
 // ------------------------------------------------------------------ GetStateInstance block
@@ -258,13 +250,7 @@ func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, er
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "getAuthorizationCode", payload)
+	return c.GreenAPI.Request("POST", "getAuthorizationCode", jsonData)
 }
 
 // ------------------------------------------------------------------ SetProfilePicture block
@@ -283,13 +269,7 @@ func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "setProfilePicture", payload, WithFormData(true))
+	return c.GreenAPI.Request("POST", "setProfilePicture", jsonData, WithFormData(true))
 }
 
 // ------------------------------------------------------------------ GetWaSettings block

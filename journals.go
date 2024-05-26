@@ -39,13 +39,7 @@ func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistor
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "getChatHistory", payload)
+	return c.GreenAPI.Request("POST", "getChatHistory", jsonData)
 }
 
 // ------------------------------------------------------------------ GetMessage block
@@ -66,13 +60,7 @@ func (c JournalsCategory) GetMessage(chatId, idMessage string) (*APIResponse, er
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "getMessage", payload)
+	return c.GreenAPI.Request("POST", "getMessage", jsonData)
 }
 
 // ------------------------------------------------------------------ LastIncomingMessages + LastOutgoingMessages block
@@ -107,13 +95,7 @@ func (c JournalsCategory) LastIncomingMessages(options ...LastMessagesOption) (*
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("GET", "lastIncomingMessages", payload, WithGetParams(addUrl))
+	return c.GreenAPI.Request("GET", "lastIncomingMessages", jsonData, WithGetParams(addUrl))
 }
 
 func (c JournalsCategory) LastOutgoingMessages(options ...LastMessagesOption) (*APIResponse, error) {
@@ -133,11 +115,5 @@ func (c JournalsCategory) LastOutgoingMessages(options ...LastMessagesOption) (*
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("GET", "lastOutgoingMessages", payload, WithGetParams(addUrl))
+	return c.GreenAPI.Request("GET", "lastOutgoingMessages", jsonData, WithGetParams(addUrl))
 }

@@ -42,13 +42,7 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("GET", "receiveNotification", payload, WithGetParams(r.AddUrl))
+	return c.GreenAPI.Request("GET", "receiveNotification", jsonData, WithGetParams(r.AddUrl))
 }
 
 // ------------------------------------------------------------------ DeleteNotification block
@@ -70,13 +64,7 @@ func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, erro
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("DELETE", "deleteNotification", payload, WithGetParams(r.AddUrl))
+	return c.GreenAPI.Request("DELETE", "deleteNotification", jsonData, WithGetParams(r.AddUrl))
 }
 
 // ------------------------------------------------------------------ DownloadFile block
@@ -97,11 +85,5 @@ func (c ReceivingCategory) DownloadFile(chatId, idMessage string) (*APIResponse,
 		return nil, err
 	}
 
-	var payload map[string]interface{}
-
-	if err := json.Unmarshal(jsonData, &payload); err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "downloadFile", payload)
+	return c.GreenAPI.Request("POST", "downloadFile", jsonData)
 }
