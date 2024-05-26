@@ -2,7 +2,6 @@ package greenapi
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
 	"github.com/gabriel-vasile/mimetype"
@@ -308,10 +307,38 @@ func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32
 
 	var payload map[string]interface{}
 
-	fmt.Println(payload)
 	if err := json.Unmarshal(jsonData, &payload); err != nil {
 		return nil, err
 	}
 
 	return c.GreenAPI.Request("POST", "sendLocation", payload)
+}
+
+// ------------------------------------------------------------------ ForwardMessages block
+
+type RequestForwardMessages struct {
+	ChatId     string   `json:"chatId"`
+	ChatIdFrom string   `json:"chatIdFrom"`
+	Messages   []string `json:"messages"`
+}
+
+func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string) (*APIResponse, error) {
+	r := &RequestForwardMessages{
+		ChatId:     chatId,
+		ChatIdFrom: chatIdFrom,
+		Messages:   messages,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "forwardMessages", payload)
 }
