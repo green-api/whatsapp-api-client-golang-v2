@@ -78,3 +78,30 @@ func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, erro
 
 	return c.GreenAPI.Request("DELETE", "deleteNotification", payload, WithGetParams(r.AddUrl))
 }
+
+// ------------------------------------------------------------------ DownloadFile block
+
+type RequestDownloadFile struct {
+	ChatId    string `json:"chatId"`
+	IdMessage string `json:"idMessage"`
+}
+
+func (c ReceivingCategory) DownloadFile(chatId, idMessage string) (*APIResponse, error) {
+	r := &RequestDownloadFile{
+		ChatId:    chatId,
+		IdMessage: idMessage,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	var payload map[string]interface{}
+
+	if err := json.Unmarshal(jsonData, &payload); err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "downloadFile", payload)
+}

@@ -30,11 +30,11 @@ func (c *GreenAPI) Receiving() ReceivingCategory {
 // 	return methods.GroupsCategory{GreenAPI: c.GreenAPI}
 // }
 
-// // Journals present methods for working with incoming and outgoing messages.
-// // https://green-api.com/en/docs/api/journals/
-// func (c GreenAPICategories) Journals() methods.JournalsCategory {
-// 	return methods.JournalsCategory{GreenAPI: c.GreenAPI}
-// }
+// Journals present methods for working with incoming and outgoing messages.
+// https://green-api.com/en/docs/api/journals/
+func (c *GreenAPI) Journals() JournalsCategory {
+	return JournalsCategory{GreenAPI: c}
+}
 
 // // Queues category presents methods for working with a messages queue.
 // // https://green-api.com/en/docs/api/queues/
