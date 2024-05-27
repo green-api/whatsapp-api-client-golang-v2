@@ -26,9 +26,9 @@ func (c *GreenAPI) Receiving() ReceivingCategory {
 
 // Groups category presents methods for working with group chats.
 // https://green-api.com/en/docs/api/groups/
-// func (c GreenAPICategories) Groups() methods.GroupsCategory {
-// 	return methods.GroupsCategory{GreenAPI: c.GreenAPI}
-// }
+func (c *GreenAPI) Groups() GroupsCategory {
+	return GroupsCategory{GreenAPI: c}
+}
 
 // Journals present methods for working with incoming and outgoing messages.
 // https://green-api.com/en/docs/api/journals/

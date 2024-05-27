@@ -87,6 +87,9 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 	var UnmarshaledBody map[string]interface{}
 
 	err := json.Unmarshal(requestBody, &UnmarshaledBody)
+	if err != nil {
+		return nil, err
+	}
 
 	if v, ok := UnmarshaledBody["file"]; ok {
 		filePath = v.(string)
@@ -203,6 +206,8 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 
 	if SetMimetype != "" {
 		req.Header.SetContentType(SetMimetype)
+	} else {
+		req.Header.Set("Content-Type", "application/json")
 	}
 
 	if requestBody != nil {
@@ -224,7 +229,6 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 	}, nil
 }
 
-// TODO: figure out what to do with this
 var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
 
 func escapeQuotes(s string) string {
