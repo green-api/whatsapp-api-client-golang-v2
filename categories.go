@@ -30,6 +30,12 @@ func (c *GreenAPI) Groups() GroupsCategory {
 	return GroupsCategory{GreenAPI: c}
 }
 
+// Status category presents methods for working with statuses.
+// https://green-api.com/en/docs/api/statuses/
+func (c *GreenAPI) Statuses() StatusesCategory {
+	return StatusesCategory{GreenAPI: c}
+}
+
 // Journals present methods for working with incoming and outgoing messages.
 // https://green-api.com/en/docs/api/journals/
 func (c *GreenAPI) Journals() JournalsCategory {
@@ -46,12 +52,6 @@ func (c *GreenAPI) Queues() QueuesCategory {
 // // https://green-api.com/en/docs/api/marks/
 // func (c GreenAPICategories) ReadMark() methods.ReadMarkCategory {
 // 	return methods.ReadMarkCategory{GreenAPI: c.GreenAPI}
-// }
-
-// // Sending category presents methods for sending different messages.
-// // https://green-api.com/en/docs/api/sending/
-// func (c GreenAPICategories) Sending() methods.SendingCategory {
-// 	return methods.SendingCategory{GreenAPI: c.GreenAPI}
 // }
 
 // Service category presents different service methods.
