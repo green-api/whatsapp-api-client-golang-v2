@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/fatih/color"
-	greenapi "github.com/green-api/whatsapp-api-client-golang"
+	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
 )
 
 func main() {
