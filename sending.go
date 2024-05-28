@@ -22,14 +22,14 @@ type RequestSendMessage struct {
 
 type SendMessageOption func(*RequestSendMessage) error
 
-func OptionQuotedMessageId(quotedMessageId string) SendMessageOption {
+func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil
 	}
 }
 
-func OptionLinkPreview(linkPreview bool) SendMessageOption {
+func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.LinkPreview = linkPreview
 		return nil
@@ -72,14 +72,14 @@ type RequestSendPoll struct {
 
 type SendPollOption func(*RequestSendPoll) error
 
-func OptionMultipleAnswers(multipleAnswers bool) SendPollOption {
+func OptionalMultipleAnswers(multipleAnswers bool) SendPollOption {
 	return func(r *RequestSendPoll) error {
 		r.MultipleAnswers = multipleAnswers
 		return nil
 	}
 }
 
-func OptionPollQuotedMessageId(quotedMessageId string) SendPollOption {
+func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 	return func(r *RequestSendPoll) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil
@@ -121,14 +121,14 @@ type RequestSendFileByUpload struct {
 
 type SendFileByUploadOption func(*RequestSendFileByUpload) error
 
-func OptionCaptionSendUpload(caption string) SendFileByUploadOption {
+func OptionalCaptionSendUpload(caption string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
 		r.Caption = caption
 		return nil
 	}
 }
 
-func OptionQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadOption {
+func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil
@@ -167,14 +167,14 @@ type RequestSendFileByUrl struct {
 
 type SendFileByUrlOption func(*RequestSendFileByUrl) error
 
-func OptionCaptionSendUrl(caption string) SendFileByUrlOption {
+func OptionalCaptionSendUrl(caption string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
 		r.Caption = caption
 		return nil
 	}
 }
 
-func OptionQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption {
+func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil
@@ -238,21 +238,21 @@ type RequestSendLocation struct {
 
 type SendLocationOption func(*RequestSendLocation) error
 
-func OptionNameLocation(nameLocation string) SendLocationOption {
+func OptionalNameLocation(nameLocation string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.NameLocation = nameLocation
 		return nil
 	}
 }
 
-func OptionAddress(address string) SendLocationOption {
+func OptionalAddress(address string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.Address = address
 		return nil
 	}
 }
 
-func OptionQuotedMessageIdLocation(quotedMessageId string) SendLocationOption {
+func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil

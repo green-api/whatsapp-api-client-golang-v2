@@ -18,7 +18,7 @@ type RequestGetChatHistory struct {
 
 type GetChatHistoryOption func(*RequestGetChatHistory) error
 
-func OptionCount(count int) GetChatHistoryOption {
+func OptionalCount(count int) GetChatHistoryOption {
 	return func(r *RequestGetChatHistory) error {
 		r.Count = count
 		return nil
@@ -71,7 +71,7 @@ type RequestLastMessages struct {
 
 type LastMessagesOption func(*RequestLastMessages) error
 
-func OptionMinutes(minutes int) LastMessagesOption {
+func OptionalMinutes(minutes int) LastMessagesOption {
 	return func(r *RequestLastMessages) error {
 		r.Minutes = minutes
 		return nil

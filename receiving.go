@@ -12,13 +12,12 @@ type ReceivingCategory struct {
 // ------------------------------------------------------------------ ReceiveNotification block
 
 type RequestReceiveNotification struct {
-	ReceiveTimeout int    `json:"receiveTimeout"`
-	AddUrl         string `json:"addUrl"`
+	ReceiveTimeout int `json:"receiveTimeout,omitempty"`
 }
 
 type ReceiveNotificationOption func(*RequestReceiveNotification) error
 
-func OptionReceiveTimeout(seconds int) ReceiveNotificationOption {
+func OptionalReceiveTimeout(seconds int) ReceiveNotificationOption {
 	return func(r *RequestReceiveNotification) error {
 		r.ReceiveTimeout = seconds
 		return nil
@@ -33,8 +32,9 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 		o(r)
 	}
 
+	var addUrl string
 	if r.ReceiveTimeout != 0 {
-		r.AddUrl = fmt.Sprintf("?receiveTimeout=%v", r.ReceiveTimeout)
+		addUrl = fmt.Sprintf("?receiveTimeout=%v", r.ReceiveTimeout)
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -42,29 +42,19 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("GET", "receiveNotification", jsonData, WithGetParams(r.AddUrl))
+	return c.GreenAPI.Request("GET", "receiveNotification", jsonData, WithGetParams(addUrl))
 }
 
 // ------------------------------------------------------------------ DeleteNotification block
 
 type RequestDeleteNotification struct {
-	ReceiptId int    `json:"receiptId"`
-	AddUrl    string `json:"addUrl"`
+	ReceiptId int `json:"receiptId"`
 }
 
 func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, error) {
-	r := &RequestDeleteNotification{
-		ReceiptId: receiptId,
-	}
+	addUrl := fmt.Sprintf("/%v", receiptId)
 
-	r.AddUrl = fmt.Sprintf("/%v", receiptId)
-
-	jsonData, err := json.Marshal(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("DELETE", "deleteNotification", jsonData, WithGetParams(r.AddUrl))
+	return c.GreenAPI.Request("DELETE", "deleteNotification", nil, WithGetParams(addUrl))
 }
 
 // ------------------------------------------------------------------ DownloadFile block

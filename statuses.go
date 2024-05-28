@@ -1,6 +1,9 @@
 package greenapi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type StatusesCategory struct {
 	GreenAPI GreenAPIInterface
@@ -17,21 +20,21 @@ type RequestSendTextStatus struct {
 
 type SendTextStatusOption func(*RequestSendTextStatus) error
 
-func OptionBackgroundColorText(backgroundColor string) SendTextStatusOption {
+func OptionalBackgroundColorText(backgroundColor string) SendTextStatusOption {
 	return func(r *RequestSendTextStatus) error {
 		r.BackgroundColor = backgroundColor
 		return nil
 	}
 }
 
-func OptionFont(font string) SendTextStatusOption {
+func OptionalFont(font string) SendTextStatusOption {
 	return func(r *RequestSendTextStatus) error {
 		r.Font = font
 		return nil
 	}
 }
 
-func OptionParticipantsTextStatus(participants []string) SendTextStatusOption {
+func OptionalParticipantsTextStatus(participants []string) SendTextStatusOption {
 	return func(r *RequestSendTextStatus) error {
 		r.Participants = participants
 		return nil
@@ -66,14 +69,14 @@ type RequestSendVoiceStatus struct {
 
 type SendVoiceStatusOption func(*RequestSendVoiceStatus) error
 
-func OptionBackgroundColorVoice(backgroundColor string) SendVoiceStatusOption {
+func OptionalBackgroundColorVoice(backgroundColor string) SendVoiceStatusOption {
 	return func(r *RequestSendVoiceStatus) error {
 		r.BackgroundColor = backgroundColor
 		return nil
 	}
 }
 
-func OptionParticipantsVoiceStatus(participants []string) SendVoiceStatusOption {
+func OptionalParticipantsVoiceStatus(participants []string) SendVoiceStatusOption {
 	return func(r *RequestSendVoiceStatus) error {
 		r.Participants = participants
 		return nil
@@ -109,14 +112,14 @@ type RequestSendMediaStatus struct {
 
 type SendMediaStatusOption func(*RequestSendMediaStatus) error
 
-func OptionCaptionMediaStatus(caption string) SendMediaStatusOption {
+func OptionalCaptionMediaStatus(caption string) SendMediaStatusOption {
 	return func(r *RequestSendMediaStatus) error {
 		r.Caption = caption
 		return nil
 	}
 }
 
-func OptionParticipantsMediaStatus(participants []string) SendMediaStatusOption {
+func OptionalParticipantsMediaStatus(participants []string) SendMediaStatusOption {
 	return func(r *RequestSendMediaStatus) error {
 		r.Participants = participants
 		return nil
@@ -158,4 +161,58 @@ func (c StatusesCategory) DeleteStatus(idMessage string) (*APIResponse, error) {
 	}
 
 	return c.GreenAPI.Request("POST", "deleteStatus", jsonData)
+}
+
+// ------------------------------------------------------------------ GetStatusStatistic block
+
+func (c StatusesCategory) GetStatusStatistic(idMessage string) (*APIResponse, error) {
+	addUrl := fmt.Sprintf("?idMessage=%s", idMessage)
+
+	return c.GreenAPI.Request("GET", "getStatusStatistic", nil, WithGetParams(addUrl))
+}
+
+// ------------------------------------------------------------------ GetOutgoingStatuses + GetIncomingStatuses block
+
+type RequestGetLastStatuses struct {
+	Minutes int `json:"minutes,omitempty"`
+}
+
+type GetLastStatusesOption func(*RequestGetLastStatuses) error
+
+// Description
+func OptionalMinutesOfStatuses(minutes int) GetLastStatusesOption {
+	return func(r *RequestGetLastStatuses) error {
+		r.Minutes = minutes
+		return nil
+	}
+}
+
+func (c StatusesCategory) GetOutgoingStatuses(options ...GetLastStatusesOption) (*APIResponse, error) {
+	r := &RequestGetLastStatuses{}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	var addUrl string
+	if r.Minutes != 0 {
+		addUrl = fmt.Sprintf("?minutes=%v", r.Minutes)
+	}
+
+	return c.GreenAPI.Request("GET", "getOutgoingStatuses", nil, WithGetParams(addUrl))
+}
+
+func (c StatusesCategory) GetIncomingStatuses(options ...GetLastStatusesOption) (*APIResponse, error) {
+	r := &RequestGetLastStatuses{}
+
+	for _, o := range options {
+		o(r)
+	}
+
+	var addUrl string
+	if r.Minutes != 0 {
+		addUrl = fmt.Sprintf("?minutes=%v", r.Minutes)
+	}
+
+	return c.GreenAPI.Request("GET", "getIncomingStatuses", nil, WithGetParams(addUrl))
 }

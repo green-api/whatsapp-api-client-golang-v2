@@ -36,28 +36,28 @@ type RequestSetSettings struct {
 
 type SetSettingsOption func(*RequestSetSettings) error
 
-func OptionWebhookUrl(webhookUrl string) SetSettingsOption {
+func OptionalWebhookUrl(webhookUrl string) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.WebhookUrl = &webhookUrl
 		return nil
 	}
 }
 
-func OptionWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
+func OptionalWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.WebhookUrlToken = &webhookUrlToken
 		return nil
 	}
 }
 
-func OptionDelaySendMesssages(delaySendMessagesMilliseconds int) SetSettingsOption {
+func OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
 		return nil
 	}
 }
 
-func OptionMarkIncomingMessagesRead(markIncomingMessagesReaded bool) SetSettingsOption {
+func OptionalMarkIncomingMessagesRead(markIncomingMessagesReaded bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if markIncomingMessagesReaded {
 			r.MarkIncomingMessagesReaded = "yes"
@@ -68,7 +68,7 @@ func OptionMarkIncomingMessagesRead(markIncomingMessagesReaded bool) SetSettings
 	}
 }
 
-func OptionMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) SetSettingsOption {
+func OptionalMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if markIncomingMessagesReadedOnReply {
 			r.MarkIncomingMessagesReadedOnReply = "yes"
@@ -79,7 +79,7 @@ func OptionMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply boo
 	}
 }
 
-func OptionOutgoingWebhook(outgoingWebhook bool) SetSettingsOption {
+func OptionalOutgoingWebhook(outgoingWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if outgoingWebhook {
 			r.OutgoingWebhook = "yes"
@@ -90,7 +90,7 @@ func OptionOutgoingWebhook(outgoingWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionOutgoingMessageWebhook(outgoingMessageWebhook bool) SetSettingsOption {
+func OptionalOutgoingMessageWebhook(outgoingMessageWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if outgoingMessageWebhook {
 			r.OutgoingMessageWebhook = "yes"
@@ -101,7 +101,7 @@ func OptionOutgoingMessageWebhook(outgoingMessageWebhook bool) SetSettingsOption
 	}
 }
 
-func OptionOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) SetSettingsOption {
+func OptionalOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if outgoingAPIMessageWebhook {
 			r.OutgoingAPIMessageWebhook = "yes"
@@ -112,7 +112,7 @@ func OptionOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) SetSettings
 	}
 }
 
-func OptionStateWebhook(stateWebhook bool) SetSettingsOption {
+func OptionalStateWebhook(stateWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if stateWebhook {
 			r.StateWebhook = "yes"
@@ -123,7 +123,7 @@ func OptionStateWebhook(stateWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionIncomingWebhook(incomingWebhook bool) SetSettingsOption {
+func OptionalIncomingWebhook(incomingWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if incomingWebhook {
 			r.IncomingWebhook = "yes"
@@ -134,7 +134,7 @@ func OptionIncomingWebhook(incomingWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionDeviceWebhook(deviceWebhook bool) SetSettingsOption {
+func OptionalDeviceWebhook(deviceWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if deviceWebhook {
 			r.DeviceWebhook = "yes"
@@ -145,7 +145,7 @@ func OptionDeviceWebhook(deviceWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionKeepOnlineStatus(keepOnlineStatus bool) SetSettingsOption {
+func OptionalKeepOnlineStatus(keepOnlineStatus bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if keepOnlineStatus {
 			r.KeepOnlineStatus = "yes"
@@ -156,7 +156,7 @@ func OptionKeepOnlineStatus(keepOnlineStatus bool) SetSettingsOption {
 	}
 }
 
-func OptionPollMessageWebhook(pollMessageWebhook bool) SetSettingsOption {
+func OptionalPollMessageWebhook(pollMessageWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if pollMessageWebhook {
 			r.PollMessageWebhook = "yes"
@@ -167,7 +167,7 @@ func OptionPollMessageWebhook(pollMessageWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionIncomingBlockWebhook(incomingBlockWebhook bool) SetSettingsOption {
+func OptionalIncomingBlockWebhook(incomingBlockWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if incomingBlockWebhook {
 			r.IncomingBlockWebhook = "yes"
@@ -178,7 +178,7 @@ func OptionIncomingBlockWebhook(incomingBlockWebhook bool) SetSettingsOption {
 	}
 }
 
-func OptionIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
+func OptionalIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if incomingCallWebhook {
 			r.IncomingCallWebhook = "yes"
