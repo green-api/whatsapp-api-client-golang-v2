@@ -159,9 +159,9 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 	return req, nil
 }
 
-// TODO: добавить нормальную обработку ошибок
 func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{}
+	client.Name = "green-api-client-go"
 
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
@@ -169,6 +169,7 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 	req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.APIURL, a.IDInstance, APIMethod, a.APITokenInstance))
 
 	req.Header.SetMethod(HTTPMethod)
+	req.Header.Set("Content-Type", "application/json")
 
 	if MediaHost {
 		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaURL, a.IDInstance, APIMethod, a.APITokenInstance))
@@ -206,8 +207,6 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 
 	if SetMimetype != "" {
 		req.Header.SetContentType(SetMimetype)
-	} else {
-		req.Header.Set("Content-Type", "application/json")
 	}
 
 	if requestBody != nil {

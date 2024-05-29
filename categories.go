@@ -18,12 +18,6 @@ func (c *GreenAPI) Receiving() ReceivingCategory {
 	return ReceivingCategory{GreenAPI: c}
 }
 
-// Device category presents methods for working with the device (phone).
-// https://green-api.com/en/docs/api/phone/
-// func (c GreenAPICategories) Device() DeviceCategory {
-// 	return DeviceCategory{GreenAPI: c.GreenAPI}
-// }
-
 // Groups category presents methods for working with group chats.
 // https://green-api.com/en/docs/api/groups/
 func (c *GreenAPI) Groups() GroupsCategory {
@@ -48,11 +42,11 @@ func (c *GreenAPI) Queues() QueuesCategory {
 	return QueuesCategory{GreenAPI: c}
 }
 
-// // ReadMark category presents methods for working with chat read mark.
-// // https://green-api.com/en/docs/api/marks/
-// func (c GreenAPICategories) ReadMark() methods.ReadMarkCategory {
-// 	return methods.ReadMarkCategory{GreenAPI: c.GreenAPI}
-// }
+// ReadMark category presents methods for working with chat read mark.
+// https://green-api.com/en/docs/api/marks/
+func (c *GreenAPI) ReadMark() ReadMarkCategory {
+	return ReadMarkCategory{GreenAPI: c}
+}
 
 // Service category presents different service methods.
 // https://green-api.com/en/docs/api/service/
