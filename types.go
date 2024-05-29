@@ -10,7 +10,21 @@ type GreenAPI struct {
 	MediaURL         string
 	IDInstance       string
 	APITokenInstance string
-	PartnerToken     string
+}
+
+type GreenAPIInterface interface {
+	Request(httpMethod, APImethod string, requestBody []byte, options ...requestOptions) (*APIResponse, error)
+}
+
+// TODO: нужен APIURL или хардкодить?
+type GreenAPIPartner struct {
+	APIURL       string
+	PartnerToken string
+	Email        string
+}
+
+type GreenAPIPartnerInterface interface {
+	PartnerRequest(HTTPMethod, APIMethod string, requestBody []byte) (*APIResponse, error)
 }
 
 type APIResponse struct {

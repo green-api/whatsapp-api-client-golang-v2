@@ -55,13 +55,6 @@ func WithSetMimetype(mtype string) requestOptions {
 	}
 }
 
-func WithPartner(b bool) requestOptions {
-	return func(r *requestType) error {
-		r.Partner = b
-		return nil
-	}
-}
-
 func WithMediaHost(b bool) requestOptions {
 	return func(r *requestType) error {
 		r.MediaHost = b
@@ -75,7 +68,38 @@ func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody []byte, opt
 		o(r)
 	}
 
-	return a.request(HTTPMethod, APIMethod, r.GetParams, r.SetMimetype, r.FormData, r.Partner, r.MediaHost, requestBody)
+	return a.request(HTTPMethod, APIMethod, r.GetParams, r.SetMimetype, r.FormData, r.MediaHost, requestBody)
+}
+
+func (a *GreenAPIPartner) PartnerRequest(HTTPMethod, APIMethod string, requestBody []byte) (*APIResponse, error) {
+	client := &fasthttp.Client{}
+	client.Name = "green-api-client-go " + a.Email
+
+	req := fasthttp.AcquireRequest()
+	defer fasthttp.ReleaseRequest(req)
+
+	req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APIMethod, a.PartnerToken))
+
+	req.Header.SetMethod(HTTPMethod)
+	req.Header.Set("Content-Type", "application/json")
+
+	if requestBody != nil {
+		req.SetBody(requestBody)
+	}
+
+	resp := fasthttp.AcquireResponse()
+	defer fasthttp.ReleaseResponse(resp)
+
+	if err := client.Do(req, resp); err != nil {
+		return nil, fmt.Errorf("request error: %s", err)
+	}
+
+	return &APIResponse{
+		StatusCode:    resp.StatusCode(),
+		StatusMessage: resp.Header.StatusMessage(),
+		Body:          resp.Body(),
+		Timestamp:     time.Now(),
+	}, nil
 }
 
 func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request, error) {
@@ -117,8 +141,10 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 	//the original function does not allow to set Content-Type of a particular field of Form-Data other than application/octet
 	h := make(textproto.MIMEHeader)
 
+	var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
+
 	h.Set("Content-Disposition", fmt.Sprintf(`form-data; name="%s"; filename="%s"`,
-		escapeQuotes("file"), escapeQuotes(filepath.Base(filePath))))
+		quoteEscaper.Replace("file"), quoteEscaper.Replace(filepath.Base(filePath))))
 
 	mtype, err := mimetype.DetectFile(filePath)
 	if err != nil {
@@ -159,7 +185,7 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 	return req, nil
 }
 
-func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, Partner, MediaHost bool, requestBody []byte) (*APIResponse, error) {
+func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, MediaHost bool, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{}
 	client.Name = "green-api-client-go"
 
@@ -173,10 +199,6 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 
 	if MediaHost {
 		req.SetRequestURI(fmt.Sprintf("%s/waInstance%s/%s/%s", a.MediaURL, a.IDInstance, APIMethod, a.APITokenInstance))
-	}
-
-	if Partner {
-		req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APIMethod, a.PartnerToken))
 	}
 
 	if GetParams != "" {
@@ -226,10 +248,4 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 		Body:          resp.Body(),
 		Timestamp:     time.Now(),
 	}, nil
-}
-
-var quoteEscaper = strings.NewReplacer("\\", "\\\\", `"`, "\\\"")
-
-func escapeQuotes(s string) string {
-	return quoteEscaper.Replace(s)
 }

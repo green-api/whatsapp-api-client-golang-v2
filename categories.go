@@ -54,18 +54,18 @@ func (c *GreenAPI) Service() ServiceCategory {
 	return ServiceCategory{GreenAPI: c}
 }
 
-// // Partner category presents exclusive methods for partners.
-// // The partnership scheme involves deeper integration with the service
-// // and working with a larger number of instances on your side:
-// //
-// // * Instance management via API
-// // * Postpaid billing system (starting from the second month of operation)
-// // * Daily billing (for created and not deleted instances)
-// // * Dedicated support line
-// // For questions regarding connection to the partnership scheme
-// // and additional conditions, please contact us via email
-// // at support@green-api.com or via chat on the website.
-// // https://green-api.com/en/docs/partners/
-// func (c GreenAPICategories) Partner() methods.PartnerCategory {
-// 	return methods.PartnerCategory{GreenAPI: c.GreenAPI}
-// }
+// Partner category presents exclusive methods for partners.
+// The partnership scheme involves deeper integration with the service
+// and working with a larger number of instances on your side:
+//
+// * Instance management via API
+// * Postpaid billing system (starting from the second month of operation)
+// * Daily billing (for created and not deleted instances)
+// * Dedicated support line
+// For questions regarding connection to the partnership scheme
+// and additional conditions, please contact us via email
+// at support@green-api.com or via chat on the website.
+// https://green-api.com/en/docs/partners/
+func (c *GreenAPIPartner) Partner() PartnerCategory {
+	return PartnerCategory{GreenAPIPartner: c}
+}
