@@ -17,7 +17,8 @@ func main() {
 
 	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us",
 		"Hello",
-		greenapi.OptionalLinkPreview(false))
+		greenapi.OptionalLinkPreview(false),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -17,7 +17,7 @@ type RequestSendMessage struct {
 	ChatId          string `json:"chatId"`
 	Message         string `json:"message"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
-	LinkPreview     bool   `json:"linkPreview,omitempty"`
+	LinkPreview     *bool   `json:"linkPreview,omitempty"`
 }
 
 type SendMessageOption func(*RequestSendMessage) error
@@ -31,7 +31,7 @@ func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 
 func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	return func(r *RequestSendMessage) error {
-		r.LinkPreview = linkPreview
+		r.LinkPreview = &linkPreview
 		return nil
 	}
 }
