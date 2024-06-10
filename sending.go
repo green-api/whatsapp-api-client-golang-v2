@@ -72,7 +72,7 @@ type RequestSendPoll struct {
 	ChatId          string       `json:"chatId"`
 	Message         string       `json:"message"`
 	PollOptions     []PollOption `json:"options"`
-	MultipleAnswers bool         `json:"multipleAnswers,omitempty"`
+	MultipleAnswers *bool         `json:"multipleAnswers,omitempty"`
 	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
 }
 
@@ -80,7 +80,7 @@ type SendPollOption func(*RequestSendPoll) error
 
 func OptionalMultipleAnswers(multipleAnswers bool) SendPollOption {
 	return func(r *RequestSendPoll) error {
-		r.MultipleAnswers = multipleAnswers
+		r.MultipleAnswers = &multipleAnswers
 		return nil
 	}
 }

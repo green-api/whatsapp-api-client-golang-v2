@@ -15,11 +15,11 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Account().SetSettings(
-		greenapi.OptionalDeviceWebhook(false),
-		greenapi.OptionalDelaySendMesssages(999),
-		greenapi.OptionalOutgoingWebhook(true),
-		greenapi.OptionalIncomingWebhook(true),
+	response, err := GreenAPI.Sending().SendPoll(
+		"11001234567@c.us", 
+		"Choose a color:", 
+		[]string{"Red", "Green", "Blue"}, 
+		greenapi.OptionalMultipleAnswers(false),
 	)
 	if err != nil {
 		log.Fatal(err)
