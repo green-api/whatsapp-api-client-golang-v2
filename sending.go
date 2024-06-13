@@ -40,9 +40,8 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalQuotedMessageId() <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
-//
-// * OptionalLinkPreview() <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//  OptionalQuotedMessageId() <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
+//  OptionalLinkPreview() <- The parameter includes displaying a preview and a description of the link. Enabled by default.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 
 	r := &RequestSendMessage{
@@ -96,9 +95,8 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalMultipleAnswers() <- Allow multiple answers. Disabled by default.
-//
-// * OptionalPollQuotedMessageId() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalMultipleAnswers() <- Allow multiple answers. Disabled by default.
+//  OptionalPollQuotedMessageId() <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
 
 	r := &RequestSendPoll{
@@ -152,9 +150,8 @@ func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadO
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalCaptionSendUpload() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//
-// * OptionalQuotedMessageIdSendUpload() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalCaptionSendUpload() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//  OptionalQuotedMessageIdSendUpload() <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
 
 	r := &RequestSendFileByUpload{
@@ -205,9 +202,8 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalCaptionSendUrl() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//
-// * OptionalQuotedMessageIdSendUrl() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalCaptionSendUrl() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//  OptionalQuotedMessageIdSendUrl() <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
 	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
@@ -291,11 +287,9 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalNameLocation() <- Location name.
-//
-// * OptionalAddress() <- Location address.
-//
-// * OptionalQuotedMessageIdLocation() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalNameLocation() <- Location name.
+//  OptionalAddress() <- Location address.
+//  OptionalQuotedMessageIdLocation() <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
 	r := &RequestSendLocation{
 		ChatId:    chatId,
@@ -344,7 +338,7 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 //
 // Add optional arguments by passing these functions:
 //
-// * OptionalQuotedMessageIdContact() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalQuotedMessageIdContact() <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendContact(chatId string, contact Contact, options ...SendContactOption) (*APIResponse, error) {
 	r := &RequestSendContact{
 		ChatId:  chatId,
