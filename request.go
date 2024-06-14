@@ -27,7 +27,7 @@ import (
 type requestType struct {
 	GetParams   string
 	FormData    bool
-	SetMimetype string
+	SetMimetype mtype
 	Partner     bool
 	MediaHost   bool
 }
@@ -48,7 +48,12 @@ func WithFormData(b bool) requestOptions {
 	}
 }
 
-func WithSetMimetype(mtype string) requestOptions {
+type mtype struct {
+	Mimetype string
+	FileName string
+}
+
+func WithSetMimetype(mtype mtype) requestOptions {
 	return func(r *requestType) error {
 		r.SetMimetype = mtype
 		return nil
@@ -73,7 +78,7 @@ func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody []byte, opt
 
 func (a *GreenAPIPartner) PartnerRequest(HTTPMethod, APIMethod string, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{}
-	client.Name = "green-api-client-go " + a.Email
+	client.Name = "green-api-go-client " + a.Email
 
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
@@ -185,9 +190,9 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 	return req, nil
 }
 
-func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string, FormData, MediaHost bool, requestBody []byte) (*APIResponse, error) {
+func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams string, SetMimetype mtype, FormData, MediaHost bool, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{}
-	client.Name = "green-api-client-go"
+	client.Name = "green-api-go-client"
 
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
@@ -227,8 +232,9 @@ func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams, SetMimetype string,
 		}, nil
 	}
 
-	if SetMimetype != "" {
-		req.Header.SetContentType(SetMimetype)
+	if SetMimetype.Mimetype != "" {
+		req.Header.SetContentType(SetMimetype.Mimetype)
+		req.Header.Set("GA-Filename", SetMimetype.FileName)
 	}
 
 	if requestBody != nil {

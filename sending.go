@@ -3,6 +3,7 @@ package greenapi
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 
 	"github.com/gabriel-vasile/mimetype"
 )
@@ -22,6 +23,7 @@ type RequestSendMessage struct {
 
 type SendMessageOption func(*RequestSendMessage) error
 
+// Quoted message ID. If present, the message will be sent quoting the specified chat message.
 func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.QuotedMessageId = quotedMessageId
@@ -29,6 +31,7 @@ func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 	}
 }
 
+// The parameter includes displaying a preview and a description of the link. Enabled by default.
 func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.LinkPreview = &linkPreview
@@ -36,12 +39,14 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	}
 }
 
+// Sending a text message.
+//
 // https://green-api.com/en/docs/api/sending/SendMessage/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalQuotedMessageId() <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
-//  OptionalLinkPreview() <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//  OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
+//  OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 
 	r := &RequestSendMessage{
@@ -77,6 +82,7 @@ type RequestSendPoll struct {
 
 type SendPollOption func(*RequestSendPoll) error
 
+// Allow multiple answers. Disabled by default.
 func OptionalMultipleAnswers(multipleAnswers bool) SendPollOption {
 	return func(r *RequestSendPoll) error {
 		r.MultipleAnswers = &multipleAnswers
@@ -84,6 +90,7 @@ func OptionalMultipleAnswers(multipleAnswers bool) SendPollOption {
 	}
 }
 
+// If specified, the message will be sent quoting the specified chat message.
 func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 	return func(r *RequestSendPoll) error {
 		r.QuotedMessageId = quotedMessageId
@@ -91,12 +98,14 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 	}
 }
 
+// Sending messages with a poll.
+//
 // https://green-api.com/en/docs/api/sending/SendPoll/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalMultipleAnswers() <- Allow multiple answers. Disabled by default.
-//  OptionalPollQuotedMessageId() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalMultipleAnswers(multipleAnswers bool) <- Allow multiple answers. Disabled by default.
+//  OptionalPollQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
 
 	r := &RequestSendPoll{
@@ -132,6 +141,7 @@ type RequestSendFileByUpload struct {
 
 type SendFileByUploadOption func(*RequestSendFileByUpload) error
 
+// File caption. Caption added to video, images. The maximum field length is 20000 characters.
 func OptionalCaptionSendUpload(caption string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
 		r.Caption = caption
@@ -139,19 +149,21 @@ func OptionalCaptionSendUpload(caption string) SendFileByUploadOption {
 	}
 }
 
+// If specified, the message will be sent quoting the specified chat message.
 func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
 		r.QuotedMessageId = quotedMessageId
 		return nil
 	}
 }
-
+// Uploading and sending a file.
+// 
 // https://green-api.com/en/docs/api/sending/SendFileByUpload/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalCaptionSendUpload() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//  OptionalQuotedMessageIdSendUpload() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalCaptionSendUpload(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//  OptionalQuotedMessageIdSendUpload(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
 
 	r := &RequestSendFileByUpload{
@@ -184,6 +196,7 @@ type RequestSendFileByUrl struct {
 
 type SendFileByUrlOption func(*RequestSendFileByUrl) error
 
+// File caption. Caption added to video, images. The maximum field length is 20000 characters.
 func OptionalCaptionSendUrl(caption string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
 		r.Caption = caption
@@ -191,6 +204,7 @@ func OptionalCaptionSendUrl(caption string) SendFileByUrlOption {
 	}
 }
 
+// If specified, the message will be sent quoting the specified chat message.
 func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
 		r.QuotedMessageId = quotedMessageId
@@ -198,12 +212,14 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 	}
 }
 
+// Sending a file by URL.
+//
 // https://green-api.com/en/docs/api/sending/SendFileByUrl/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalCaptionSendUrl() <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//  OptionalQuotedMessageIdSendUrl() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalCaptionSendUrl(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//  OptionalQuotedMessageIdSendUrl(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
 	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
@@ -227,26 +243,23 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 
 type RequestUploadFile struct {
 	File []byte `json:"file"`
+	FileName string `json:"fileName"`
 }
 
+// Uploading a file to the cloud storage. 
+//
 // https://green-api.com/en/docs/api/sending/UploadFile/
-func (c SendingCategory) UploadFile(filepath string) (*APIResponse, error) {
+func (c SendingCategory) UploadFile(filePath string) (*APIResponse, error) {
 
-	binary, err := os.ReadFile(filepath)
+	binary, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	r := &RequestUploadFile{
-		File: binary,
-	}
-
-	jsonData, err := json.Marshal(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("POST", "uploadFile", jsonData, WithSetMimetype(mimetype.Detect(binary).String()), WithMediaHost(true))
+	return c.GreenAPI.Request("POST", "uploadFile", binary, WithSetMimetype(mtype{
+		Mimetype: mimetype.Detect(binary).String(),
+		FileName: filepath.Base(filePath),
+	}), WithMediaHost(true))
 }
 
 // ------------------------------------------------------------------ SendLocation block
@@ -262,6 +275,7 @@ type RequestSendLocation struct {
 
 type SendLocationOption func(*RequestSendLocation) error
 
+// Location name.
 func OptionalNameLocation(nameLocation string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.NameLocation = nameLocation
@@ -269,6 +283,7 @@ func OptionalNameLocation(nameLocation string) SendLocationOption {
 	}
 }
 
+// Location address.
 func OptionalAddress(address string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.Address = address
@@ -276,6 +291,7 @@ func OptionalAddress(address string) SendLocationOption {
 	}
 }
 
+// If specified, the message will be sent quoting the specified chat message.
 func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption {
 	return func(r *RequestSendLocation) error {
 		r.QuotedMessageId = quotedMessageId
@@ -283,13 +299,15 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 	}
 }
 
+// Sending a location message.
+//
 // https://green-api.com/en/docs/api/sending/SendLocation/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalNameLocation() <- Location name.
-//  OptionalAddress() <- Location address.
-//  OptionalQuotedMessageIdLocation() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalNameLocation(nameLocation string) <- Location name.
+//  OptionalAddress(address string) <- Location address.
+//  OptionalQuotedMessageIdLocation(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
 	r := &RequestSendLocation{
 		ChatId:    chatId,
@@ -327,6 +345,7 @@ type RequestSendContact struct {
 
 type SendContactOption func(*RequestSendContact) error
 
+// If specified, the message will be sent quoting the specified chat message.
 func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 	return func(r *RequestSendContact) error {
 		r.QuotedMessageId = quotedMessageId
@@ -334,11 +353,13 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 	}
 }
 
+// Sending a contact message.
+// 
 // https://green-api.com/en/docs/api/sending/SendContact/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalQuotedMessageIdContact() <- If specified, the message will be sent quoting the specified chat message.
+//  OptionalQuotedMessageIdContact(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendContact(chatId string, contact Contact, options ...SendContactOption) (*APIResponse, error) {
 	r := &RequestSendContact{
 		ChatId:  chatId,
@@ -365,6 +386,8 @@ type RequestForwardMessages struct {
 	Messages   []string `json:"messages"`
 }
 
+// Forwarding messages from one chat to another.
+//
 // https://green-api.com/en/docs/api/sending/ForwardMessages/
 func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string) (*APIResponse, error) {
 	r := &RequestForwardMessages{

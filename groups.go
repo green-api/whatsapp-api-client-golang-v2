@@ -13,6 +13,9 @@ type RequestCreateGroup struct {
 	ChatIds   []string `json:"chatIds"`
 }
 
+// Creating a group chat.
+// 
+// https://green-api.com/en/docs/api/groups/CreateGroup/
 func (c GroupsCategory) CreateGroup(groupName string, chatIds []string) (*APIResponse, error) {
 	r := &RequestCreateGroup{
 		GroupName: groupName,
@@ -34,6 +37,9 @@ type RequestUpdateGroupName struct {
 	GroupName string `json:"groupName"`
 }
 
+// Change a group chat name.
+// 
+// https://green-api.com/en/docs/api/groups/UpdateGroupName/
 func (c GroupsCategory) UpdateGroupName(groupId, groupName string) (*APIResponse, error) {
 	r := &RequestUpdateGroupName{
 		GroupId:   groupId,
@@ -54,6 +60,9 @@ type RequestGetGroupData struct {
 	GroupId string `json:"groupId"`
 }
 
+// Getting a group chat data
+// 
+// https://green-api.com/en/docs/api/groups/GetGroupData/
 func (c GroupsCategory) GetGroupData(groupId string) (*APIResponse, error) {
 	r := &RequestGetGroupData{
 		GroupId: groupId,
@@ -74,6 +83,9 @@ type RequestModifyGroupParticipant struct {
 	ParticipantChatId string `json:"participantChatId"`
 }
 
+// Adding a participant to a group chat.
+// 
+// https://green-api.com/en/docs/api/groups/AddGroupParticipant/
 func (c GroupsCategory) AddGroupParticipant(groupId, participantChatId string) (*APIResponse, error) {
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
@@ -88,6 +100,9 @@ func (c GroupsCategory) AddGroupParticipant(groupId, participantChatId string) (
 	return c.GreenAPI.Request("POST", "addGroupParticipant", jsonData)
 }
 
+// Removing a participant from a group chat.
+// 
+// https://green-api.com/en/docs/api/groups/RemoveGroupParticipant/
 func (c GroupsCategory) RemoveGroupParticipant(groupId, participantChatId string) (*APIResponse, error) {
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
@@ -102,6 +117,9 @@ func (c GroupsCategory) RemoveGroupParticipant(groupId, participantChatId string
 	return c.GreenAPI.Request("POST", "removeGroupParticipant", jsonData)
 }
 
+// Setting a group chat participant as an administrator.
+// 
+// https://green-api.com/en/docs/api/groups/SetGroupAdmin/
 func (c GroupsCategory) SetGroupAdmin(groupId, participantChatId string) (*APIResponse, error) {
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
@@ -116,6 +134,9 @@ func (c GroupsCategory) SetGroupAdmin(groupId, participantChatId string) (*APIRe
 	return c.GreenAPI.Request("POST", "setGroupAdmin", jsonData)
 }
 
+// Removing a participant from the group chat administration rights.
+// 
+// https://green-api.com/en/docs/api/groups/RemoveAdmin/
 func (c GroupsCategory) RemoveAdmin(groupId, participantChatId string) (*APIResponse, error) {
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
@@ -137,6 +158,9 @@ type RequestSetGroupPicture struct {
 	GroupId string `json:"groupId"`
 }
 
+// Setting a group picture.
+// 
+// https://green-api.com/en/docs/api/groups/SetGroupPicture/
 func (c GroupsCategory) SetGroupPicture(filepath, groupId string) (*APIResponse, error) {
 	r := &RequestSetGroupPicture{
 		File:    filepath,
@@ -157,6 +181,9 @@ type RequestLeaveGroup struct {
 	GroupId string `json:"groupId"`
 }
 
+// Leaving a group chat.
+// 
+// https://green-api.com/en/docs/api/groups/LeaveGroup/
 func (c GroupsCategory) LeaveGroup(groupId string) (*APIResponse, error) {
 	r := &RequestLeaveGroup{
 		GroupId: groupId,

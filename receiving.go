@@ -17,6 +17,7 @@ type RequestReceiveNotification struct {
 
 type ReceiveNotificationOption func(*RequestReceiveNotification) error
 
+// Notification waiting timeout, takes a value from 5 to 60 seconds (5 seconds by default)
 func OptionalReceiveTimeout(seconds int) ReceiveNotificationOption {
 	return func(r *RequestReceiveNotification) error {
 		r.ReceiveTimeout = seconds
@@ -24,6 +25,12 @@ func OptionalReceiveTimeout(seconds int) ReceiveNotificationOption {
 	}
 }
 
+// Receiving one incoming notification from the notifications queue.
+//
+// https://green-api.com/en/docs/api/receiving/technology-http-api/ReceiveNotification/
+//
+// Add optional arguments by passing these functions:
+//  OptionalReceiveTimeout(seconds int) <- Notification waiting timeout, takes a value from 5 to 60 seconds (5 seconds by default)
 func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOption) (*APIResponse, error) {
 
 	r := &RequestReceiveNotification{}
@@ -51,6 +58,9 @@ type RequestDeleteNotification struct {
 	ReceiptId int `json:"receiptId"`
 }
 
+// Deleting an incoming notification from the notification queue.
+// 
+// https://green-api.com/en/docs/api/receiving/technology-http-api/DeleteNotification/
 func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, error) {
 	addUrl := fmt.Sprintf("/%v", receiptId)
 
@@ -64,6 +74,9 @@ type RequestDownloadFile struct {
 	IdMessage string `json:"idMessage"`
 }
 
+// Downloading incoming and outgoing files from a chat.
+// 
+// https://green-api.com/en/docs/api/receiving/files/DownloadFile/
 func (c ReceivingCategory) DownloadFile(chatId, idMessage string) (*APIResponse, error) {
 	r := &RequestDownloadFile{
 		ChatId:    chatId,
