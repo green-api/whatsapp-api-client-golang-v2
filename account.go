@@ -273,6 +273,7 @@ func (c AccountCategory) Reboot() (*APIResponse, error) {
 
 // Logging out an instance.
 // 
+// https://green-api.com/docs/api/account/Logout/
 func (c AccountCategory) Logout() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "logout", nil)
 }
@@ -313,8 +314,6 @@ func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, er
 type RequestSetProfilePicture struct {
 	File string `json:"file"`
 }
-
-// TODO: проверить работает ли
 
 // Setting a profile picture.
 // 
