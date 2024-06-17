@@ -2,6 +2,7 @@ package greenapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -48,6 +49,15 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 //  OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
 //  OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(message, 20000)
+	if err!=nil {
+		return nil, err
+	}
 
 	r := &RequestSendMessage{
 		ChatId:  chatId,
@@ -107,6 +117,34 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 //  OptionalMultipleAnswers(multipleAnswers bool) <- Allow multiple answers. Disabled by default.
 //  OptionalPollQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(message, 255)
+	if err!=nil {
+		return nil, err
+	}
+
+	if len(pollOptions) < 2 {
+		return nil, fmt.Errorf("cannot create less than 2 poll options")
+	} else if len(pollOptions) > 12 {
+		return nil, fmt.Errorf("cannot create more than 12 poll options")
+	}
+
+	//map to check for duplicates in pollOptions 
+	seen := make(map[string]bool)
+
+	for _, pollOption := range pollOptions {
+		if len(pollOption) > 100 {
+			return nil, fmt.Errorf("poll option should not exceed 100 characters")
+		}
+		if seen[pollOption] {
+			return nil, fmt.Errorf("poll options cannot have duplicates: %s", pollOption)
+		}
+		seen[pollOption] = true
+	}
 
 	r := &RequestSendPoll{
 		ChatId:  chatId,
@@ -165,6 +203,10 @@ func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadO
 //  OptionalCaptionSendUpload(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
 //  OptionalQuotedMessageIdSendUpload(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
 
 	r := &RequestSendFileByUpload{
 		ChatId:   chatId,
@@ -174,6 +216,13 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 
 	for _, o := range options {
 		o(r)
+	}
+
+	if r.Caption != ""{
+		err = ValidateMessageLength(r.Caption, 20000)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -221,6 +270,16 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 //  OptionalCaptionSendUrl(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
 //  OptionalQuotedMessageIdSendUrl(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+
+	err = ValidateURL(urlFile)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
 		UrlFile:  urlFile,
@@ -229,6 +288,13 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 
 	for _, o := range options {
 		o(r)
+	}
+
+	if r.Caption != "" {
+		err = ValidateMessageLength(r.Caption, 20000)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -309,6 +375,11 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 //  OptionalAddress(address string) <- Location address.
 //  OptionalQuotedMessageIdLocation(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestSendLocation{
 		ChatId:    chatId,
 		Latitude:  latitude,
@@ -361,6 +432,11 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 //
 //  OptionalQuotedMessageIdContact(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendContact(chatId string, contact Contact, options ...SendContactOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestSendContact{
 		ChatId:  chatId,
 		Contact: contact,
@@ -390,6 +466,11 @@ type RequestForwardMessages struct {
 //
 // https://green-api.com/en/docs/api/sending/ForwardMessages/
 func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestForwardMessages{
 		ChatId:     chatId,
 		ChatIdFrom: chatIdFrom,

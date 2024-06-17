@@ -15,7 +15,8 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Sending().SendMessage("11001234567@c.us",
+	response, err := GreenAPI.Sending().SendMessage(
+		"11001234567@c.us",
 		"Hello",
 		greenapi.OptionalLinkPreview(false),
 	)

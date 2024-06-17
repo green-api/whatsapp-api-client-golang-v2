@@ -54,12 +54,26 @@ func OptionalParticipantsTextStatus(participants []string) SendTextStatusOption 
 //  OptionalFont(font string) <- Text font. Accepts values: SERIF, SANS_SERIF, NORICAN_REGULAR, BRYNDAN_WRITE, OSWALD_HEAVY
 //  OptionalParticipantsTextStatus(participants []string) <- An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func (c StatusesCategory) SendTextStatus(message string, options ...SendTextStatusOption) (*APIResponse, error) {
+	err := ValidateMessageLength(message, 500)
+	if err != nil {
+		return nil, err
+	}
+
 	r := &RequestSendTextStatus{
 		Message: message,
 	}
 
 	for _, o := range options {
 		o(r)
+	}
+
+	if len(r.Participants) != 0 {
+		for _, participant := range r.Participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return nil, err
+			}
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -105,6 +119,11 @@ func OptionalParticipantsVoiceStatus(participants []string) SendVoiceStatusOptio
 //  OptionalBackgroundColorVoice(backgroundColor string) <- Status background. Default: #FFFFFF.
 //  OptionalParticipantsVoiceStatus(participants []string) <- An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func (c StatusesCategory) SendVoiceStatus(urlFile, fileName string, options ...SendVoiceStatusOption) (*APIResponse, error) {
+	err := ValidateURL(urlFile)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestSendVoiceStatus{
 		UrlFile:  urlFile,
 		FileName: fileName,
@@ -112,6 +131,15 @@ func (c StatusesCategory) SendVoiceStatus(urlFile, fileName string, options ...S
 
 	for _, o := range options {
 		o(r)
+	}
+
+	if len(r.Participants) != 0 {
+		for _, participant := range r.Participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return nil, err
+			}
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -157,6 +185,11 @@ func OptionalParticipantsMediaStatus(participants []string) SendMediaStatusOptio
 //  OptionalCaptionMediaStatus(caption string) <- Media status caption.
 //  OptionalParticipantsMediaStatus(participants []string) <- An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func (c StatusesCategory) SendMediaStatus(urlFile, fileName string, options ...SendMediaStatusOption) (*APIResponse, error) {
+	err := ValidateURL(urlFile)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestSendMediaStatus{
 		UrlFile:  urlFile,
 		FileName: fileName,
@@ -164,6 +197,22 @@ func (c StatusesCategory) SendMediaStatus(urlFile, fileName string, options ...S
 
 	for _, o := range options {
 		o(r)
+	}
+
+	if r.Caption != "" {
+		err := ValidateMessageLength(r.Caption, 1024)
+		if err!=nil {
+			return nil, err
+		}
+	}
+
+	if len(r.Participants) != 0 {
+		for _, participant := range r.Participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return nil, err
+			}
+		}
 	}
 
 	jsonData, err := json.Marshal(r)

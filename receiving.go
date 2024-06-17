@@ -78,6 +78,11 @@ type RequestDownloadFile struct {
 // 
 // https://green-api.com/en/docs/api/receiving/files/DownloadFile/
 func (c ReceivingCategory) DownloadFile(chatId, idMessage string) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+		if err!=nil {
+			return nil, err
+		}
+
 	r := &RequestDownloadFile{
 		ChatId:    chatId,
 		IdMessage: idMessage,
