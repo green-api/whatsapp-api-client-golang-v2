@@ -22,7 +22,7 @@ func (c AccountCategory) GetSettings() (*APIResponse, error) {
 type RequestSetSettings struct {
 	WebhookUrl                        *string `json:"webhookUrl,omitempty"`
 	WebhookUrlToken                   *string `json:"webhookUrlToken,omitempty"`
-	DelaySendMessagesMilliseconds     *int    `json:"delaySendMessagesMilliseconds,omitempty"`
+	DelaySendMessagesMilliseconds     *uint    `json:"delaySendMessagesMilliseconds,omitempty"`
 	MarkIncomingMessagesReaded        string  `json:"markIncomingMessagesReaded,omitempty"`
 	MarkIncomingMessagesReadedOnReply string  `json:"markIncomingMessagesReadedOnReply,omitempty"`
 	OutgoingWebhook                   string  `json:"outgoingWebhook,omitempty"`
@@ -42,6 +42,10 @@ type SetSettingsOption func(*RequestSetSettings) error
 // URL for sending notifications.
 func OptionalWebhookUrl(webhookUrl string) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
+		err := ValidateURL(webhookUrl)
+		if err!=nil {
+			return err
+		}
 		r.WebhookUrl = &webhookUrl
 		return nil
 	}
@@ -56,7 +60,7 @@ func OptionalWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
 }
 
 // Message sending delay. 
-func OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) SetSettingsOption {
+func OptionalDelaySendMesssages(delaySendMessagesMilliseconds uint) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
 		return nil

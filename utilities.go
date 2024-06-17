@@ -6,9 +6,12 @@ import (
 	"strings"
 )
 
-func ValidateChatId(chatId string) error {
-	if !strings.HasSuffix(chatId, "@c.us") && !strings.HasSuffix(chatId, "@g.us") {
-		return fmt.Errorf("chatId must end with \"@c.us\" or \"@g.us\"")
+func ValidateChatId(chatId ...string) error {
+
+	for _, chat := range chatId {
+		if !strings.HasSuffix(chat, "@c.us") && !strings.HasSuffix(chat, "@g.us") {
+			return fmt.Errorf("chatId must end with \"@c.us\" or \"@g.us\"\ngot %s instead", chat)
+		}
 	}
 	return nil
 }
@@ -19,9 +22,10 @@ func ValidateMessageLength(message string, limit int) error {
 	}
 	return nil
 }
-
+//TODO: не работает
 func ValidateURL(link string) error {
-	_, err := url.Parse(link)
+	fmt.Println("got here")
+	_, err := url.ParseRequestURI(link)
 	if err!= nil {
 		return fmt.Errorf("error parsing URL: %w", err)
 	}

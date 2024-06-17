@@ -30,6 +30,11 @@ func OptionalIdMessage(idMessage string) ReadChatOption {
 // Add optional arguments by passing these functions:
 //  OptionalIdMessage(idMessage string) <- ID of the incoming message to be marked as read. If not specified, then all unread messages in the chat will be marked as read.
 func (c ReadMarkCategory) ReadChat(chatId string, options ...ReadChatOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestReadChat{
 		ChatId: chatId,
 	}

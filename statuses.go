@@ -39,6 +39,13 @@ func OptionalFont(font string) SendTextStatusOption {
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsTextStatus(participants []string) SendTextStatusOption {
 	return func(r *RequestSendTextStatus) error {
+		for _, participant := range participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return err
+			}
+		}
+
 		r.Participants = participants
 		return nil
 	}
@@ -65,15 +72,6 @@ func (c StatusesCategory) SendTextStatus(message string, options ...SendTextStat
 
 	for _, o := range options {
 		o(r)
-	}
-
-	if len(r.Participants) != 0 {
-		for _, participant := range r.Participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return nil, err
-			}
-		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -106,6 +104,13 @@ func OptionalBackgroundColorVoice(backgroundColor string) SendVoiceStatusOption 
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsVoiceStatus(participants []string) SendVoiceStatusOption {
 	return func(r *RequestSendVoiceStatus) error {
+		for _, participant := range participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return err
+			}
+		}
+
 		r.Participants = participants
 		return nil
 	}
@@ -133,15 +138,6 @@ func (c StatusesCategory) SendVoiceStatus(urlFile, fileName string, options ...S
 		o(r)
 	}
 
-	if len(r.Participants) != 0 {
-		for _, participant := range r.Participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return nil, err
-			}
-		}
-	}
-
 	jsonData, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
@@ -164,6 +160,11 @@ type SendMediaStatusOption func(*RequestSendMediaStatus) error
 // Media status caption.
 func OptionalCaptionMediaStatus(caption string) SendMediaStatusOption {
 	return func(r *RequestSendMediaStatus) error {
+		err := ValidateMessageLength(r.Caption, 1024)
+		if err!=nil {
+			return err
+		}
+
 		r.Caption = caption
 		return nil
 	}
@@ -172,6 +173,13 @@ func OptionalCaptionMediaStatus(caption string) SendMediaStatusOption {
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsMediaStatus(participants []string) SendMediaStatusOption {
 	return func(r *RequestSendMediaStatus) error {
+		for _, participant := range participants {
+			err := ValidateChatId(participant)
+			if err!=nil {
+				return err
+			}
+		}
+
 		r.Participants = participants
 		return nil
 	}
@@ -197,22 +205,6 @@ func (c StatusesCategory) SendMediaStatus(urlFile, fileName string, options ...S
 
 	for _, o := range options {
 		o(r)
-	}
-
-	if r.Caption != "" {
-		err := ValidateMessageLength(r.Caption, 1024)
-		if err!=nil {
-			return nil, err
-		}
-	}
-
-	if len(r.Participants) != 0 {
-		for _, participant := range r.Participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return nil, err
-			}
-		}
 	}
 
 	jsonData, err := json.Marshal(r)

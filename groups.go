@@ -17,6 +17,13 @@ type RequestCreateGroup struct {
 // 
 // https://green-api.com/en/docs/api/groups/CreateGroup/
 func (c GroupsCategory) CreateGroup(groupName string, chatIds []string) (*APIResponse, error) {
+	for _, chatId := range chatIds {
+		err := ValidateChatId(chatId)
+		if err!=nil {
+			return nil, err
+		}
+	} 
+
 	r := &RequestCreateGroup{
 		GroupName: groupName,
 		ChatIds:   chatIds,
@@ -41,6 +48,11 @@ type RequestUpdateGroupName struct {
 // 
 // https://green-api.com/en/docs/api/groups/UpdateGroupName/
 func (c GroupsCategory) UpdateGroupName(groupId, groupName string) (*APIResponse, error) {
+	err := ValidateChatId(groupId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestUpdateGroupName{
 		GroupId:   groupId,
 		GroupName: groupName,
@@ -64,6 +76,11 @@ type RequestGetGroupData struct {
 // 
 // https://green-api.com/en/docs/api/groups/GetGroupData/
 func (c GroupsCategory) GetGroupData(groupId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestGetGroupData{
 		GroupId: groupId,
 	}
@@ -87,6 +104,11 @@ type RequestModifyGroupParticipant struct {
 // 
 // https://green-api.com/en/docs/api/groups/AddGroupParticipant/
 func (c GroupsCategory) AddGroupParticipant(groupId, participantChatId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId, participantChatId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
 		ParticipantChatId: participantChatId,
@@ -104,6 +126,11 @@ func (c GroupsCategory) AddGroupParticipant(groupId, participantChatId string) (
 // 
 // https://green-api.com/en/docs/api/groups/RemoveGroupParticipant/
 func (c GroupsCategory) RemoveGroupParticipant(groupId, participantChatId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId, participantChatId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
 		ParticipantChatId: participantChatId,
@@ -121,6 +148,11 @@ func (c GroupsCategory) RemoveGroupParticipant(groupId, participantChatId string
 // 
 // https://green-api.com/en/docs/api/groups/SetGroupAdmin/
 func (c GroupsCategory) SetGroupAdmin(groupId, participantChatId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId, participantChatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
 		ParticipantChatId: participantChatId,
@@ -138,6 +170,11 @@ func (c GroupsCategory) SetGroupAdmin(groupId, participantChatId string) (*APIRe
 // 
 // https://green-api.com/en/docs/api/groups/RemoveAdmin/
 func (c GroupsCategory) RemoveAdmin(groupId, participantChatId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId, participantChatId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestModifyGroupParticipant{
 		GroupId:           groupId,
 		ParticipantChatId: participantChatId,
@@ -162,6 +199,11 @@ type RequestSetGroupPicture struct {
 // 
 // https://green-api.com/en/docs/api/groups/SetGroupPicture/
 func (c GroupsCategory) SetGroupPicture(filepath, groupId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestSetGroupPicture{
 		File:    filepath,
 		GroupId: groupId,
@@ -185,6 +227,11 @@ type RequestLeaveGroup struct {
 // 
 // https://green-api.com/en/docs/api/groups/LeaveGroup/
 func (c GroupsCategory) LeaveGroup(groupId string) (*APIResponse, error) {
+	err := ValidateChatId(groupId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestLeaveGroup{
 		GroupId: groupId,
 	}

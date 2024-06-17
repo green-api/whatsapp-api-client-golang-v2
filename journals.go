@@ -33,6 +33,11 @@ func OptionalCount(count int) GetChatHistoryOption {
 // Add optional arguments by passing these functions:
 //  OptionalCount(count int) <- The number of messages to get. The default is 100
 func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistoryOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+
 	r := &RequestGetChatHistory{
 		ChatId: chatId,
 	}
@@ -60,6 +65,11 @@ type RequestGetMessage struct {
 // 
 // https://green-api.com/en/docs/api/journals/GetMessage/
 func (c JournalsCategory) GetMessage(chatId, idMessage string) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+	
 	r := &RequestGetMessage{
 		ChatId:    chatId,
 		IdMessage: idMessage,

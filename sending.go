@@ -182,6 +182,10 @@ type SendFileByUploadOption func(*RequestSendFileByUpload) error
 // File caption. Caption added to video, images. The maximum field length is 20000 characters.
 func OptionalCaptionSendUpload(caption string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
+		err := ValidateMessageLength(caption, 20000)
+		if err!=nil {
+			return err
+		}
 		r.Caption = caption
 		return nil
 	}
@@ -218,13 +222,6 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 		o(r)
 	}
 
-	if r.Caption != ""{
-		err = ValidateMessageLength(r.Caption, 20000)
-		if err!=nil {
-			return nil, err
-		}
-	}
-
 	jsonData, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
@@ -248,6 +245,10 @@ type SendFileByUrlOption func(*RequestSendFileByUrl) error
 // File caption. Caption added to video, images. The maximum field length is 20000 characters.
 func OptionalCaptionSendUrl(caption string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
+		err := ValidateMessageLength(caption, 20000)
+		if err!=nil {
+			return err
+		}
 		r.Caption = caption
 		return nil
 	}
@@ -288,13 +289,6 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 
 	for _, o := range options {
 		o(r)
-	}
-
-	if r.Caption != "" {
-		err = ValidateMessageLength(r.Caption, 20000)
-		if err!=nil {
-			return nil, err
-		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -470,7 +464,7 @@ func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []s
 	if err!=nil {
 		return nil, err
 	}
-	
+
 	r := &RequestForwardMessages{
 		ChatId:     chatId,
 		ChatIdFrom: chatIdFrom,
