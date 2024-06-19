@@ -65,7 +65,10 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...SendMess
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -156,7 +159,10 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -219,7 +225,10 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -288,7 +297,10 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -381,7 +393,10 @@ func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -437,7 +452,10 @@ func (c SendingCategory) SendContact(chatId string, contact Contact, options ...
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)

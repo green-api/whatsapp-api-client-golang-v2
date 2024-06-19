@@ -71,7 +71,10 @@ func (c StatusesCategory) SendTextStatus(message string, options ...SendTextStat
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -135,7 +138,10 @@ func (c StatusesCategory) SendVoiceStatus(urlFile, fileName string, options ...S
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -204,7 +210,10 @@ func (c StatusesCategory) SendMediaStatus(urlFile, fileName string, options ...S
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -274,7 +283,10 @@ func (c StatusesCategory) GetOutgoingStatuses(options ...GetLastStatusesOption) 
 	r := &RequestGetLastStatuses{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	var addUrl string
@@ -295,7 +307,10 @@ func (c StatusesCategory) GetIncomingStatuses(options ...GetLastStatusesOption) 
 	r := &RequestGetLastStatuses{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	var addUrl string

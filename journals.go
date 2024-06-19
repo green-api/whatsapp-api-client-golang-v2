@@ -43,7 +43,10 @@ func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistor
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -109,7 +112,10 @@ func (c JournalsCategory) LastIncomingMessages(options ...LastMessagesOption) (*
 	r := &RequestLastMessages{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	var addUrl string
@@ -134,7 +140,10 @@ func (c JournalsCategory) LastOutgoingMessages(options ...LastMessagesOption) (*
 	r := &RequestLastMessages{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	var addUrl string

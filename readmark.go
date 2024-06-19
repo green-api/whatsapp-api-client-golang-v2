@@ -40,7 +40,10 @@ func (c ReadMarkCategory) ReadChat(chatId string, options ...ReadChatOption) (*A
 	}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)

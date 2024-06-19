@@ -41,7 +41,10 @@ func (c PartnerCategory) CreateInstance(options ...SetSettingsOption) (*APIRespo
 	r := &RequestSetSettings{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)

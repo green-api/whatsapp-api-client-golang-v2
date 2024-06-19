@@ -235,7 +235,10 @@ func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse
 
 	r := &RequestSetSettings{}
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)

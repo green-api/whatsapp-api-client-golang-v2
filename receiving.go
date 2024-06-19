@@ -36,7 +36,10 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 	r := &RequestReceiveNotification{}
 
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	var addUrl string

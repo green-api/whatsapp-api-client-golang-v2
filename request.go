@@ -70,7 +70,10 @@ func WithMediaHost(b bool) requestOptions {
 func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody []byte, options ...requestOptions) (*APIResponse, error) {
 	r := &requestType{}
 	for _, o := range options {
-		o(r)
+		err := o(r)
+		if err!=nil {
+			return nil, err
+		}
 	}
 
 	return a.request(HTTPMethod, APIMethod, r.GetParams, r.SetMimetype, r.FormData, r.MediaHost, requestBody)

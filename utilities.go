@@ -22,9 +22,8 @@ func ValidateMessageLength(message string, limit int) error {
 	}
 	return nil
 }
-//TODO: не работает
+
 func ValidateURL(link string) error {
-	fmt.Println("got here")
 	_, err := url.ParseRequestURI(link)
 	if err!= nil {
 		return fmt.Errorf("error parsing URL: %w", err)
