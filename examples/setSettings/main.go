@@ -16,10 +16,21 @@ func main() {
 	}
 
 	response, err := GreenAPI.Account().SetSettings(
-		greenapi.OptionalDeviceWebhook(false),
-		greenapi.OptionalDelaySendMesssages(999),
+		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalWebhookUrlToken("auth_token"),
+		greenapi.OptionalDelaySendMesssages(5000),
+		greenapi.OptionalMarkIncomingMessagesRead(true),
+		greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
 		greenapi.OptionalOutgoingWebhook(true),
+		greenapi.OptionalOutgoingMessageWebhook(true),
+		greenapi.OptionalOutgoingAPIMessageWebhook(true),
+		greenapi.OptionalStateWebhook(true),
 		greenapi.OptionalIncomingWebhook(true),
+		greenapi.OptionalDeviceWebhook(true),
+		greenapi.OptionalKeepOnlineStatus(true),
+		greenapi.OptionalPollMessageWebhook(true),
+		greenapi.OptionalIncomingBlockWebhook(true),
+		greenapi.OptionalIncomingCallWebhook(true),
 	)
 	if err != nil {
 		log.Fatal(err)
