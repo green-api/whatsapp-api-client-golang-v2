@@ -2,11 +2,11 @@
 
 - [Документация на русском языке](docs/README_RU.md).
 
-whatsapp-api-client-golang-v2 is a library for integration with WhatsApp messenger using the API
+`whatsapp-api-client-golang-v2` is a library for integration with WhatsApp messenger using the API
 service [green-api.com](https://green-api.com/en/). You should get a registration token and an account ID in
 your [personal cabinet](https://console.green-api.com/) to use the library. There is a free developer account tariff.
 
-You can find the v1 version here - https://github.com/green-api/whatsapp-api-client-golang
+You can find the `v1` version here - https://github.com/green-api/whatsapp-api-client-golang
 
 ## API
 
@@ -52,7 +52,7 @@ import (
 )
 ```
 
-## Examples
+## Usage and examples
 
 **How to initialize an object:**
 
@@ -64,6 +64,10 @@ GreenAPI := greenapi.GreenAPI{
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 ```
+
+All methods of this library return two objects: *APIResponse and error. 
+
+You can see the APIResponse format in the [types.go](types.go)
 
 **How to send a message:**
 
