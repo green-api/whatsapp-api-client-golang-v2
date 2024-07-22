@@ -117,7 +117,7 @@ response, _ := GreenAPI.Sending().SendPoll(
 
 ## Optional parameters
 
-**Note that functions might have optional arguments, which you can pass or ignore. You can use optional parameters, they have similar naming format: 
+**Note that functions might have optional arguments, which you can pass or ignore. You can use optional parameters, they have similar naming format:**
 ```go
 greenapi.Optional + name of parameter
 ```
