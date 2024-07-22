@@ -16,14 +16,6 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-// func (a GreenAPI) Webhook() GreenAPIWebhook {
-// 	return GreenAPIWebhook{
-// 		GreenAPI: a,
-
-// 		ErrorChannel: make(chan error),
-// 	}
-// }
-
 type requestType struct {
 	GetParams   string
 	FormData    bool
@@ -194,7 +186,13 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 }
 
 func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams string, SetMimetype mtype, FormData, MediaHost bool, requestBody []byte) (*APIResponse, error) {
-	client := &fasthttp.Client{}
+	client := &fasthttp.Client{
+		// Dial: func(addr string) (net.Conn, error) {
+        //     return fasthttp.DialTimeout(addr, 10*time.Second)
+        // },
+		// ReadTimeout: time.Second * 10,
+		// WriteTimeout: time.Second * 10,
+	}
 	client.Name = "green-api-go-client"
 
 	req := fasthttp.AcquireRequest()

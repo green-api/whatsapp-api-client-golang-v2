@@ -9,7 +9,7 @@ type ReceivingCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ ReceiveNotification block
+// ------------------------------------------------------------------ ReceiveNotification
 
 type RequestReceiveNotification struct {
 	ReceiveTimeout int `json:"receiveTimeout,omitempty"`
@@ -55,7 +55,7 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 	return c.GreenAPI.Request("GET", "receiveNotification", jsonData, WithGetParams(addUrl))
 }
 
-// ------------------------------------------------------------------ DeleteNotification block
+// ------------------------------------------------------------------ DeleteNotification
 
 type RequestDeleteNotification struct {
 	ReceiptId int `json:"receiptId"`
@@ -70,7 +70,7 @@ func (c ReceivingCategory) DeleteNotification(receiptId int) (*APIResponse, erro
 	return c.GreenAPI.Request("DELETE", "deleteNotification", nil, WithGetParams(addUrl))
 }
 
-// ------------------------------------------------------------------ DownloadFile block
+// ------------------------------------------------------------------ DownloadFile
 
 type RequestDownloadFile struct {
 	ChatId    string `json:"chatId"`

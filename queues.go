@@ -4,7 +4,7 @@ type QueuesCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ ShowMessagesQueue block
+// ------------------------------------------------------------------ ShowMessagesQueue
 
 // Getting a list of messages in the queue to be sent.
 //
@@ -13,7 +13,7 @@ func (c QueuesCategory) ShowMessagesQueue() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "showMessagesQueue", nil)
 }
 
-// ------------------------------------------------------------------ ClearMessagesQueue block
+// ------------------------------------------------------------------ ClearMessagesQueue
 
 // Clearing the queue of messages to be sent.
 //

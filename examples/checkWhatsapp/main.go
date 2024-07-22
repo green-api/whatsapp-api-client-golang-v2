@@ -20,7 +20,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Status: %v %s \n\rResponse: %s\n\rTimestamp: %s", response.StatusCode,
+	fmt.Printf("Status: %v %s \n\rResponse: %s\n\rTimestamp: %s\n\r", response.StatusCode,
 		response.StatusMessage,
 		response.Body,
 		response.Timestamp.Format("15:04:05.000"))

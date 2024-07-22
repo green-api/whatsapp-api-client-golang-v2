@@ -9,7 +9,7 @@ type JournalsCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ GetChatHistory block
+// ------------------------------------------------------------------ GetChatHistory
 
 type RequestGetChatHistory struct {
 	ChatId string `json:"chatId"`
@@ -57,7 +57,7 @@ func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistor
 	return c.GreenAPI.Request("POST", "getChatHistory", jsonData)
 }
 
-// ------------------------------------------------------------------ GetMessage block
+// ------------------------------------------------------------------ GetMessage
 
 type RequestGetMessage struct {
 	ChatId    string `json:"chatId"`
@@ -86,7 +86,7 @@ func (c JournalsCategory) GetMessage(chatId, idMessage string) (*APIResponse, er
 	return c.GreenAPI.Request("POST", "getMessage", jsonData)
 }
 
-// ------------------------------------------------------------------ LastIncomingMessages + LastOutgoingMessages block
+// ------------------------------------------------------------------ LastIncomingMessages + LastOutgoingMessages
 
 type RequestLastMessages struct {
 	Minutes int `json:"minutes,omitempty"`

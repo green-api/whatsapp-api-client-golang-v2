@@ -6,7 +6,7 @@ type ServiceCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ CheckWhatsapp block
+// ------------------------------------------------------------------ CheckWhatsapp
 
 type RequestCheckWhatsapp struct {
 	PhoneNumber int `json:"phoneNumber"`
@@ -28,7 +28,7 @@ func (c ServiceCategory) CheckWhatsapp(phoneNumber int) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "checkWhatsapp", jsonData)
 }
 
-// ------------------------------------------------------------------ GetAvatar block
+// ------------------------------------------------------------------ GetAvatar
 
 type RequestGetAvatar struct {
 	ChatId string `json:"chatId"`
@@ -55,7 +55,7 @@ func (c ServiceCategory) GetAvatar(chatId string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "getAvatar", jsonData)
 }
 
-// ------------------------------------------------------------------ GetContacts block
+// ------------------------------------------------------------------ GetContacts
 
 // Getting a list of the current account contacts.
 //
@@ -64,7 +64,7 @@ func (c ServiceCategory) GetContacts() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getContacts", nil)
 }
 
-// ------------------------------------------------------------------ GetContactInfo block
+// ------------------------------------------------------------------ GetContactInfo
 
 type RequestGetContactInfo struct {
 	ChatId string `json:"chatId"`
@@ -91,7 +91,7 @@ func (c ServiceCategory) GetContactInfo(chatId string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "getContactInfo", jsonData)
 }
 
-// ------------------------------------------------------------------ DeleteMessage block
+// ------------------------------------------------------------------ DeleteMessage
 
 type RequestDeleteMessage struct {
 	ChatId    string `json:"chatId"`
@@ -120,7 +120,7 @@ func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (*APIResponse, 
 	return c.GreenAPI.Request("POST", "deleteMessage", jsonData)
 }
 
-// ------------------------------------------------------------------ ArchiveChat block
+// ------------------------------------------------------------------ ArchiveChat
 
 type RequestArchiveChat struct {
 	ChatId string `json:"chatId"`
@@ -168,7 +168,7 @@ func (c ServiceCategory) UnarchiveChat(chatId string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "unarchiveChat", jsonData)
 }
 
-// ------------------------------------------------------------------ SetDisappearingChat block
+// ------------------------------------------------------------------ SetDisappearingChat
 
 type RequestSetDisappearingChat struct {
 	ChatId              string `json:"chatId"`

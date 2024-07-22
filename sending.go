@@ -13,7 +13,7 @@ type SendingCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ SendMessage block
+// ------------------------------------------------------------------ SendMessage
 
 type RequestSendMessage struct {
 	ChatId          string `json:"chatId"`
@@ -79,7 +79,7 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...SendMess
 	return c.GreenAPI.Request("POST", "sendMessage", jsonData)
 }
 
-// ------------------------------------------------------------------ SendPoll block
+// ------------------------------------------------------------------ SendPoll
 
 type PollOption struct {
 	OptionName string `json:"optionName"`
@@ -173,7 +173,7 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 	return c.GreenAPI.Request("POST", "sendPoll", jsonData)
 }
 
-// ------------------------------------------------------------------ SendFileByUpload block
+// ------------------------------------------------------------------ SendFileByUpload
 
 type RequestSendFileByUpload struct {
 	ChatId          string `json:"chatId"`
@@ -239,7 +239,7 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 	return c.GreenAPI.Request("POST", "sendFileByUpload", jsonData, WithFormData(true), WithMediaHost(true))
 }
 
-// ------------------------------------------------------------------ SendFileByUrl block
+// ------------------------------------------------------------------ SendFileByUrl
 
 type RequestSendFileByUrl struct {
 	ChatId          string `json:"chatId"`
@@ -311,7 +311,7 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 	return c.GreenAPI.Request("POST", "sendFileByUrl", jsonData)
 }
 
-// ------------------------------------------------------------------ UploadFile block
+// ------------------------------------------------------------------ UploadFile
 
 type RequestUploadFile struct {
 	File []byte `json:"file"`
@@ -334,7 +334,7 @@ func (c SendingCategory) UploadFile(filePath string) (*APIResponse, error) {
 	}), WithMediaHost(true))
 }
 
-// ------------------------------------------------------------------ SendLocation block
+// ------------------------------------------------------------------ SendLocation
 
 type RequestSendLocation struct {
 	ChatId          string  `json:"chatId"`
@@ -407,7 +407,7 @@ func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32
 	return c.GreenAPI.Request("POST", "sendLocation", jsonData)
 }
 
-// ------------------------------------------------------------------ SendContact block
+// ------------------------------------------------------------------ SendContact
 
 type Contact struct {
 	PhoneContact int    `json:"phoneContact"` //phoneContact comment
@@ -466,7 +466,7 @@ func (c SendingCategory) SendContact(chatId string, contact Contact, options ...
 	return c.GreenAPI.Request("POST", "sendContact", jsonData)
 }
 
-// ------------------------------------------------------------------ ForwardMessages block
+// ------------------------------------------------------------------ ForwardMessages
 
 type RequestForwardMessages struct {
 	ChatId     string   `json:"chatId"`

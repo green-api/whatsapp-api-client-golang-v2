@@ -9,7 +9,7 @@ type StatusesCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ SendTextStatus block
+// ------------------------------------------------------------------ SendTextStatus
 
 type RequestSendTextStatus struct {
 	Message         string   `json:"message"`
@@ -85,7 +85,7 @@ func (c StatusesCategory) SendTextStatus(message string, options ...SendTextStat
 	return c.GreenAPI.Request("POST", "sendTextStatus", jsonData)
 }
 
-// ------------------------------------------------------------------ SendVoiceStatus block
+// ------------------------------------------------------------------ SendVoiceStatus
 
 type RequestSendVoiceStatus struct {
 	UrlFile         string   `json:"urlFile"`
@@ -152,7 +152,7 @@ func (c StatusesCategory) SendVoiceStatus(urlFile, fileName string, options ...S
 	return c.GreenAPI.Request("POST", "sendVoiceStatus", jsonData)
 }
 
-// ------------------------------------------------------------------ SendMediaStatus block
+// ------------------------------------------------------------------ SendMediaStatus
 
 type RequestSendMediaStatus struct {
 	UrlFile      string   `json:"urlFile"`
@@ -224,7 +224,7 @@ func (c StatusesCategory) SendMediaStatus(urlFile, fileName string, options ...S
 	return c.GreenAPI.Request("POST", "sendMediaStatus", jsonData)
 }
 
-// ------------------------------------------------------------------ DeleteStatus block
+// ------------------------------------------------------------------ DeleteStatus
 
 type RequestDeleteStatus struct {
 	IdMessage string `json:"idMessage"`
@@ -246,7 +246,7 @@ func (c StatusesCategory) DeleteStatus(idMessage string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "deleteStatus", jsonData)
 }
 
-// ------------------------------------------------------------------ GetStatusStatistic block
+// ------------------------------------------------------------------ GetStatusStatistic
 
 // Getting an array of recipients marked sent/delivered/read for a given status.
 // 
@@ -257,7 +257,7 @@ func (c StatusesCategory) GetStatusStatistic(idMessage string) (*APIResponse, er
 	return c.GreenAPI.Request("GET", "getStatusStatistic", nil, WithGetParams(addUrl))
 }
 
-// ------------------------------------------------------------------ GetOutgoingStatuses + GetIncomingStatuses block
+// ------------------------------------------------------------------ GetOutgoingStatuses + GetIncomingStatuses
 
 type RequestGetLastStatuses struct {
 	Minutes int `json:"minutes,omitempty"`

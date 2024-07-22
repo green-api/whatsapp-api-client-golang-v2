@@ -6,7 +6,7 @@ type GroupsCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ CreateGroup block
+// ------------------------------------------------------------------ CreateGroup
 
 type RequestCreateGroup struct {
 	GroupName string   `json:"groupName"`
@@ -37,7 +37,7 @@ func (c GroupsCategory) CreateGroup(groupName string, chatIds []string) (*APIRes
 	return c.GreenAPI.Request("POST", "createGroup", jsonData)
 }
 
-// ------------------------------------------------------------------ UpdateGroupName block
+// ------------------------------------------------------------------ UpdateGroupName
 
 type RequestUpdateGroupName struct {
 	GroupId   string `json:"groupId"`
@@ -66,7 +66,7 @@ func (c GroupsCategory) UpdateGroupName(groupId, groupName string) (*APIResponse
 	return c.GreenAPI.Request("POST", "updateGroupName", jsonData)
 }
 
-// ------------------------------------------------------------------ GetGroupData block
+// ------------------------------------------------------------------ GetGroupData
 
 type RequestGetGroupData struct {
 	GroupId string `json:"groupId"`
@@ -93,7 +93,7 @@ func (c GroupsCategory) GetGroupData(groupId string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "getGroupData", jsonData)
 }
 
-// ------------------------------------------------------------------ GroupParticipant block
+// ------------------------------------------------------------------ GroupParticipant
 
 type RequestModifyGroupParticipant struct {
 	GroupId           string `json:"groupId"`
@@ -188,7 +188,7 @@ func (c GroupsCategory) RemoveAdmin(groupId, participantChatId string) (*APIResp
 	return c.GreenAPI.Request("POST", "removeAdmin", jsonData)
 }
 
-// ------------------------------------------------------------------ SetGroupPicture block
+// ------------------------------------------------------------------ SetGroupPicture
 
 type RequestSetGroupPicture struct {
 	File    string `json:"file"`
@@ -217,7 +217,7 @@ func (c GroupsCategory) SetGroupPicture(filepath, groupId string) (*APIResponse,
 	return c.GreenAPI.Request("POST", "setGroupPicture", jsonData, WithFormData(true))
 }
 
-// ------------------------------------------------------------------ LeaveGroup block
+// ------------------------------------------------------------------ LeaveGroup
 
 type RequestLeaveGroup struct {
 	GroupId string `json:"groupId"`

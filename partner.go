@@ -6,7 +6,7 @@ type PartnerCategory struct {
 	GreenAPIPartner GreenAPIPartnerInterface
 }
 
-// ------------------------------------------------------------------ GetInstances block
+// ------------------------------------------------------------------ GetInstances
 
 // Getting all the account instances created by the partner.
 // 
@@ -15,7 +15,7 @@ func (c PartnerCategory) GetInstances() (*APIResponse, error) {
 	return c.GreenAPIPartner.PartnerRequest("GET", "getInstances", nil)
 }
 
-// ------------------------------------------------------------------ CreateInstance block
+// ------------------------------------------------------------------ CreateInstance
 
 // Creating an instance. 
 // 
@@ -55,7 +55,7 @@ func (c PartnerCategory) CreateInstance(options ...SetSettingsOption) (*APIRespo
 	return c.GreenAPIPartner.PartnerRequest("POST", "createInstance", jsonData)
 }
 
-// ------------------------------------------------------------------ DeleteInstanceAccount block
+// ------------------------------------------------------------------ DeleteInstanceAccount
 
 type RequestDeleteInstanceAccount struct {
 	IdInstance int `json:"idInstance"`

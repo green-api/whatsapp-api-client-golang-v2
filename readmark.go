@@ -6,7 +6,7 @@ type ReadMarkCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ ReadChat block
+// ------------------------------------------------------------------ ReadChat
 
 type RequestReadChat struct {
 	ChatId    string `json:"chatId"`

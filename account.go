@@ -8,7 +8,7 @@ type AccountCategory struct {
 	GreenAPI GreenAPIInterface
 }
 
-// ------------------------------------------------------------------ GetSettings block
+// ------------------------------------------------------------------ GetSettings
 
 // Getting settings of an instance.
 //
@@ -17,7 +17,7 @@ func (c AccountCategory) GetSettings() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getSettings", nil)
 }
 
-// ------------------------------------------------------------------ SetSettings block
+// ------------------------------------------------------------------ SetSettings
 
 type RequestSetSettings struct {
 	WebhookUrl                        *string `json:"webhookUrl,omitempty"`
@@ -249,7 +249,7 @@ func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse
 	return c.GreenAPI.Request("POST", "setSettings", jsonData)
 }
 
-// ------------------------------------------------------------------ GetStateInstance block
+// ------------------------------------------------------------------ GetStateInstance
 
 // Getting state of an instance.
 //
@@ -258,7 +258,7 @@ func (c AccountCategory) GetStateInstance() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getStateInstance", nil)
 }
 
-// ------------------------------------------------------------------ GetStatusInstance block
+// ------------------------------------------------------------------ GetStatusInstance
 
 // Getting the status of an instance socket connection with WhatsApp.
 //
@@ -267,7 +267,7 @@ func (c AccountCategory) GetStatusInstance() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getStatusInstance", nil)
 }
 
-// ------------------------------------------------------------------ Reboot block
+// ------------------------------------------------------------------ Reboot
 
 // Rebooting an instance.
 // 
@@ -276,7 +276,7 @@ func (c AccountCategory) Reboot() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "reboot", nil)
 }
 
-// ------------------------------------------------------------------ Logout block
+// ------------------------------------------------------------------ Logout
 
 // Logging out an instance.
 // 
@@ -285,7 +285,7 @@ func (c AccountCategory) Logout() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "logout", nil)
 }
 
-// ------------------------------------------------------------------ QR block
+// ------------------------------------------------------------------ QR
 
 // Getting QR code for authorization.
 // 
@@ -294,7 +294,7 @@ func (c AccountCategory) QR() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "qr", nil)
 }
 
-// ------------------------------------------------------------------ GetAuthorizationCode block
+// ------------------------------------------------------------------ GetAuthorizationCode
 
 type RequestGetAuthorizationCode struct {
 	PhoneNumber int `json:"phoneNumber"`
@@ -316,7 +316,7 @@ func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, er
 	return c.GreenAPI.Request("POST", "getAuthorizationCode", jsonData)
 }
 
-// ------------------------------------------------------------------ SetProfilePicture block
+// ------------------------------------------------------------------ SetProfilePicture
 
 type RequestSetProfilePicture struct {
 	File string `json:"file"`
@@ -338,7 +338,7 @@ func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error
 	return c.GreenAPI.Request("POST", "setProfilePicture", jsonData, WithFormData(true))
 }
 
-// ------------------------------------------------------------------ GetWaSettings block
+// ------------------------------------------------------------------ GetWaSettings
 
 // Getting information about the WhatsApp account
 //

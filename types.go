@@ -16,7 +16,6 @@ type GreenAPIInterface interface {
 	Request(httpMethod, APImethod string, requestBody []byte, options ...requestOptions) (*APIResponse, error)
 }
 
-// TODO: нужен APIURL или хардкодить?
 type GreenAPIPartner struct {
 	APIURL       string
 	PartnerToken string
