@@ -65,9 +65,9 @@ GreenAPI := greenapi.GreenAPI{
 	}
 ```
 
-All methods of this library return two objects: *APIResponse and error. 
+All methods of this library return two objects: `*APIResponse` and `error`. 
 
-You can see the APIResponse format in the [types.go](types.go)
+You can see the `APIResponse` format in the [types.go](types.go)
 
 **How to send a message:**
 
@@ -121,7 +121,7 @@ response, _ := GreenAPI.Sending().SendPoll(
 
 ## Optional parameters
 
-**Note that functions might have optional arguments, which you can pass or ignore. You can use optional parameters, they have similar naming format:**
+**Note that functions might have optional arguments, which you can pass or ignore. Optional parameters are passed as functions into the method's arguments and have similar naming format:**
 ```go
 greenapi.Optional + name of parameter
 ```
@@ -130,16 +130,16 @@ greenapi.Optional + name of parameter
 
 ```go
 response, _ := GreenAPI.Account().SetSettings(
+        greenapi.OptionalDelaySendMesssages(5000),
+		greenapi.OptionalOutgoingWebhook(true),
+		greenapi.OptionalIncomingWebhook(true),
 		// greenapi.OptionalWebhookUrl("webhook_url"),
 		// greenapi.OptionalWebhookUrlToken("auth_token"),
-		greenapi.OptionalDelaySendMesssages(5000),
 		// greenapi.OptionalMarkIncomingMessagesRead(true),
 		// greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
-		greenapi.OptionalOutgoingWebhook(true),
 		// greenapi.OptionalOutgoingMessageWebhook(true),
 		// greenapi.OptionalOutgoingAPIMessageWebhook(true),
 		// greenapi.OptionalStateWebhook(true),
-		greenapi.OptionalIncomingWebhook(true),
 		// greenapi.OptionalDeviceWebhook(true),
 		// greenapi.OptionalKeepOnlineStatus(true),
 		// greenapi.OptionalPollMessageWebhook(true),
@@ -224,3 +224,10 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Partner().GetInstances`   | The method is for getting all the account instances created by the partner.                                           | [GetInstances](https://green-api.com/en/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`   | The method is for creating an instance.                                           | [CreateInstance](https://green-api.com/en/docs/partners/createInstance/)                       |
 | `Partner().DeleteInstanceAccount`   | The method is for deleting an instance.                                           | [DeleteInstanceAccount](https://green-api.com/en/docs/partners/deleteInstanceAccount/)                       |
+| `Status().SendTextStatus`             | The method is aimed for sending a text status                                                     | [SendTextStatus](https://green-api.com/en/docs/api/statuses/SendTextStatus/)                                          |
+| `Status().SendVoiceStatus`             | The method is aimed for sending a voice status                                                     | [SendVoiceStatus](https://green-api.com/en/docs/api/statuses/SendVoiceStatus/)                                          |
+| `Status().SendMediaStatus`             | The method is aimed for sending a voice status                                                     | [SendMediaStatus](https://green-api.com/en/docs/api/statuses/SendMediaStatus/)                                          |      
+| `Status().GetOutgoingStatuses`             | The method returns the outgoing statuses of the account                                                     | [GetOutgoingStatuses](https://green-api.com/en/docs/api/statuses/GetOutgoingStatuses/)                                          |      
+| `Status().GetIncomingStatuses`             | The method returns the incoming status messages of the account                                                     | [GetIncomingStatuses](https://green-api.com/en/docs/api/statuses/GetIncomingStatuses/)                                          |      
+| `Status().GetStatusStatistic`             | The method returns an array of recipients marked for a given status.                                                     | [GetStatusStatistic](https://green-api.com/en/docs/api/statuses/GetStatusStatistic/)                                          |      
+| `Status().DeleteStatus`             | The method is aimed for deleting status.                                                     | [DeleteStatus](https://green-api.com/en/docs/api/statuses/DeleteStatus/)                                          |    
