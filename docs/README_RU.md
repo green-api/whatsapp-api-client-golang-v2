@@ -131,9 +131,17 @@ Partner := greenapi.GreenAPIPartner{
 
 **Теперь вы можете использовать методы партнёра так же, как и обычные методы, но через объект "Partner":**
 
+**Как получить все инстансы на аккаунте:**
+
+Ссылка на пример: [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)
+
 ```go
 response, _ := Partner.Partner().GetInstances()
 ```
+
+**Как создать инстанс:**
+
+Ссылка на пример: [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)
 
 ```go
 response, _ := Partner.Partner().CreateInstance(
@@ -154,6 +162,10 @@ response, _ := Partner.Partner().CreateInstance(
 		greenapi.OptionalIncomingCallWebhook(true),
 	)
 ```
+
+**Как удалить инстанс:**
+
+Ссылка на пример: [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)
 
 ```go
 response, _ := Partner.Partner().DeleteInstanceAccount(1101000000)

@@ -137,9 +137,17 @@ Partner := greenapi.GreenAPIPartner{
 
 **Now you can use Partner methods as usual methods, but through the "Partner" object:**
 
+**How to get instances:**
+
+Link to the example: [partnerMethods/getInstances/main.go](examples/partnerMethods/getInstances/main.go)
+
 ```go
 response, _ := Partner.Partner().GetInstances()
 ```
+
+**How to create an instance:**
+
+Link to the example: [partnerMethods/createInstance/main.go](examples/partnerMethods/createInstance/main.go)
 
 ```go
 response, _ := Partner.Partner().CreateInstance(
@@ -160,6 +168,10 @@ response, _ := Partner.Partner().CreateInstance(
 		greenapi.OptionalIncomingCallWebhook(true),
 	)
 ```
+
+**How to delete an instance:**
+
+Link to the example: [partnerMethods/deleteInstanceAccount/main.go](examples/partnerMethods/deleteInstanceAccount/main.go)
 
 ```go
 response, _ := Partner.Partner().DeleteInstanceAccount(1101000000)
