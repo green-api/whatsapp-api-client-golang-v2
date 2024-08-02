@@ -118,6 +118,47 @@ response, _ := GreenAPI.Sending().SendPoll(
 	)
 ```
 
+## Методы партнёра
+
+**Чтобы использовать методы партнёра, вы должны инициализировать другой объект:**
+
+```go
+Partner := greenapi.GreenAPIPartner{
+		PartnerToken: "gac.1234567891234567891234567891213456789",
+		Email: "mail@email.com", // поле email не обязательно 
+	}
+```
+
+**Теперь вы можете использовать методы партнёра так же, как и обычные методы, но через объект "Partner":**
+
+```go
+response, _ := Partner.Partner().GetInstances()
+```
+
+```go
+response, _ := Partner.Partner().CreateInstance(
+		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalWebhookUrlToken("auth_token"),
+		greenapi.OptionalDelaySendMesssages(5000),
+		greenapi.OptionalMarkIncomingMessagesRead(true),
+		greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
+		greenapi.OptionalOutgoingWebhook(true),
+		greenapi.OptionalOutgoingMessageWebhook(true),
+		greenapi.OptionalOutgoingAPIMessageWebhook(true),
+		greenapi.OptionalStateWebhook(true),
+		greenapi.OptionalIncomingWebhook(true),
+		greenapi.OptionalDeviceWebhook(true),
+		greenapi.OptionalKeepOnlineStatus(true),
+		greenapi.OptionalPollMessageWebhook(true),
+		greenapi.OptionalIncomingBlockWebhook(true),
+		greenapi.OptionalIncomingCallWebhook(true),
+	)
+```
+
+```go
+response, _ := Partner.Partner().DeleteInstanceAccount(1101000000)
+```
+
 ## Необязательные параметры
 
 **Обратите внимание, что методы могут иметь необязательные параметры, которые вы можете передавать. Необязательные параметры передаются в аргументы методов в виде функций и имеют следующий формат:**
@@ -171,6 +212,10 @@ response, _ := GreenAPI.Sending().SendMessage(
 | Как проверить номер телефона на наличие аккаунта WhatsApp         | [checkWhatsapp/main.go](/examples/checkWhatsapp/main.go)                   |
 | Как установить настройки инстанса             | [setSettings/main.go](/examples/setSettings/main.go)                 |
 | Как создать группу             | [createGroup/main.go](/examples/createGroup/main.go)                 |
+| Как отправить текстовый статус             | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                 |
+| Как получить все инстансы на аккаунте             | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                 |
+| Как создать инстанс             | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
+| Как удалить инстанс            | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)                 |
 
 ## Список всех методов библиотеки
 
@@ -223,10 +268,10 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Partner().GetInstances`   | Метод предназначен для получения всех инстансов аккаунтов созданных партнёром.                                           | [GetInstances](https://green-api.com/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`   | Метод предназначен для создания инстанса от имени партнёра.                                           | [CreateInstance](https://green-api.com/docs/partners/createInstance/)                       |
 | `Partner().DeleteInstanceAccount`   | Метод предназначен для удаления инстанса аккаунта партнёра.                                           | [DeleteInstanceAccount](https://green-api.com/docs/partners/deleteInstanceAccount/)                       |
-| `Status().SendTextStatus`             | Метод предназначен для отправки текстового статуса                                                     | [SendTextStatus](https://green-api.com/docs/api/statuses/SendTextStatus/)                                          |
-| `Status().SendVoiceStatus`             | Метод предназначен для отправки голосового статуса                                                     | [SendVoiceStatus](https://green-api.com/docs/api/statuses/SendVoiceStatus/)                                          |
-| `Status().SendMediaStatus`             | Метод предназначен для отправки медиа-файлов                                                     | [SendMediaStatus](https://green-api.com/docs/api/statuses/SendMediaStatus/)                                          |      
-| `Status().GetOutgoingStatuses`             | Метод возвращает крайние отправленные статусы аккаунта                                                     | [GetOutgoingStatuses](https://green-api.com/docs/api/statuses/GetOutgoingStatuses/)                                          |      
-| `Status().GetIncomingStatuses`             | Метод возвращает крайние входящие статусы аккаунта                                                     | [GetIncomingStatuses](https://green-api.com/docs/api/statuses/GetIncomingStatuses/)                                          |      
-| `Status().GetStatusStatistic`             | Метод возвращает массив получателей со статусами, отмеченных как отправлено/доставлено/прочитано, для данного статуса                                                     | [GetStatusStatistic](https://green-api.com/docs/api/statuses/GetStatusStatistic/)                                          |      
-| `Status().DeleteStatus`             | Метод предназначен для удаления статуса                                                     | [DeleteStatus](https://green-api.com/docs/api/statuses/DeleteStatus/)                                          |    
+| `Statuses().SendTextStatus`             | Метод предназначен для отправки текстового статуса                                                     | [SendTextStatus](https://green-api.com/docs/api/statuses/SendTextStatus/)                                          |
+| `Statuses().SendVoiceStatus`             | Метод предназначен для отправки голосового статуса                                                     | [SendVoiceStatus](https://green-api.com/docs/api/statuses/SendVoiceStatus/)                                          |
+| `Statuses().SendMediaStatus`             | Метод предназначен для отправки медиа-файлов                                                     | [SendMediaStatus](https://green-api.com/docs/api/statuses/SendMediaStatus/)                                          |      
+| `Statuses().GetOutgoingStatuses`             | Метод возвращает крайние отправленные статусы аккаунта                                                     | [GetOutgoingStatuses](https://green-api.com/docs/api/statuses/GetOutgoingStatuses/)                                          |      
+| `Statuses().GetIncomingStatuses`             | Метод возвращает крайние входящие статусы аккаунта                                                     | [GetIncomingStatuses](https://green-api.com/docs/api/statuses/GetIncomingStatuses/)                                          |      
+| `Statuses().GetStatusStatistic`             | Метод возвращает массив получателей со статусами, отмеченных как отправлено/доставлено/прочитано, для данного статуса                                                     | [GetStatusStatistic](https://green-api.com/docs/api/statuses/GetStatusStatistic/)                                          |      
+| `Statuses().DeleteStatus`             | Метод предназначен для удаления статуса                                                     | [DeleteStatus](https://green-api.com/docs/api/statuses/DeleteStatus/)                                          |    

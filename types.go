@@ -17,7 +17,6 @@ type GreenAPIInterface interface {
 }
 
 type GreenAPIPartner struct {
-	APIURL       string
 	PartnerToken string
 	Email        string
 }

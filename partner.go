@@ -58,13 +58,13 @@ func (c PartnerCategory) CreateInstance(options ...SetSettingsOption) (*APIRespo
 // ------------------------------------------------------------------ DeleteInstanceAccount
 
 type RequestDeleteInstanceAccount struct {
-	IdInstance int `json:"idInstance"`
+	IdInstance uint `json:"idInstance"`
 }
 
 // Deleting an instance.
 // 
 // https://green-api.com/en/docs/partners/deleteInstanceAccount/
-func (c PartnerCategory) DeleteInstanceAccount(idInstance int) (*APIResponse, error) {
+func (c PartnerCategory) DeleteInstanceAccount(idInstance uint) (*APIResponse, error) {
 	r := &RequestDeleteInstanceAccount{
 		IdInstance: idInstance,
 	}

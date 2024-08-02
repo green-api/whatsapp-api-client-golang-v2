@@ -19,7 +19,7 @@ func main() {
 		"Text of the status", 
 		greenapi.OptionalFont("SERIF"),
 		greenapi.OptionalBackgroundColorText("#FFFFFF"),
-		greenapi.OptionalParticipantsTextStatus([]string{"79326980324@c.us", "40754815491@c.us"}),
+		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
 	)
 	if err != nil {
 		log.Fatal(err)

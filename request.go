@@ -78,7 +78,7 @@ func (a *GreenAPIPartner) PartnerRequest(HTTPMethod, APIMethod string, requestBo
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 
-	req.SetRequestURI(fmt.Sprintf("%s/partner/%s/%s", a.APIURL, APIMethod, a.PartnerToken))
+	req.SetRequestURI(fmt.Sprintf("https://api.green-api.com/partner/%s/%s", APIMethod, a.PartnerToken))
 
 	req.Header.SetMethod(HTTPMethod)
 	req.Header.Set("Content-Type", "application/json")
