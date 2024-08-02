@@ -32,6 +32,11 @@ authorize the account, go to your [cabinet](https://console.green-api.com/) and 
 
 ## Installation
 
+**Make sure that you have Go installed with a version of 1.20 or newer**
+```shell
+go version
+```
+
 **Create a module for your project if you didn't:**
 
 ```shell
@@ -41,7 +46,7 @@ go mod init ModuleName
 **Install the library:**
 
 ```shell
-go get whatsapp-api-client-golang-v2
+go get github.com/green-api/whatsapp-api-client-golang-v2
 ```
 
 **Import:**

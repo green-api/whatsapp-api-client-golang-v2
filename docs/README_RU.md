@@ -26,6 +26,11 @@
 
 ## Установка
 
+**Убедитесь, что у вас установлена версия Go не ниже 1.20**
+```shell
+go version
+```
+
 **Создайте Go модуль, если он не создан:**
 
 ```shell
@@ -35,7 +40,7 @@ go mod init ModuleName
 **Установите библиотеку:**
 
 ```shell
-go get whatsapp-api-client-golang-v2
+go get github.com/green-api/whatsapp-api-client-golang-v2
 ```
 
 **Импорт:**
@@ -65,7 +70,7 @@ GreenAPI := greenapi.GreenAPI{
 
 **Как отправить сообщение:**
 
-Ссылка на пример: [sendMessage/main.go](examples/sendMessage/main.go)
+Ссылка на пример: [sendMessage/main.go](/examples/sendMessage/main.go)
 
 ```go
 response, _ := GreenAPI.Sending().SendMessage(
@@ -76,7 +81,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 
 **Как создать группу:**
 
-Ссылка на пример: [createGroup/main.go](examples/createGroup/main.go)
+Ссылка на пример: [createGroup/main.go](/examples/createGroup/main.go)
 
 ```go
 response, _ := GreenAPI.Groups().CreateGroup(
@@ -91,7 +96,7 @@ response, _ := GreenAPI.Groups().CreateGroup(
 
 **Как отправить файл с диска**
 
-Ссылка на пример: [sendFileByUpload/main.go](examples/sendFileByUpload/main.go)
+Ссылка на пример: [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go)
 
 ```go
 response, _ := GreenAPI.Sending().SendFileByUpload(
@@ -103,7 +108,7 @@ response, _ := GreenAPI.Sending().SendFileByUpload(
 
 **Как отправить сообщение с опросом**
 
-Ссылка на пример: [sendPoll/main.go](examples/sendPoll/main.go)
+Ссылка на пример: [sendPoll/main.go](/examples/sendPoll/main.go)
 
 ```go
 response, _ := GreenAPI.Sending().SendPoll(
@@ -159,13 +164,13 @@ response, _ := GreenAPI.Sending().SendMessage(
 
 | Описание                                   | Ссылка на пример                                               |
 |-----------------------------------------------|---------------------------------------------------------------|
-| Как отправить сообщение                         | [sendMessage/main.go](examples/sendMessage/main.go)           |
-| Как отправить файл с диска | [sendFileByUpload/main.go](examples/sendFileByUpload/main.go) |
-| Как выгрузить файл в облачное хранилище                     | [uploadFile/main.go](examples/uploadFile/main.go)       |
-| Как отправить опрос                         | [sendPoll/main.go](examples/sendPoll/main.go)           |
-| Как проверить номер телефона на наличие аккаунта WhatsApp         | [checkWhatsapp/main.go](examples/checkWhatsapp/main.go)                   |
-| Как установить настройки инстанса             | [setSettings/main.go](examples/setSettings/main.go)                 |
-| Как создать группу             | [createGroup/main.go](examples/createGroup/main.go)                 |
+| Как отправить сообщение                         | [sendMessage/main.go](/examples/sendMessage/main.go)           |
+| Как отправить файл с диска | [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go) |
+| Как выгрузить файл в облачное хранилище                     | [uploadFile/main.go](/examples/uploadFile/main.go)       |
+| Как отправить опрос                         | [sendPoll/main.go](/examples/sendPoll/main.go)           |
+| Как проверить номер телефона на наличие аккаунта WhatsApp         | [checkWhatsapp/main.go](/examples/checkWhatsapp/main.go)                   |
+| Как установить настройки инстанса             | [setSettings/main.go](/examples/setSettings/main.go)                 |
+| Как создать группу             | [createGroup/main.go](/examples/createGroup/main.go)                 |
 
 ## Список всех методов библиотеки
 
