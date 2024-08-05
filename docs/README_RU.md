@@ -94,7 +94,7 @@ response, _ := GreenAPI.Groups().CreateGroup(
 	)
 ```
 
-**Как отправить файл с диска**
+**Как отправить файл с диска:**
 
 Ссылка на пример: [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go)
 
@@ -106,7 +106,7 @@ response, _ := GreenAPI.Sending().SendFileByUpload(
 	)
 ```
 
-**Как отправить сообщение с опросом**
+**Как отправить сообщение с опросом:**
 
 Ссылка на пример: [sendPoll/main.go](/examples/sendPoll/main.go)
 
@@ -115,6 +115,19 @@ response, _ := GreenAPI.Sending().SendPoll(
 		"11001234567@c.us", 
 		"Choose a color:", 
 		[]string{"Red", "Green", "Blue"}, 
+	)
+```
+
+**Как отправить текстовый статус:**
+
+Ссылка на пример: [sendTextStatus](/examples/sendTextStatus/main.go)
+
+```go
+response, _ := GreenAPI.Statuses().SendTextStatus(
+		"Text of the status", 
+		greenapi.OptionalFont("SERIF"),
+		greenapi.OptionalBackgroundColorText("#87CEEB"),
+		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
 	)
 ```
 

@@ -100,7 +100,7 @@ response, _ := GreenAPI.Groups().CreateGroup(
 	)
 ```
 
-**How to send file by upload**
+**How to send file by upload:**
 
 Link to example: [sendFileByUpload/main.go](examples/sendFileByUpload/main.go)
 
@@ -112,7 +112,7 @@ response, _ := GreenAPI.Sending().SendFileByUpload(
 	)
 ```
 
-**How to send a message with a poll**
+**How to send a message with a poll:**
 
 Link to example: [sendPoll/main.go](examples/sendPoll/main.go)
 
@@ -121,6 +121,19 @@ response, _ := GreenAPI.Sending().SendPoll(
 		"11001234567@c.us", 
 		"Choose a color:", 
 		[]string{"Red", "Green", "Blue"}, 
+	)
+```
+
+**How to send a text status:**
+
+Link to example: [sendTextStatus](examples/sendTextStatus/main.go)
+
+```go
+response, _ := GreenAPI.Statuses().SendTextStatus(
+		"Text of the status", 
+		greenapi.OptionalFont("SERIF"),
+		greenapi.OptionalBackgroundColorText("#87CEEB"),
+		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
 	)
 ```
 
@@ -286,7 +299,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Partner().GetInstances`   | The method is for getting all the account instances created by the partner.                                           | [GetInstances](https://green-api.com/en/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`   | The method is for creating an instance.                                           | [CreateInstance](https://green-api.com/en/docs/partners/createInstance/)                       |
 | `Partner().DeleteInstanceAccount`   | The method is for deleting an instance.                                           | [DeleteInstanceAccount](https://green-api.com/en/docs/partners/deleteInstanceAccount/)                       |
-| `Status().SendTextStatus`             | The method is aimed for sending a text status                                                     | [SendTextStatus](https://green-api.com/en/docs/api/statuses/SendTextStatus/)                                          |
+| `Statuses().SendTextStatus`             | The method is aimed for sending a text status                                                     | [SendTextStatus](https://green-api.com/en/docs/api/statuses/SendTextStatus/)                                          |
 | `Statuses().SendVoiceStatus`             | The method is aimed for sending a voice status                                                     | [SendVoiceStatus](https://green-api.com/en/docs/api/statuses/SendVoiceStatus/)                                          |
 | `Statuses().SendMediaStatus`             | The method is aimed for sending a voice status                                                     | [SendMediaStatus](https://green-api.com/en/docs/api/statuses/SendMediaStatus/)                                          |      
 | `Statuses().GetOutgoingStatuses`             | The method returns the outgoing statuses of the account                                                     | [GetOutgoingStatuses](https://green-api.com/en/docs/api/statuses/GetOutgoingStatuses/)                                          |      

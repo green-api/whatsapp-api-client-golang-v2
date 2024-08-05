@@ -18,7 +18,7 @@ func main() {
 	response, err := GreenAPI.Statuses().SendTextStatus(
 		"Text of the status", 
 		greenapi.OptionalFont("SERIF"),
-		greenapi.OptionalBackgroundColorText("#FFFFFF"),
+		greenapi.OptionalBackgroundColorText("#87CEEB"),
 		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
 	)
 	if err != nil {
