@@ -60,7 +60,7 @@ func OptionalWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
 }
 
 // Message sending delay. 
-func OptionalDelaySendMesssages(delaySendMessagesMilliseconds uint) SetSettingsOption {
+func OptionalDelaySendMessages(delaySendMessagesMilliseconds uint) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
 		return nil

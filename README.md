@@ -166,7 +166,7 @@ Link to the example: [partnerMethods/createInstance/main.go](examples/partnerMet
 response, _ := Partner.Partner().CreateInstance(
 		greenapi.OptionalWebhookUrl("webhook_url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
-		greenapi.OptionalDelaySendMesssages(5000),
+		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
 		greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
 		greenapi.OptionalOutgoingWebhook(true),
@@ -201,7 +201,7 @@ greenapi.Optional + name of parameter
 
 ```go
 response, _ := GreenAPI.Account().SetSettings(
-        greenapi.OptionalDelaySendMesssages(5000),
+        greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalOutgoingWebhook(true),
 		greenapi.OptionalIncomingWebhook(true),
 		// greenapi.OptionalWebhookUrl("webhook_url"),

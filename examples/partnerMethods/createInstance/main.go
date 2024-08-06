@@ -16,7 +16,7 @@ func main() {
 	response, err := Partner.Partner().CreateInstance(
 		greenapi.OptionalWebhookUrl("webhook_url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
-		greenapi.OptionalDelaySendMesssages(5000),
+		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
 		greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
 		greenapi.OptionalOutgoingWebhook(true),
