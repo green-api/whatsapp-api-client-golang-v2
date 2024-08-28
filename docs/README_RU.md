@@ -106,6 +106,19 @@ response, _ := GreenAPI.Sending().SendFileByUpload(
 	)
 ```
 
+**Как отправить файл по ссылке:**
+
+Ссылка на пример: [sendFileByUrl/main.go](/examples/sendFileByUrl/main.go)
+
+```go
+response, _ := GreenAPI.Sending().SendFileByUrl(
+		"11001234567@c.us",
+		"urlFile",
+		"fileName",
+		greenapi.OptionalCaptionSendUrl("Caption"),
+	)
+```
+
 **Как отправить сообщение с опросом:**
 
 Ссылка на пример: [sendPoll/main.go](/examples/sendPoll/main.go)
@@ -120,7 +133,7 @@ response, _ := GreenAPI.Sending().SendPoll(
 
 **Как отправить текстовый статус:**
 
-Ссылка на пример: [sendTextStatus](/examples/sendTextStatus/main.go)
+Ссылка на пример: [sendTextStatus/main.go](/examples/sendTextStatus/main.go)
 
 ```go
 response, _ := GreenAPI.Statuses().SendTextStatus(
@@ -128,6 +141,16 @@ response, _ := GreenAPI.Statuses().SendTextStatus(
 		greenapi.OptionalFont("SERIF"),
 		greenapi.OptionalBackgroundColorText("#87CEEB"),
 		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
+	)
+```
+
+**Как получить входящее уведомление:**
+
+Ссылка на пример: [receiveNotification/main.go](/examples/receiveNotification/main.go)
+
+```go
+response, _ := GreenAPI.Receiving().ReceiveNotification(
+		greenapi.OptionalReceiveTimeout(5),
 	)
 ```
 
@@ -232,12 +255,14 @@ response, _ := GreenAPI.Sending().SendMessage(
 |-----------------------------------------------|---------------------------------------------------------------|
 | Как отправить сообщение                         | [sendMessage/main.go](/examples/sendMessage/main.go)           |
 | Как отправить файл с диска | [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go) |
+| Как отправить файл по ссылке | [sendFileByUrl/main.go](/examples/sendFileByUrl/main.go) |
 | Как выгрузить файл в облачное хранилище                     | [uploadFile/main.go](/examples/uploadFile/main.go)       |
 | Как отправить опрос                         | [sendPoll/main.go](/examples/sendPoll/main.go)           |
 | Как проверить номер телефона на наличие аккаунта WhatsApp         | [checkWhatsapp/main.go](/examples/checkWhatsapp/main.go)                   |
 | Как установить настройки инстанса             | [setSettings/main.go](/examples/setSettings/main.go)                 |
 | Как создать группу             | [createGroup/main.go](/examples/createGroup/main.go)                 |
 | Как отправить текстовый статус             | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                 |
+| Как получить входящее уведомление | [receiveNotification/main.go](/examples/receiveNotification/main.go) |
 | Как получить все инстансы на аккаунте             | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                 |
 | Как создать инстанс             | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
 | Как удалить инстанс            | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)                 |

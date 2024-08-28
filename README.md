@@ -112,6 +112,19 @@ response, _ := GreenAPI.Sending().SendFileByUpload(
 	)
 ```
 
+**How to send a file by URL:**
+
+Link to example: [sendFileByUrl/main.go](examples/sendFileByUrl/main.go)
+
+```go
+response, _ := GreenAPI.Sending().SendFileByUrl(
+		"11001234567@c.us",
+		"urlFile",
+		"fileName",
+		greenapi.OptionalCaptionSendUrl("Caption"),
+	)
+```
+
 **How to send a message with a poll:**
 
 Link to example: [sendPoll/main.go](examples/sendPoll/main.go)
@@ -126,7 +139,7 @@ response, _ := GreenAPI.Sending().SendPoll(
 
 **How to send a text status:**
 
-Link to example: [sendTextStatus](examples/sendTextStatus/main.go)
+Link to example: [sendTextStatus/main.go](examples/sendTextStatus/main.go)
 
 ```go
 response, _ := GreenAPI.Statuses().SendTextStatus(
@@ -134,6 +147,16 @@ response, _ := GreenAPI.Statuses().SendTextStatus(
 		greenapi.OptionalFont("SERIF"),
 		greenapi.OptionalBackgroundColorText("#87CEEB"),
 		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
+	)
+```
+
+**How to receive an incoming notification:**
+
+Link to example: [receiveNotification/main.go](examples/receiveNotification/main.go)
+
+```go
+response, _ := GreenAPI.Receiving().ReceiveNotification(
+		greenapi.OptionalReceiveTimeout(5),
 	)
 ```
 
@@ -238,12 +261,14 @@ response, _ := GreenAPI.Sending().SendMessage(
 |-----------------------------------------------|---------------------------------------------------------------|
 | How to send a message                         | [sendMessage/main.go](examples/sendMessage/main.go)           |
 | How to send a file by uploading from the disk | [sendFileByUpload/main.go](examples/sendFileByUpload/main.go) |
+| How to send a file by URL | [sendFileByUrl/main.go](examples/sendFileByUrl/main.go) |
 | How to upload a file to an external drive                     | [uploadFile/main.go](examples/uploadFile/main.go)       |
 | How to send a poll                         | [sendPoll/main.go](examples/sendPoll/main.go)           |
 | How to check if there is a WhatsApp account on the phone number         | [checkWhatsapp/main.go](examples/checkWhatsapp/main.go)                   |
 | How to set instance settings             | [setSettings/main.go](examples/setSettings/main.go)                 |
 | How to create a group             | [createGroup/main.go](examples/createGroup/main.go)                 |
 | How to send a text status             | [sendTextStatus/main.go](examples/sendTextStatus/main.go)                 |
+| How to receive an incoming notification | [receiveNotification/main.go](examples/receiveNotification/main.go) |
 | How to get all instances of the account             | [partnerMethods/getInstances/main.go](examples/partnerMethods/getInstances/main.go)                 |
 | How to create an instance             | [partnerMethods/createInstance/main.go](examples/partnerMethods/createInstance/main.go)                 |
 | How to delete an instance            | [partnerMethods/deleteInstanceAccount/main.go](examples/partnerMethods/deleteInstanceAccount/main.go)                 |
