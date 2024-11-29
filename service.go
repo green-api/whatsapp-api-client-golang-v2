@@ -126,6 +126,38 @@ type RequestArchiveChat struct {
 	ChatId string `json:"chatId"`
 }
 
+// ------------------------------------------------------------------ EditMessage
+
+type RequestEditMessage struct {
+	ChatId    string `json:"chatId"`
+	IdMessage string `json:"idMessage"`
+	Message   string `json:"message"`
+}
+
+// Edit a message in chat.
+// 
+// https://green-api.com/en/docs/api/service/editMessage/
+func (c ServiceCategory) EditMessage(chatId, idMessage, message string) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err!=nil {
+		return nil, err
+	}
+
+	r := &RequestEditMessage{
+		ChatId:    chatId,
+		IdMessage: idMessage,
+		Message:   message,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "editMessage", jsonData)
+}
+
+
 // Archiving a chat.
 // 
 // https://green-api.com/en/docs/api/service/archiveChat/
