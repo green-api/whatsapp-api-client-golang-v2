@@ -40,7 +40,7 @@ func (c PartnerCategory) GetInstances() (*APIResponse, error) {
 // https://green-api.com/en/docs/partners/createInstance/
 //
 // Add optional arguments by passing these functions:
-//  OptionalName(name string) <- Name for instance
+//  OptionalName(name string) <- Name for instance.
 //  OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
 //  OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
 //  OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay. 
@@ -56,6 +56,8 @@ func (c PartnerCategory) GetInstances() (*APIResponse, error) {
 //  OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
 //  OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
 //  OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
+//  OptionalEditedMessageWebhook(editedMessageWebhook bool) <- Get notifications about edited messages.
+//  OptionalDeletedMessageWebhook(deletedMessageWebhook bool) <- Get notifications about deleted messages.
 func (c PartnerCategory) CreateInstance(options ...any) (*APIResponse, error) {
 	rCreateInstance := &RequestCreateInstance{}
 
@@ -63,7 +65,7 @@ func (c PartnerCategory) CreateInstance(options ...any) (*APIResponse, error) {
 		switch v := o.(type) {
 		case SetSettingsOption:
 			err := v(&rCreateInstance.RequestSetSettings)
-			if err!=nil {
+			if err != nil {
 				return nil, err
 			}
 		case CreateInstanceOption:

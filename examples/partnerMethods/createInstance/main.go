@@ -30,6 +30,8 @@ func main() {
 		greenapi.OptionalPollMessageWebhook(true),
 		greenapi.OptionalIncomingBlockWebhook(true),
 		greenapi.OptionalIncomingCallWebhook(true),
+		greenapi.OptionalEditedMessageWebhook(true),
+		greenapi.OptionalDeletedMessageWebhook(true),
 	)
 	if err != nil {
 		log.Fatal(err)

@@ -181,7 +181,8 @@ response, _ := Partner.Partner().GetInstances()
 
 ```go
 response, _ := Partner.Partner().CreateInstance(
-		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalName("Created by GO SDK"),
+		greenapi.OptionalWebhookUrl("https://webhook.url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
 		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
@@ -196,6 +197,8 @@ response, _ := Partner.Partner().CreateInstance(
 		greenapi.OptionalPollMessageWebhook(true),
 		greenapi.OptionalIncomingBlockWebhook(true),
 		greenapi.OptionalIncomingCallWebhook(true),
+		greenapi.OptionalEditedMessageWebhook(true),
+		greenapi.OptionalDeletedMessageWebhook(true),
 	)
 ```
 
@@ -233,6 +236,8 @@ response, _ := GreenAPI.Account().SetSettings(
 		// greenapi.OptionalPollMessageWebhook(true),
 		// greenapi.OptionalIncomingBlockWebhook(true),
 		// greenapi.OptionalIncomingCallWebhook(true),
+		// greenapi.OptionalEditedMessageWebhook(true),
+		// greenapi.OptionalDeletedMessageWebhook(true),
 	)
 ```
 
@@ -311,6 +316,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().GetAvatar`             | Метод возвращает аватар корреспондента или группового чата	                                                          | [GetAvatar](https://green-api.com/docs/api/service/GetAvatar/)                                           |
 | `Service().GetContacts`           | Метод предназначен для получения списка контактов текущего аккаунта                                                   | [GetContacts](https://green-api.com/docs/api/service/GetContacts/)                                       |
 | `Service().GetContactInfo`        | Метод предназначен для получения информации о контакте                                                            | [GetContactInfo](https://green-api.com/docs/api/service/GetContactInfo/)                                 |
+| `Service().EditMessage`           | Метод изменяет сообщение в чате                                                                                  | [EditMessage](https://green-api.com/docs/api/service/editMessage/)                                   |
 | `Service().DeleteMessage`         | Метод удаляет сообщение из чата                                                                                  | [DeleteMessage](https://green-api.com/docs/api/service/deleteMessage/)                                   |
 | `Service().ArchiveChat`           | Метод архивирует чат                                                                                              | [ArchiveChat](https://green-api.com/docs/api/service/archiveChat/)                                       |
 | `Service().UnarchiveChat`         | Метод разархивирует чат                                                                                            | [UnarchiveChat](https://green-api.com/docs/api/service/unarchiveChat/)                                   |

@@ -22,7 +22,7 @@ func (c AccountCategory) GetSettings() (*APIResponse, error) {
 type RequestSetSettings struct {
 	WebhookUrl                        *string `json:"webhookUrl,omitempty"`
 	WebhookUrlToken                   *string `json:"webhookUrlToken,omitempty"`
-	DelaySendMessagesMilliseconds     *uint    `json:"delaySendMessagesMilliseconds,omitempty"`
+	DelaySendMessagesMilliseconds     *uint   `json:"delaySendMessagesMilliseconds,omitempty"`
 	MarkIncomingMessagesReaded        string  `json:"markIncomingMessagesReaded,omitempty"`
 	MarkIncomingMessagesReadedOnReply string  `json:"markIncomingMessagesReadedOnReply,omitempty"`
 	OutgoingWebhook                   string  `json:"outgoingWebhook,omitempty"`
@@ -35,6 +35,8 @@ type RequestSetSettings struct {
 	PollMessageWebhook                string  `json:"pollMessageWebhook,omitempty"`
 	IncomingBlockWebhook              string  `json:"incomingBlockWebhook,omitempty"`
 	IncomingCallWebhook               string  `json:"incomingCallWebhook,omitempty"`
+	EditedMessageWebhook              string  `json:"editedMessageWebhook,omitempty"`
+	DeletedMessageWebhook             string  `json:"deletedMessageWebhook,omitempty"`
 }
 
 type SetSettingsOption func(*RequestSetSettings) error
@@ -211,6 +213,30 @@ func OptionalIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
 	}
 }
 
+// Get notifications about incoming call statuses.
+func OptionalEditedMessageWebhook(editedMessageWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
+		if editedMessageWebhook {
+			r.EditedMessageWebhook = "yes"
+		} else {
+			r.EditedMessageWebhook = "no"
+		}
+		return nil
+	}
+}
+
+// Get notifications about incoming call statuses.
+func OptionalDeletedMessageWebhook(deletedMessageWebhook bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
+		if deletedMessageWebhook {
+			r.DeletedMessageWebhook = "yes"
+		} else {
+			r.DeletedMessageWebhook = "no"
+		}
+		return nil
+	}
+}
+
 // Applying settings for an instance.
 // 
 // https://green-api.com/en/docs/api/account/SetSettings/
@@ -231,6 +257,8 @@ func OptionalIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
 //  OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
 //  OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
 //  OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
+//  OptionalEditedMessageWebhook(editedMessageWebhook bool) <- Get notifications about edited messages.
+//  OptionalDeletedMessageWebhook(deletedMessageWebhook bool) <- Get notifications about deleted messages.
 func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse, error) {
 
 	r := &RequestSetSettings{}
