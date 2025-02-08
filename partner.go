@@ -1,9 +1,27 @@
 package greenapi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type PartnerCategory struct {
 	GreenAPIPartner GreenAPIPartnerInterface
+}
+
+type RequestCreateInstance struct {
+	RequestSetSettings
+	Name  *string `json:"name,omitempty"`
+}
+
+type CreateInstanceOption func(*RequestCreateInstance) error
+
+// Instance name
+func OptionalName(name string) CreateInstanceOption {
+	return func(r *RequestCreateInstance) error {
+		r.Name = &name
+		return nil
+	}
 }
 
 // ------------------------------------------------------------------ GetInstances
@@ -22,6 +40,7 @@ func (c PartnerCategory) GetInstances() (*APIResponse, error) {
 // https://green-api.com/en/docs/partners/createInstance/
 //
 // Add optional arguments by passing these functions:
+//  OptionalName(name string) <- Name for instance
 //  OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
 //  OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
 //  OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay. 
@@ -37,21 +56,31 @@ func (c PartnerCategory) GetInstances() (*APIResponse, error) {
 //  OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
 //  OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
 //  OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
-func (c PartnerCategory) CreateInstance(options ...SetSettingsOption) (*APIResponse, error) {
-	r := &RequestSetSettings{}
+func (c PartnerCategory) CreateInstance(options ...any) (*APIResponse, error) {
+	rCreateInstance := &RequestCreateInstance{}
 
 	for _, o := range options {
-		err := o(r)
-		if err!=nil {
+		switch v := o.(type) {
+		case SetSettingsOption:
+			err := v(&rCreateInstance.RequestSetSettings)
+			if err!=nil {
+				return nil, err
+			}
+		case CreateInstanceOption:
+			err := v(rCreateInstance)
+			if err != nil {
+				return nil, err
+			}
+		default:
+			err := fmt.Errorf("greenapi.GreenAPIPartner.CreateInstance: wrong type in argument: %T", o)
 			return nil, err
 		}
 	}
 
-	jsonData, err := json.Marshal(r)
+	jsonData, err := json.Marshal(rCreateInstance)
 	if err != nil {
 		return nil, err
 	}
-
 	return c.GreenAPIPartner.PartnerRequest("POST", "createInstance", jsonData)
 }
 
