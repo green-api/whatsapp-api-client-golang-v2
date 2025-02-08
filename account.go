@@ -213,7 +213,7 @@ func OptionalIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
 	}
 }
 
-// Get notifications about incoming call statuses.
+// Get notifications about edited messages.
 func OptionalEditedMessageWebhook(editedMessageWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if editedMessageWebhook {
@@ -225,7 +225,7 @@ func OptionalEditedMessageWebhook(editedMessageWebhook bool) SetSettingsOption {
 	}
 }
 
-// Get notifications about incoming call statuses.
+// Get notifications about deleted messages.
 func OptionalDeletedMessageWebhook(deletedMessageWebhook bool) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		if deletedMessageWebhook {
