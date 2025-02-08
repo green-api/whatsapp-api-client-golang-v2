@@ -16,7 +16,7 @@ func main() {
 	}
 
 	response, err := GreenAPI.Account().SetSettings(
-		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalWebhookUrl("https://webhook.url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
 		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
