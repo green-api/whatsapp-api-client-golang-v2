@@ -13,23 +13,7 @@ func main() {
 		Email: "mail@email.com",
 	}
 
-	response, err := Partner.Partner().CreateInstance(
-		greenapi.OptionalWebhookUrl("webhook_url"),
-		greenapi.OptionalWebhookUrlToken("auth_token"),
-		greenapi.OptionalDelaySendMessages(5000),
-		greenapi.OptionalMarkIncomingMessagesRead(true),
-		greenapi.OptionalMarkIncomingMessagesReadOnReply(true),
-		greenapi.OptionalOutgoingWebhook(true),
-		greenapi.OptionalOutgoingMessageWebhook(true),
-		greenapi.OptionalOutgoingAPIMessageWebhook(true),
-		greenapi.OptionalStateWebhook(true),
-		greenapi.OptionalIncomingWebhook(true),
-		greenapi.OptionalDeviceWebhook(true),
-		greenapi.OptionalKeepOnlineStatus(true),
-		greenapi.OptionalPollMessageWebhook(true),
-		greenapi.OptionalIncomingBlockWebhook(true),
-		greenapi.OptionalIncomingCallWebhook(true),
-	)
+	response, err := Partner.Partner().GetInstances()
 	if err != nil {
 		log.Fatal(err)
 	}
