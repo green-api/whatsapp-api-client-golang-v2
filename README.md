@@ -187,7 +187,8 @@ Link to the example: [partnerMethods/createInstance/main.go](examples/partnerMet
 
 ```go
 response, _ := Partner.Partner().CreateInstance(
-		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalName("Created by GO SDK"),
+		greenapi.OptionalWebhookUrl("https://webhook.url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
 		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
@@ -202,6 +203,8 @@ response, _ := Partner.Partner().CreateInstance(
 		greenapi.OptionalPollMessageWebhook(true),
 		greenapi.OptionalIncomingBlockWebhook(true),
 		greenapi.OptionalIncomingCallWebhook(true),
+		greenapi.OptionalEditedMessageWebhook(true),
+		greenapi.OptionalDeletedMessageWebhook(true),
 	)
 ```
 
@@ -239,6 +242,8 @@ response, _ := GreenAPI.Account().SetSettings(
 		// greenapi.OptionalPollMessageWebhook(true),
 		// greenapi.OptionalIncomingBlockWebhook(true),
 		// greenapi.OptionalIncomingCallWebhook(true),
+		// greenapi.OptionalEditedMessageWebhook(true),
+		// greenapi.OptionalDeletedMessageWebhook(true),
 	)
 ```
 
@@ -317,6 +322,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().GetAvatar`             | The method returns the avatar of the correspondent or group chat                                                          | [GetAvatar](https://green-api.com/en/docs/api/service/GetAvatar/)                                           |
 | `Service().GetContacts`           | The method is designed to get a list of contacts of the current account                                                   | [GetContacts](https://green-api.com/en/docs/api/service/GetContacts/)                                       |
 | `Service().GetContactInfo`        | The method is designed to obtain information about the contact                                                            | [GetContactInfo](https://green-api.com/en/docs/api/service/GetContactInfo/)                                 |
+| `Service().EditMessage`           | The method edits the message in a chat                                                                                  | [DeleteMessage](https://green-api.com/en/docs/api/service/editMessage/)                                   |
 | `Service().DeleteMessage`         | The method deletes the message from chat                                                                                  | [DeleteMessage](https://green-api.com/en/docs/api/service/deleteMessage/)                                   |
 | `Service().ArchiveChat`           | The method archives the chat                                                                                              | [ArchiveChat](https://green-api.com/en/docs/api/service/archiveChat/)                                       |
 | `Service().UnarchiveChat`         | The method unarchives the chat                                                                                            | [UnarchiveChat](https://green-api.com/en/docs/api/service/unarchiveChat/)                                   |

@@ -14,7 +14,8 @@ func main() {
 	}
 
 	response, err := Partner.Partner().CreateInstance(
-		greenapi.OptionalWebhookUrl("webhook_url"),
+		greenapi.OptionalName("Created by GO SDK"),
+		greenapi.OptionalWebhookUrl("https://webhook.url"),
 		greenapi.OptionalWebhookUrlToken("auth_token"),
 		greenapi.OptionalDelaySendMessages(5000),
 		greenapi.OptionalMarkIncomingMessagesRead(true),
@@ -29,6 +30,8 @@ func main() {
 		greenapi.OptionalPollMessageWebhook(true),
 		greenapi.OptionalIncomingBlockWebhook(true),
 		greenapi.OptionalIncomingCallWebhook(true),
+		greenapi.OptionalEditedMessageWebhook(true),
+		greenapi.OptionalDeletedMessageWebhook(true),
 	)
 	if err != nil {
 		log.Fatal(err)
