@@ -35,11 +35,11 @@ type RequestGetAvatar struct {
 }
 
 // Getting a user or a group chat avatar.
-// 
+//
 // https://green-api.com/en/docs/api/service/GetAvatar/
 func (c ServiceCategory) GetAvatar(chatId string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -71,11 +71,11 @@ type RequestGetContactInfo struct {
 }
 
 // Getting information about a contact.
-// 
+//
 // https://green-api.com/en/docs/api/service/GetContactInfo/
 func (c ServiceCategory) GetContactInfo(chatId string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -94,22 +94,39 @@ func (c ServiceCategory) GetContactInfo(chatId string) (*APIResponse, error) {
 // ------------------------------------------------------------------ DeleteMessage
 
 type RequestDeleteMessage struct {
-	ChatId    string `json:"chatId"`
-	IdMessage string `json:"idMessage"`
+	ChatId           string `json:"chatId"`
+	IdMessage        string `json:"idMessage"`
+	OnlySenderDelete *bool  `json:"onlySenderDelete,omitempty"`
+}
+
+type DeleteMessageOption func(*RequestDeleteMessage) error
+
+func OptionalOnlySenderDelete(OnlySenderDelete bool) DeleteMessageOption {
+	return func(r *RequestDeleteMessage) error {
+		r.OnlySenderDelete = &OnlySenderDelete
+		return nil
+	}
 }
 
 // Deleting a message from a chat.
-// 
+//
 // https://green-api.com/en/docs/api/service/deleteMessage/
-func (c ServiceCategory) DeleteMessage(chatId, idMessage string) (*APIResponse, error) {
+func (c ServiceCategory) DeleteMessage(chatId, idMessage string, options ...DeleteMessageOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
 	r := &RequestDeleteMessage{
 		ChatId:    chatId,
 		IdMessage: idMessage,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -135,11 +152,11 @@ type RequestEditMessage struct {
 }
 
 // Edit a message in chat.
-// 
+//
 // https://green-api.com/en/docs/api/service/editMessage/
 func (c ServiceCategory) EditMessage(chatId, idMessage, message string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -157,13 +174,12 @@ func (c ServiceCategory) EditMessage(chatId, idMessage, message string) (*APIRes
 	return c.GreenAPI.Request("POST", "editMessage", jsonData)
 }
 
-
 // Archiving a chat.
-// 
+//
 // https://green-api.com/en/docs/api/service/archiveChat/
 func (c ServiceCategory) ArchiveChat(chatId string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -184,7 +200,7 @@ func (c ServiceCategory) ArchiveChat(chatId string) (*APIResponse, error) {
 // https://green-api.com/en/docs/api/service/unarchiveChat/
 func (c ServiceCategory) UnarchiveChat(chatId string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -208,14 +224,14 @@ type RequestSetDisappearingChat struct {
 }
 
 // Changing settings of disappearing messages in chats.
-// 
+//
 // https://green-api.com/en/docs/api/service/SetDisappearingChat/
-// 
-// The standard settings of the application are to be used: 
+//
+// The standard settings of the application are to be used:
 //  0 (off), 86400 (24 hours), 604800 (7 days), 7776000 (90 days).
 func (c ServiceCategory) SetDisappearingChat(chatId string, ephemeralExpiration int) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
