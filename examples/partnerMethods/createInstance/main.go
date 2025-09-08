@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log"
 
-	greenapi "github.com/green-api/max-api-client-golang"
+	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
 )
 
 func main() {
 	Partner := greenapi.GreenAPIPartner{
 		PartnerToken: "gac.1234567891234567891234567891213456789",
-		Email:        "mail@email.com",
+		Email: "mail@email.com",
 	}
 
 	response, err := Partner.Partner().CreateInstance(
@@ -25,6 +25,13 @@ func main() {
 		greenapi.OptionalOutgoingAPIMessageWebhook(true),
 		greenapi.OptionalStateWebhook(true),
 		greenapi.OptionalIncomingWebhook(true),
+		greenapi.OptionalDeviceWebhook(true),
+		greenapi.OptionalKeepOnlineStatus(true),
+		greenapi.OptionalPollMessageWebhook(true),
+		greenapi.OptionalIncomingBlockWebhook(true),
+		greenapi.OptionalIncomingCallWebhook(true),
+		greenapi.OptionalEditedMessageWebhook(true),
+		greenapi.OptionalDeletedMessageWebhook(true),
 	)
 	if err != nil {
 		log.Fatal(err)

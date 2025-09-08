@@ -27,15 +27,14 @@ func OptionalCount(count int) GetChatHistoryOption {
 }
 
 // Getting a chat messages history.
-//
-// https://green-api.com/v3/docs/api/journals/GetChatHistory/
+// 
+// https://green-api.com/en/docs/api/journals/GetChatHistory/
 //
 // Add optional arguments by passing these functions:
-//
-//	OptionalCount(count int) <- The number of messages to get. The default is 100
+//  OptionalCount(count int) <- The number of messages to get. The default is 100
 func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistoryOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err != nil {
+	if err!=nil {
 		return nil, err
 	}
 
@@ -45,7 +44,7 @@ func (c JournalsCategory) GetChatHistory(chatId string, options ...GetChatHistor
 
 	for _, o := range options {
 		err := o(r)
-		if err != nil {
+		if err!=nil {
 			return nil, err
 		}
 	}
@@ -66,14 +65,14 @@ type RequestGetMessage struct {
 }
 
 // Getting a message information.
-//
-// https://green-api.com/v3/docs/api/journals/GetMessage/
+// 
+// https://green-api.com/en/docs/api/journals/GetMessage/
 func (c JournalsCategory) GetMessage(chatId, idMessage string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err != nil {
+	if err!=nil {
 		return nil, err
 	}
-
+	
 	r := &RequestGetMessage{
 		ChatId:    chatId,
 		IdMessage: idMessage,
@@ -104,18 +103,17 @@ func OptionalMinutes(minutes int) LastMessagesOption {
 }
 
 // Getting the last incoming messages of the account.
-//
-// https://green-api.com/v3/docs/api/journals/LastIncomingMessages/
-//
+// 
+// https://green-api.com/en/docs/api/journals/LastIncomingMessages/
+// 
 // Add optional arguments by passing these functions:
-//
-//	OptionalMinutes(minutes int) <- Time in minutes for which the messages should be displayed (default is 1440 minutes)
+//  OptionalMinutes(minutes int) <- Time in minutes for which the messages should be displayed (default is 1440 minutes)
 func (c JournalsCategory) LastIncomingMessages(options ...LastMessagesOption) (*APIResponse, error) {
 	r := &RequestLastMessages{}
 
 	for _, o := range options {
 		err := o(r)
-		if err != nil {
+		if err!=nil {
 			return nil, err
 		}
 	}
@@ -134,16 +132,16 @@ func (c JournalsCategory) LastIncomingMessages(options ...LastMessagesOption) (*
 }
 
 // Getting the last outgoung messages of the account.
-//
-// https://green-api.com/v3/docs/api/journals/LastOutgoingMessages/
-//
-//	OptionalMinutes(minutes int) <- Time in minutes for which the messages should be displayed (default is 1440 minutes)
+// 
+// https://green-api.com/en/docs/api/journals/LastOutgoingMessages/
+// 
+//  OptionalMinutes(minutes int) <- Time in minutes for which the messages should be displayed (default is 1440 minutes)
 func (c JournalsCategory) LastOutgoingMessages(options ...LastMessagesOption) (*APIResponse, error) {
 	r := &RequestLastMessages{}
 
 	for _, o := range options {
 		err := o(r)
-		if err != nil {
+		if err!=nil {
 			return nil, err
 		}
 	}

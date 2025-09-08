@@ -63,7 +63,7 @@ func (a *GreenAPI) Request(HTTPMethod, APIMethod string, requestBody []byte, opt
 	r := &requestType{}
 	for _, o := range options {
 		err := o(r)
-		if err != nil {
+		if err!=nil {
 			return nil, err
 		}
 	}
@@ -78,7 +78,7 @@ func (a *GreenAPIPartner) PartnerRequest(HTTPMethod, APIMethod string, requestBo
 	req := fasthttp.AcquireRequest()
 	defer fasthttp.ReleaseRequest(req)
 
-	req.SetRequestURI(fmt.Sprintf("https://api.green-api.com/v3/partner/%s/%s", APIMethod, a.PartnerToken))
+	req.SetRequestURI(fmt.Sprintf("https://api.green-api.com/partner/%s/%s", APIMethod, a.PartnerToken))
 
 	req.Header.SetMethod(HTTPMethod)
 	req.Header.Set("Content-Type", "application/json")
@@ -188,8 +188,8 @@ func MultipartRequest(method, url string, requestBody []byte) (*fasthttp.Request
 func (a *GreenAPI) request(HTTPMethod, APIMethod, GetParams string, SetMimetype mtype, FormData, MediaHost bool, requestBody []byte) (*APIResponse, error) {
 	client := &fasthttp.Client{
 		// Dial: func(addr string) (net.Conn, error) {
-		//     return fasthttp.DialTimeout(addr, 10*time.Second)
-		// },
+        //     return fasthttp.DialTimeout(addr, 10*time.Second)
+        // },
 		// ReadTimeout: time.Second * 10,
 		// WriteTimeout: time.Second * 10,
 	}

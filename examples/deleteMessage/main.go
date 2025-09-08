@@ -15,11 +15,10 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Sending().SendFileByUrl(
+	/* Delete message only for everyone (default) */
+	response, err := GreenAPI.Service().DeleteMessage(
 		"11001234567@c.us",
-		"urlFile",
-		"fileName",
-		greenapi.OptionalCaptionSendUrl("Caption"),
+		"BAE56DEC325DB4AB",
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -29,4 +28,18 @@ func main() {
 		response.StatusMessage,
 		response.Body,
 		response.Timestamp.Format("15:04:05.000"))
+
+	/* Delete message only for for sender */
+	GreenAPI.Service().DeleteMessage(
+		"11001234567@c.us",
+		"BAE515D2ACF72E34",
+		greenapi.OptionalOnlySenderDelete(true),
+	)
+
+	/* Delete message for everyone */
+	GreenAPI.Service().DeleteMessage(
+		"11001234567@c.us",
+		"BAE563E61BA23E8A",
+		greenapi.OptionalOnlySenderDelete(false),
+	)
 }

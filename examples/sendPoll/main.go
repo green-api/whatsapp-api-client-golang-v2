@@ -4,18 +4,23 @@ import (
 	"fmt"
 	"log"
 
-	greenapi "github.com/green-api/max-api-client-golang"
+	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
 )
 
 func main() {
 	GreenAPI := greenapi.GreenAPI{
-		APIURL:           "https://api.green-api.com/v3",
-		MediaURL:         "https://api.green-api.com/v3",
-		IDInstance:       "3100000001",
+		APIURL:           "https://api.green-api.com",
+		MediaURL:         "https://media.green-api.com",
+		IDInstance:       "1101000001",
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Service().CheckAccount(11001234567)
+	response, err := GreenAPI.Sending().SendPoll(
+		"11001234567@c.us", 
+		"Choose a color:", 
+		[]string{"Red", "Green", "Blue"}, 
+		greenapi.OptionalMultipleAnswers(false),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

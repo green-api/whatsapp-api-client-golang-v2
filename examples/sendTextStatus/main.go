@@ -15,11 +15,11 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Sending().SendFileByUrl(
-		"11001234567@c.us",
-		"urlFile",
-		"fileName",
-		greenapi.OptionalCaptionSendUrl("Caption"),
+	response, err := GreenAPI.Statuses().SendTextStatus(
+		"Text of the status", 
+		greenapi.OptionalFont("SERIF"),
+		greenapi.OptionalBackgroundColorText("#87CEEB"),
+		//greenapi.OptionalParticipantsTextStatus([]string{"1234567890@c.us", "1234567890@c.us"}),
 	)
 	if err != nil {
 		log.Fatal(err)

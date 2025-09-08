@@ -4,22 +4,23 @@ import (
 	"fmt"
 	"log"
 
-	greenapi "github.com/green-api/max-api-client-golang"
+	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
 )
 
 func main() {
 	GreenAPI := greenapi.GreenAPI{
-		APIURL:           "https://api.green-api.com/v3",
-		MediaURL:         "https://api.green-api.com/v3",
-		IDInstance:       "3100000001",
+		APIURL:           "https://api.green-api.com",
+		MediaURL:         "https://media.green-api.com",
+		IDInstance:       "1101000001",
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
 	response, err := GreenAPI.Groups().CreateGroup(
 		"Group Title",
 		[]string{
-			"10000000",
-			"10000001",
+			"11001211111@c.us",
+			"11001222222@c.us",
+			"11001233333@c.us",
 		},
 	)
 	if err != nil {

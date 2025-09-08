@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"log"
 
-	greenapi "github.com/green-api/max-api-client-golang"
+	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
 )
 
 func main() {
 	Partner := greenapi.GreenAPIPartner{
 		PartnerToken: "gac.1234567891234567891234567891213456789",
-		Email:        "mail@email.com",
+		Email: "mail@email.com",
 	}
 
-	response, err := Partner.Partner().DeleteInstanceAccount(3100000000)
+	response, err := Partner.Partner().DeleteInstanceAccount(1101000000)
 	if err != nil {
 		log.Fatal(err)
 	}
