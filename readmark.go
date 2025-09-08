@@ -25,23 +25,23 @@ func OptionalIdMessage(idMessage string) ReadChatOption {
 
 // Marking messages in a chat as read.
 //
-// https://green-api.com/en/docs/api/marks/ReadChat/
+// https://green-api.com/v3/docs/api/marks/ReadChat/
 //
 // Add optional arguments by passing these functions:
 //  OptionalIdMessage(idMessage string) <- ID of the incoming message to be marked as read. If not specified, then all unread messages in the chat will be marked as read.
 func (c ReadMarkCategory) ReadChat(chatId string, options ...ReadChatOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	
+
 	r := &RequestReadChat{
 		ChatId: chatId,
 	}
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"log"
 
-	greenapi "github.com/green-api/whatsapp-api-client-golang-v2"
+	greenapi "github.com/green-api/max-api-client-golang"
 )
 
 func main() {
 	Partner := greenapi.GreenAPIPartner{
 		PartnerToken: "gac.1234567891234567891234567891213456789",
-		Email: "mail@email.com",
+		Email:        "mail@email.com",
 	}
 
 	response, err := Partner.Partner().GetInstances()

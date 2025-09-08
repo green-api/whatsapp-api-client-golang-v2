@@ -12,7 +12,7 @@ type AccountCategory struct {
 
 // Getting settings of an instance.
 //
-// https://green-api.com/en/docs/api/account/GetSettings/
+// https://green-api.com/v3/docs/api/account/GetSettings/
 func (c AccountCategory) GetSettings() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getSettings", nil)
 }
@@ -30,13 +30,6 @@ type RequestSetSettings struct {
 	OutgoingAPIMessageWebhook         string  `json:"outgoingAPIMessageWebhook,omitempty"`
 	StateWebhook                      string  `json:"stateWebhook,omitempty"`
 	IncomingWebhook                   string  `json:"incomingWebhook,omitempty"`
-	DeviceWebhook                     string  `json:"deviceWebhook,omitempty"`
-	KeepOnlineStatus                  string  `json:"keepOnlineStatus,omitempty"`
-	PollMessageWebhook                string  `json:"pollMessageWebhook,omitempty"`
-	IncomingBlockWebhook              string  `json:"incomingBlockWebhook,omitempty"`
-	IncomingCallWebhook               string  `json:"incomingCallWebhook,omitempty"`
-	EditedMessageWebhook              string  `json:"editedMessageWebhook,omitempty"`
-	DeletedMessageWebhook             string  `json:"deletedMessageWebhook,omitempty"`
 }
 
 type SetSettingsOption func(*RequestSetSettings) error
@@ -45,7 +38,7 @@ type SetSettingsOption func(*RequestSetSettings) error
 func OptionalWebhookUrl(webhookUrl string) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		err := ValidateURL(webhookUrl)
-		if err!=nil {
+		if err != nil {
 			return err
 		}
 		r.WebhookUrl = &webhookUrl
@@ -61,7 +54,7 @@ func OptionalWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
 	}
 }
 
-// Message sending delay. 
+// Message sending delay.
 func OptionalDelaySendMessages(delaySendMessagesMilliseconds uint) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
@@ -153,118 +146,28 @@ func OptionalIncomingWebhook(incomingWebhook bool) SetSettingsOption {
 	}
 }
 
-// Get notifications about the device (phone) and battery level.
-func OptionalDeviceWebhook(deviceWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if deviceWebhook {
-			r.DeviceWebhook = "yes"
-		} else {
-			r.DeviceWebhook = "no"
-		}
-		return nil
-	}
-}
-
-// Sets the 'Online' status for your Whatsapp account.
-func OptionalKeepOnlineStatus(keepOnlineStatus bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if keepOnlineStatus {
-			r.KeepOnlineStatus = "yes"
-		} else {
-			r.KeepOnlineStatus = "no"
-		}
-		return nil
-	}
-}
-
-// Get notifications about the creation of a poll and voting in the poll.
-func OptionalPollMessageWebhook(pollMessageWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if pollMessageWebhook {
-			r.PollMessageWebhook = "yes"
-		} else {
-			r.PollMessageWebhook = "no"
-		}
-		return nil
-	}
-}
-
-// Get notifications about adding a chat to the list of blocked contacts.
-func OptionalIncomingBlockWebhook(incomingBlockWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if incomingBlockWebhook {
-			r.IncomingBlockWebhook = "yes"
-		} else {
-			r.IncomingBlockWebhook = "no"
-		}
-		return nil
-	}
-}
-
-// Get notifications about incoming call statuses.
-func OptionalIncomingCallWebhook(incomingCallWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if incomingCallWebhook {
-			r.IncomingCallWebhook = "yes"
-		} else {
-			r.IncomingCallWebhook = "no"
-		}
-		return nil
-	}
-}
-
-// Get notifications about edited messages.
-func OptionalEditedMessageWebhook(editedMessageWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if editedMessageWebhook {
-			r.EditedMessageWebhook = "yes"
-		} else {
-			r.EditedMessageWebhook = "no"
-		}
-		return nil
-	}
-}
-
-// Get notifications about deleted messages.
-func OptionalDeletedMessageWebhook(deletedMessageWebhook bool) SetSettingsOption {
-	return func(r *RequestSetSettings) error {
-		if deletedMessageWebhook {
-			r.DeletedMessageWebhook = "yes"
-		} else {
-			r.DeletedMessageWebhook = "no"
-		}
-		return nil
-	}
-}
-
 // Applying settings for an instance.
-// 
-// https://green-api.com/en/docs/api/account/SetSettings/
+//
+// https://green-api.com/v3/docs/api/account/SetSettings/
 //
 // Add optional arguments by passing these functions:
-//  OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
-//  OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
-//  OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay. 
-//  OptionalMarkIncomingMessagesRead(markIncomingMessagesReaded bool) <- Mark incoming messages as read or not.
-//  OptionalMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) <- Mark incoming messages as read when posting a message to the chat via API.
-//  OptionalOutgoingWessebhook(outgoingWebhook bool) <- Get notifications about outgoing messages sending/delivering/reading statuses.
-//  OptionalOutgoingMageWebhook(outgoingMessageWebhook bool) <- Get notifications about messages sent from the phone.
-//  OptionalOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) <- Get notifications about messages sent from API.
-//  OptionalStateWebhook(stateWebhook bool) <- Get notifications about the instance authorization state change.
-//  OptionalIncomingWebhook(incomingWebhook bool) <- Get notifications about incoming messages and files.
-//  OptionalDeviceWebhook(deviceWebhook bool) <- Get notifications about the device (phone) and battery level.
-//  OptionalKeepOnlineStatus(keepOnlineStatus bool) <- Sets the 'Online' status for your Whatsapp account.
-//  OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
-//  OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
-//  OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
-//  OptionalEditedMessageWebhook(editedMessageWebhook bool) <- Get notifications about edited messages.
-//  OptionalDeletedMessageWebhook(deletedMessageWebhook bool) <- Get notifications about deleted messages.
+//
+//	OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
+//	OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
+//	OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay.
+//	OptionalMarkIncomingMessagesRead(markIncomingMessagesReaded bool) <- Mark incoming messages as read or not.
+//	OptionalMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) <- Mark incoming messages as read when posting a message to the chat via API.
+//	OptionalOutgoingWessebhook(outgoingWebhook bool) <- Get notifications about outgoing messages sending/delivering/reading statuses.
+//	OptionalOutgoingMageWebhook(outgoingMessageWebhook bool) <- Get notifications about messages sent from the phone.
+//	OptionalOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) <- Get notifications about messages sent from API.
+//	OptionalStateWebhook(stateWebhook bool) <- Get notifications about the instance authorization state change.
+//	OptionalIncomingWebhook(incomingWebhook bool) <- Get notifications about incoming messages and files.
 func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse, error) {
 
 	r := &RequestSetSettings{}
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -281,16 +184,16 @@ func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse
 
 // Getting state of an instance.
 //
-// https://green-api.com/en/docs/api/account/GetStateInstance/
+// https://green-api.com/v3/docs/api/account/GetStateInstance/
 func (c AccountCategory) GetStateInstance() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getStateInstance", nil)
 }
 
 // ------------------------------------------------------------------ GetStatusInstance
 
-// Getting the status of an instance socket connection with WhatsApp.
+// Getting the status of an instance socket connection with MAX.
 //
-// https://green-api.com/en/docs/api/account/GetStatusInstance/
+// https://green-api.com/v3/docs/api/account/GetStatusInstance/
 func (c AccountCategory) GetStatusInstance() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getStatusInstance", nil)
 }
@@ -298,8 +201,8 @@ func (c AccountCategory) GetStatusInstance() (*APIResponse, error) {
 // ------------------------------------------------------------------ Reboot
 
 // Rebooting an instance.
-// 
-// https://green-api.com/en/docs/api/account/Reboot/
+//
+// https://green-api.com/v3/docs/api/account/Reboot/
 func (c AccountCategory) Reboot() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "reboot", nil)
 }
@@ -307,32 +210,23 @@ func (c AccountCategory) Reboot() (*APIResponse, error) {
 // ------------------------------------------------------------------ Logout
 
 // Logging out an instance.
-// 
-// https://green-api.com/docs/api/account/Logout/
+//
+// https://green-api.com/v3/docs/api/account/Logout/
 func (c AccountCategory) Logout() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "logout", nil)
 }
 
-// ------------------------------------------------------------------ QR
+// ------------------------------------------------------------------ StartAuthorization
 
-// Getting QR code for authorization.
-// 
-// https://green-api.com/en/docs/api/account/QR/
-func (c AccountCategory) QR() (*APIResponse, error) {
-	return c.GreenAPI.Request("GET", "qr", nil)
-}
-
-// ------------------------------------------------------------------ GetAuthorizationCode
-
-type RequestGetAuthorizationCode struct {
+type RequestStartAuthorization struct {
 	PhoneNumber int `json:"phoneNumber"`
 }
 
-// Authorize an instance by phone number.
+// Start instance authorization
 //
-// https://green-api.com/en/docs/api/account/GetAuthorizationCode/
-func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, error) {
-	r := &RequestGetAuthorizationCode{
+// https://green-api.com/v3/en/docs/api/account/StartAuthorization/
+func (c AccountCategory) StartAuthorization(phoneNumber int) (*APIResponse, error) {
+	r := &RequestStartAuthorization{
 		PhoneNumber: phoneNumber,
 	}
 
@@ -341,7 +235,29 @@ func (c AccountCategory) GetAuthorizationCode(phoneNumber int) (*APIResponse, er
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("POST", "getAuthorizationCode", jsonData)
+	return c.GreenAPI.Request("POST", "startAuthorization", jsonData)
+}
+
+// ------------------------------------------------------------------ SendAuthorizationCode
+
+type RequestSendAuthorizationCode struct {
+	Code string `json:"code"`
+}
+
+// Start instance authorization
+//
+// https://green-api.com/v3/en/docs/api/account/StartAuthorization/
+func (c AccountCategory) SendAuthorizationCode(code string) (*APIResponse, error) {
+	r := &RequestSendAuthorizationCode{
+		Code: code,
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendAuthorizationCode", jsonData)
 }
 
 // ------------------------------------------------------------------ SetProfilePicture
@@ -351,8 +267,8 @@ type RequestSetProfilePicture struct {
 }
 
 // Setting a profile picture.
-// 
-// https://green-api.com/en/docs/api/account/SetProfilePicture/
+//
+// https://green-api.com/v3/docs/api/account/SetProfilePicture/
 func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error) {
 	r := &RequestSetProfilePicture{
 		File: filepath,
@@ -366,11 +282,11 @@ func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error
 	return c.GreenAPI.Request("POST", "setProfilePicture", jsonData, WithFormData(true))
 }
 
-// ------------------------------------------------------------------ GetWaSettings
+// ------------------------------------------------------------------ GetAccountSettings
 
-// Getting information about the WhatsApp account
+// Getting information about the MAX account
 //
-// https://green-api.com/en/docs/api/account/GetWaSettings/
-func (c AccountCategory) GetWaSettings() (*APIResponse, error) {
-	return c.GreenAPI.Request("GET", "getWaSettings", nil)
+// https://green-api.com/v3/docs/api/account/GetAccountSettings/
+func (c AccountCategory) GetAccountSettings() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "getAccountSettings", nil)
 }

@@ -1,4 +1,4 @@
-module github.com/green-api/whatsapp-api-client-golang-v2
+module github.com/green-api/max-api-client-golang
 
 go 1.22
 
