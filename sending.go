@@ -19,7 +19,7 @@ type RequestSendMessage struct {
 	ChatId          string `json:"chatId"`
 	Message         string `json:"message"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
-	LinkPreview     *bool   `json:"linkPreview,omitempty"`
+	LinkPreview     *bool  `json:"linkPreview,omitempty"`
 }
 
 type SendMessageOption func(*RequestSendMessage) error
@@ -46,16 +46,16 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
-//  OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//	OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
+//	OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
 	err = ValidateMessageLength(message, 20000)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -66,7 +66,7 @@ func (c SendingCategory) SendMessage(chatId, message string, options ...SendMess
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -89,7 +89,7 @@ type RequestSendPoll struct {
 	ChatId          string       `json:"chatId"`
 	Message         string       `json:"message"`
 	PollOptions     []PollOption `json:"options"`
-	MultipleAnswers *bool         `json:"multipleAnswers,omitempty"`
+	MultipleAnswers *bool        `json:"multipleAnswers,omitempty"`
 	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
 }
 
@@ -117,16 +117,16 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalMultipleAnswers(multipleAnswers bool) <- Allow multiple answers. Disabled by default.
-//  OptionalPollQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalMultipleAnswers(multipleAnswers bool) <- Allow multiple answers. Disabled by default.
+//	OptionalPollQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
 	err = ValidateMessageLength(message, 255)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -136,7 +136,7 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 		return nil, fmt.Errorf("cannot create more than 12 poll options")
 	}
 
-	//map to check for duplicates in pollOptions 
+	//map to check for duplicates in pollOptions
 	seen := make(map[string]bool)
 
 	for _, pollOption := range pollOptions {
@@ -160,7 +160,7 @@ func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, 
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -189,7 +189,7 @@ type SendFileByUploadOption func(*RequestSendFileByUpload) error
 func OptionalCaptionSendUpload(caption string) SendFileByUploadOption {
 	return func(r *RequestSendFileByUpload) error {
 		err := ValidateMessageLength(caption, 20000)
-		if err!=nil {
+		if err != nil {
 			return err
 		}
 		r.Caption = caption
@@ -204,17 +204,18 @@ func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadO
 		return nil
 	}
 }
+
 // Uploading and sending a file.
-// 
+//
 // https://green-api.com/en/docs/api/sending/SendFileByUpload/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalCaptionSendUpload(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//  OptionalQuotedMessageIdSendUpload(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalCaptionSendUpload(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//	OptionalQuotedMessageIdSendUpload(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -226,7 +227,7 @@ func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, opt
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -255,7 +256,7 @@ type SendFileByUrlOption func(*RequestSendFileByUrl) error
 func OptionalCaptionSendUrl(caption string) SendFileByUrlOption {
 	return func(r *RequestSendFileByUrl) error {
 		err := ValidateMessageLength(caption, 20000)
-		if err!=nil {
+		if err != nil {
 			return err
 		}
 		r.Caption = caption
@@ -277,19 +278,19 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalCaptionSendUrl(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
-//  OptionalQuotedMessageIdSendUrl(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalCaptionSendUrl(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
+//	OptionalQuotedMessageIdSendUrl(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
 	err = ValidateURL(urlFile)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	
+
 	r := &RequestSendFileByUrl{
 		ChatId:   chatId,
 		UrlFile:  urlFile,
@@ -298,7 +299,7 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -314,11 +315,11 @@ func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options
 // ------------------------------------------------------------------ UploadFile
 
 type RequestUploadFile struct {
-	File []byte `json:"file"`
+	File     []byte `json:"file"`
 	FileName string `json:"fileName"`
 }
 
-// Uploading a file to the cloud storage. 
+// Uploading a file to the cloud storage.
 //
 // https://green-api.com/en/docs/api/sending/UploadFile/
 func (c SendingCategory) UploadFile(filePath string) (*APIResponse, error) {
@@ -377,15 +378,15 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalNameLocation(nameLocation string) <- Location name.
-//  OptionalAddress(address string) <- Location address.
-//  OptionalQuotedMessageIdLocation(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalNameLocation(nameLocation string) <- Location name.
+//	OptionalAddress(address string) <- Location address.
+//	OptionalQuotedMessageIdLocation(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	
+
 	r := &RequestSendLocation{
 		ChatId:    chatId,
 		Latitude:  latitude,
@@ -394,7 +395,7 @@ func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -434,18 +435,18 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 }
 
 // Sending a contact message.
-// 
+//
 // https://green-api.com/en/docs/api/sending/SendContact/
 //
 // Add optional arguments by passing these functions:
 //
-//  OptionalQuotedMessageIdContact(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalQuotedMessageIdContact(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
 func (c SendingCategory) SendContact(chatId string, contact Contact, options ...SendContactOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
-	
+
 	r := &RequestSendContact{
 		ChatId:  chatId,
 		Contact: contact,
@@ -453,7 +454,7 @@ func (c SendingCategory) SendContact(chatId string, contact Contact, options ...
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -479,7 +480,7 @@ type RequestForwardMessages struct {
 // https://green-api.com/en/docs/api/sending/ForwardMessages/
 func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
-	if err!=nil {
+	if err != nil {
 		return nil, err
 	}
 
@@ -495,4 +496,232 @@ func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []s
 	}
 
 	return c.GreenAPI.Request("POST", "forwardMessages", jsonData)
+}
+
+// ------------------------------------------------------------------ SendInteractiveButtons
+
+type InteractiveButton struct {
+	Type        string `json:"type,omitempty"`
+	ButtonId    string `json:"buttonId"`
+	ButtonText  string `json:"buttonText"`
+	CopyCode    string `json:"copyCode,omitempty"`
+	PhoneNumber string `json:"phoneNumber,omitempty"`
+	URL         string `json:"url,omitempty"`
+}
+
+type RequestSendInteractiveButtons struct {
+	ChatId          string              `json:"chatId"`
+	Header          string              `json:"header,omitempty"`
+	Body            string              `json:"body"`
+	Footer          string              `json:"footer,omitempty"`
+	Buttons         []InteractiveButton `json:"buttons"`
+	QuotedMessageId string              `json:"quotedMessageId,omitempty"`
+}
+
+type SendInteractiveButtonsOption func(*RequestSendInteractiveButtons) error
+
+// Message header.
+func OptionalInteractiveHeader(header string) SendInteractiveButtonsOption {
+	return func(r *RequestSendInteractiveButtons) error {
+		r.Header = header
+		return nil
+	}
+}
+
+// Message footer.
+func OptionalInteractiveFooter(footer string) SendInteractiveButtonsOption {
+	return func(r *RequestSendInteractiveButtons) error {
+		r.Footer = footer
+		return nil
+	}
+}
+
+// If specified, the message will be sent quoting the specified chat message.
+func OptionalInteractiveQuotedMessageId(quotedMessageId string) SendInteractiveButtonsOption {
+	return func(r *RequestSendInteractiveButtons) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+// Sending interactive buttons.
+//
+// https://green-api.com/en/docs/api/sending/SendInteractiveButtons/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalInteractiveHeader(header string) <- Message header.
+//	OptionalInteractiveFooter(footer string) <- Message footer.
+//	OptionalInteractiveQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+func (c SendingCategory) SendInteractiveButtons(chatId, body string, buttons []InteractiveButton, options ...SendInteractiveButtonsOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(body, 255)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(buttons) == 0 {
+		return nil, fmt.Errorf("buttons cannot be empty")
+	} else if len(buttons) > 10 {
+		return nil, fmt.Errorf("cannot create more than 10 buttons")
+	}
+
+	// Validate buttons
+	for _, button := range buttons {
+		if len(button.ButtonId) == 0 {
+			return nil, fmt.Errorf("buttonId cannot be empty")
+		}
+		if len(button.ButtonText) == 0 {
+			return nil, fmt.Errorf("buttonText cannot be empty")
+		}
+		if len(button.ButtonText) > 100 {
+			return nil, fmt.Errorf("buttonText should not exceed 100 characters")
+		}
+
+		// Validate button types and required fields
+		switch button.Type {
+		case "copy":
+			if len(button.CopyCode) == 0 {
+				return nil, fmt.Errorf("copyCode is required for copy button type")
+			}
+		case "call":
+			if len(button.PhoneNumber) == 0 {
+				return nil, fmt.Errorf("phoneNumber is required for call button type")
+			}
+		case "url":
+			if len(button.URL) == 0 {
+				return nil, fmt.Errorf("url is required for url button type")
+			}
+		case "":
+			// Empty type is allowed for reply buttons
+		default:
+			return nil, fmt.Errorf("invalid button type: %s. Allowed types: copy, call, url, or empty for reply", button.Type)
+		}
+	}
+
+	r := &RequestSendInteractiveButtons{
+		ChatId:  chatId,
+		Body:    body,
+		Buttons: buttons,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendInteractiveButtons", jsonData)
+}
+
+// ------------------------------------------------------------------ SendInteractiveButtonsReply
+
+type InteractiveReplyButton struct {
+	ButtonId   string `json:"buttonId"`
+	ButtonText string `json:"buttonText"`
+}
+
+type RequestSendInteractiveButtonsReply struct {
+	ChatId          string                   `json:"chatId"`
+	Header          string                   `json:"header,omitempty"`
+	Body            string                   `json:"body"`
+	Footer          string                   `json:"footer,omitempty"`
+	Buttons         []InteractiveReplyButton `json:"buttons"`
+	QuotedMessageId string                   `json:"quotedMessageId,omitempty"`
+}
+
+type SendInteractiveButtonsReplyOption func(*RequestSendInteractiveButtonsReply) error
+
+// Message header.
+func OptionalInteractiveReplyHeader(header string) SendInteractiveButtonsReplyOption {
+	return func(r *RequestSendInteractiveButtonsReply) error {
+		r.Header = header
+		return nil
+	}
+}
+
+// Message footer.
+func OptionalInteractiveReplyFooter(footer string) SendInteractiveButtonsReplyOption {
+	return func(r *RequestSendInteractiveButtonsReply) error {
+		r.Footer = footer
+		return nil
+	}
+}
+
+// If specified, the message will be sent quoting the specified chat message.
+func OptionalInteractiveReplyQuotedMessageId(quotedMessageId string) SendInteractiveButtonsReplyOption {
+	return func(r *RequestSendInteractiveButtonsReply) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+// Sending interactive reply buttons.
+//
+// https://green-api.com/en/docs/api/sending/SendInteractiveButtons/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalInteractiveReplyHeader(header string) <- Message header.
+//	OptionalInteractiveReplyFooter(footer string) <- Message footer.
+//	OptionalInteractiveReplyQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+func (c SendingCategory) SendInteractiveButtonsReply(chatId, body string, buttons []InteractiveReplyButton, options ...SendInteractiveButtonsReplyOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(body, 255)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(buttons) == 0 {
+		return nil, fmt.Errorf("buttons cannot be empty")
+	} else if len(buttons) > 10 {
+		return nil, fmt.Errorf("cannot create more than 10 buttons")
+	}
+
+	// Validate reply buttons
+	for _, button := range buttons {
+		if len(button.ButtonId) == 0 {
+			return nil, fmt.Errorf("buttonId cannot be empty")
+		}
+		if len(button.ButtonText) == 0 {
+			return nil, fmt.Errorf("buttonText cannot be empty")
+		}
+		if len(button.ButtonText) > 100 {
+			return nil, fmt.Errorf("buttonText should not exceed 100 characters")
+		}
+	}
+
+	r := &RequestSendInteractiveButtonsReply{
+		ChatId:  chatId,
+		Body:    body,
+		Buttons: buttons,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendInteractiveButtonsReply", jsonData)
 }
