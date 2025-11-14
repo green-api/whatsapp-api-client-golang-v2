@@ -570,55 +570,50 @@ func (c SendingCategory) SendInteractiveButtons(chatId, body string, buttons []I
 		return nil, fmt.Errorf("cannot create more than 10 buttons")
 	}
 
-	// Validate buttons
 	for _, button := range buttons {
 		if len(button.ButtonId) == 0 {
-			return nil, fmt.Errorf("buttonId cannot be empty")
+			return nil, fmt.Errorf(`"buttonId" cannot be empty`)
 		}
 		if len(button.ButtonText) == 0 {
-			return nil, fmt.Errorf("buttonText cannot be empty")
+			return nil, fmt.Errorf(`"buttonText" cannot be empty`)
 		}
 		if len(button.ButtonText) > 100 {
-			return nil, fmt.Errorf("buttonText should not exceed 100 characters")
+			return nil, fmt.Errorf(`"buttonText" should not exceed 100 characters`)
 		}
 
-		// Validate button types and required fields
 		switch button.Type {
 		case "copy":
 			if len(button.CopyCode) == 0 {
-				return nil, fmt.Errorf("copyCode is required for copy button type")
+				return nil, fmt.Errorf(`"copyCode" is required for "copy" button type`)
 			}
-			// Check for extra fields
 			if len(button.PhoneNumber) > 0 {
-				return nil, fmt.Errorf("phoneNumber is not allowed for copy button type")
+				return nil, fmt.Errorf(`"phoneNumber" is not allowed for "copy" button type`)
 			}
 			if len(button.URL) > 0 {
-				return nil, fmt.Errorf("url is not allowed for copy button type")
+				return nil, fmt.Errorf(`"url" is not allowed for "copy" button type`)
 			}
 		case "call":
 			if len(button.PhoneNumber) == 0 {
-				return nil, fmt.Errorf("phoneNumber is required for call button type")
+				return nil, fmt.Errorf(`"phoneNumber" is required for "call" button type`)
 			}
-			// Check for extra fields
 			if len(button.CopyCode) > 0 {
-				return nil, fmt.Errorf("copyCode is not allowed for call button type")
+				return nil, fmt.Errorf(`"copyCode" is not allowed for "call" button type`)
 			}
 			if len(button.URL) > 0 {
-				return nil, fmt.Errorf("url is not allowed for call button type")
+				return nil, fmt.Errorf(`"url" is not allowed for "call" button type`)
 			}
 		case "url":
 			if len(button.URL) == 0 {
-				return nil, fmt.Errorf("url is required for url button type")
+				return nil, fmt.Errorf(`"url" is required for "url" button type`)
 			}
-			// Check for extra fields
 			if len(button.CopyCode) > 0 {
-				return nil, fmt.Errorf("copyCode is not allowed for url button type")
+				return nil, fmt.Errorf(`"copyCode" is not allowed for "url" button type`)
 			}
 			if len(button.PhoneNumber) > 0 {
-				return nil, fmt.Errorf("phoneNumber is not allowed for url button type")
+				return nil, fmt.Errorf(`"phoneNumber" is not allowed for "url" button type`)
 			}
 		default:
-			return nil, fmt.Errorf("invalid button type: %s. Allowed types: copy, call, url", button.Type)
+			return nil, fmt.Errorf(`invalid button type: "%s". Allowed types: "copy", "call", "url"`, button.Type)
 		}
 	}
 
@@ -711,16 +706,15 @@ func (c SendingCategory) SendInteractiveButtonsReply(chatId, body string, button
 		return nil, fmt.Errorf("cannot create more than 10 buttons")
 	}
 
-	// Validate reply buttons
 	for _, button := range buttons {
 		if len(button.ButtonId) == 0 {
-			return nil, fmt.Errorf("buttonId cannot be empty")
+			return nil, fmt.Errorf(`"buttonId" cannot be empty`)
 		}
 		if len(button.ButtonText) == 0 {
-			return nil, fmt.Errorf("buttonText cannot be empty")
+			return nil, fmt.Errorf(`"buttonText" cannot be empty`)
 		}
 		if len(button.ButtonText) > 100 {
-			return nil, fmt.Errorf("buttonText should not exceed 100 characters")
+			return nil, fmt.Errorf(`"buttonText" should not exceed 100 characters`)
 		}
 	}
 
