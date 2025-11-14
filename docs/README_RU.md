@@ -131,6 +131,42 @@ response, _ := GreenAPI.Sending().SendPoll(
 	)
 ```
 
+
+**Как отправить интерактивные кнопки:**
+
+Ссылка на пример: [sendInteractiveButtons/main.go](examples/sendInteractiveButtons/main.go)
+
+```go
+buttons := []greenapi.InteractiveButton{
+	{
+		Type:       "copy",
+		ButtonId:   "1",
+		ButtonText: "Copy code",
+		CopyCode:   "123456",
+	},
+	{
+		Type:        "call",
+		ButtonId:    "2",
+		ButtonText:  "Call support",
+		PhoneNumber: "79123456789",
+	},
+	{
+		Type:       "url",
+		ButtonId:   "3",
+		ButtonText: "Visit website",
+		URL:        "https://green-api.com",
+	},
+}
+
+response, _ := GreenAPI.Sending().SendInteractiveButtons(
+	"11001234567@c.us",
+	"Please choose an action:",
+	buttons,
+	greenapi.OptionalInteractiveHeader("Support Options"),
+	greenapi.OptionalInteractiveFooter("Select one option below"),
+)
+```
+
 **Как отправить текстовый статус:**
 
 Ссылка на пример: [sendTextStatus/main.go](/examples/sendTextStatus/main.go)
@@ -256,21 +292,24 @@ response, _ := GreenAPI.Sending().SendMessage(
 
 ## Список примеров
 
-| Описание                                   | Ссылка на пример                                               |
-|-----------------------------------------------|---------------------------------------------------------------|
-| Как отправить сообщение                         | [sendMessage/main.go](/examples/sendMessage/main.go)           |
-| Как отправить файл с диска | [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go) |
-| Как отправить файл по ссылке | [sendFileByUrl/main.go](/examples/sendFileByUrl/main.go) |
-| Как выгрузить файл в облачное хранилище                     | [uploadFile/main.go](/examples/uploadFile/main.go)       |
-| Как отправить опрос                         | [sendPoll/main.go](/examples/sendPoll/main.go)           |
-| Как проверить номер телефона на наличие аккаунта WhatsApp         | [checkWhatsapp/main.go](/examples/checkWhatsapp/main.go)                   |
-| Как установить настройки инстанса             | [setSettings/main.go](/examples/setSettings/main.go)                 |
-| Как создать группу             | [createGroup/main.go](/examples/createGroup/main.go)                 |
-| Как отправить текстовый статус             | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                 |
-| Как получить входящее уведомление | [receiveNotification/main.go](/examples/receiveNotification/main.go) |
-| Как получить все инстансы на аккаунте             | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                 |
-| Как создать инстанс             | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
-| Как удалить инстанс            | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)                 |
+| Описание                                                  | Ссылка на пример                                                                                         |
+|-----------------------------------------------------------|----------------------------------------------------------------------------------------------------------|
+| Как отправить сообщение                                   | [sendMessage/main.go](/examples/sendMessage/main.go)                                                     |
+| Как отправить файл с диска                                | [sendFileByUpload/main.go](/examples/sendFileByUpload/main.go)                                           |
+| Как отправить файл по ссылке                              | [sendFileByUrl/main.go](/examples/sendFileByUrl/main.go)                                                 |
+| Как выгрузить файл в облачное хранилище                   | [uploadFile/main.go](/examples/uploadFile/main.go)                                                       |
+| Как отправить опрос                                       | [sendPoll/main.go](/examples/sendPoll/main.go)                                                           |
+| Как отправить интерактивные кнопки                        | [sendInteractiveButtons/main.go](examples/sendInteractiveButtons/main.go)                                |
+| Как отправить интерактивные кнопки с ответом              | [sendInteractiveButtonsReply/main.go](examples//sendInteractiveButtonsReply/main.go)                     |
+| Как проверить номер телефона на наличие аккаунта WhatsApp | [checkWhatsapp/main.go](/examples/checkWhatsapp/main.go)                                                 |
+| Как установить настройки инстанса                         | [setSettings/main.go](/examples/setSettings/main.go)                                                     |
+| Как создать группу                                        | [createGroup/main.go](/examples/createGroup/main.go)                                                     |
+| Как отправить текстовый статус                            | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                                               |
+| Как получить входящее уведомление                         | [receiveNotification/main.go](/examples/receiveNotification/main.go)                                     |
+| Как отправить уведомление о наборе текста или записи аудио | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
+| Как получить все инстансы на аккаунте                     | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                     |
+| Как создать инстанс                                       | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
+| Как удалить инстанс                                       | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)   |
 
 ## Список всех методов библиотеки
 
@@ -312,6 +351,8 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Sending().SendContact`           | Метод предназначен для отправки сообщения с контактом                                                                        | [SendContact](https://green-api.com/docs/api/sending/SendContact/)                                       |
 | `Sending().ForwardMessages`       | Метод предназначен для пересылки сообщений в личный или групповой чат                                                | [ForwardMessages](https://green-api.com/docs/api/sending/ForwardMessages/)                               |
 | `Sending().SendPoll`              | Метод предназначен для отправки сообщения с опросом в личный или групповой чат                                        | [SendPoll](https://green-api.com/docs/api/sending/SendPoll/)                                             |
+| `Sending().SendInteractiveButtons` | Метод предназначен для отправки интерактивных кнопок                     | [SendInteractiveButtons](https://green-api.com/docs/api/sending/SendInteractiveButtons/) |
+| `Sending().SendInteractiveButtonsReply` | Метод предназначен для отправки интерактивных кнопок с ответом | [SendInteractiveButtonsReply](https://green-api.com/docs/api/sending/SendInteractiveButtonsReply/) |
 | `Service().CheckWhatsapp`         | Метод проверяет наличие аккаунта WhatsApp на номере телефона                                                      | [CheckWhatsapp](https://green-api.com/docs/api/service/CheckWhatsapp/)                                   |
 | `Service().GetAvatar`             | Метод возвращает аватар корреспондента или группового чата	                                                          | [GetAvatar](https://green-api.com/docs/api/service/GetAvatar/)                                           |
 | `Service().GetContacts`           | Метод предназначен для получения списка контактов текущего аккаунта                                                   | [GetContacts](https://green-api.com/docs/api/service/GetContacts/)                                       |
@@ -321,6 +362,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().ArchiveChat`           | Метод архивирует чат                                                                                              | [ArchiveChat](https://green-api.com/docs/api/service/archiveChat/)                                       |
 | `Service().UnarchiveChat`         | Метод разархивирует чат                                                                                            | [UnarchiveChat](https://green-api.com/docs/api/service/unarchiveChat/)                                   |
 | `Service().SetDisappearingChat`   | Метод предназначен для изменения настроек исчезающих сообщений в чатах                                           | [SetDisappearingChat](https://green-api.com/docs/api/service/SetDisappearingChat/)                       |
+| `Service().SendTyping`            | Метод предназначен для отправки уведомления о наборе текста или записи аудио в чат                             | [SendTyping](https://green-api.com/en/docs/api/service/sendTyping/) |
 | `Partner().GetInstances`   | Метод предназначен для получения всех инстансов аккаунтов созданных партнёром.                                           | [GetInstances](https://green-api.com/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`   | Метод предназначен для создания инстанса от имени партнёра.                                           | [CreateInstance](https://green-api.com/docs/partners/createInstance/)                       |
 | `Partner().DeleteInstanceAccount`   | Метод предназначен для удаления инстанса аккаунта партнёра.                                           | [DeleteInstanceAccount](https://green-api.com/docs/partners/deleteInstanceAccount/)                       |

@@ -19,6 +19,7 @@ func main() {
 		"11001234567@c.us",
 		"Hello",
 		greenapi.OptionalLinkPreview(false),
+		greenapi.OptionalMessageTypingTime(3000),
 	)
 	if err != nil {
 		log.Fatal(err)
