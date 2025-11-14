@@ -501,7 +501,7 @@ func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []s
 // ------------------------------------------------------------------ SendInteractiveButtons
 
 type InteractiveButton struct {
-	Type        string `json:"type,omitempty"`
+	Type        string `json:"type"`
 	ButtonId    string `json:"buttonId"`
 	ButtonText  string `json:"buttonText"`
 	CopyCode    string `json:"copyCode,omitempty"`
@@ -588,18 +588,37 @@ func (c SendingCategory) SendInteractiveButtons(chatId, body string, buttons []I
 			if len(button.CopyCode) == 0 {
 				return nil, fmt.Errorf("copyCode is required for copy button type")
 			}
+			// Check for extra fields
+			if len(button.PhoneNumber) > 0 {
+				return nil, fmt.Errorf("phoneNumber is not allowed for copy button type")
+			}
+			if len(button.URL) > 0 {
+				return nil, fmt.Errorf("url is not allowed for copy button type")
+			}
 		case "call":
 			if len(button.PhoneNumber) == 0 {
 				return nil, fmt.Errorf("phoneNumber is required for call button type")
+			}
+			// Check for extra fields
+			if len(button.CopyCode) > 0 {
+				return nil, fmt.Errorf("copyCode is not allowed for call button type")
+			}
+			if len(button.URL) > 0 {
+				return nil, fmt.Errorf("url is not allowed for call button type")
 			}
 		case "url":
 			if len(button.URL) == 0 {
 				return nil, fmt.Errorf("url is required for url button type")
 			}
-		case "":
-			// Empty type is allowed for reply buttons
+			// Check for extra fields
+			if len(button.CopyCode) > 0 {
+				return nil, fmt.Errorf("copyCode is not allowed for url button type")
+			}
+			if len(button.PhoneNumber) > 0 {
+				return nil, fmt.Errorf("phoneNumber is not allowed for url button type")
+			}
 		default:
-			return nil, fmt.Errorf("invalid button type: %s. Allowed types: copy, call, url, or empty for reply", button.Type)
+			return nil, fmt.Errorf("invalid button type: %s. Allowed types: copy, call, url", button.Type)
 		}
 	}
 
