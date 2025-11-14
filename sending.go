@@ -636,6 +636,7 @@ func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []s
 
 type InteractiveButton struct {
 	Type        string `json:"type"`
+	Type        string `json:"type"`
 	ButtonId    string `json:"buttonId"`
 	ButtonText  string `json:"buttonText"`
 	CopyCode    string `json:"copyCode,omitempty"`
