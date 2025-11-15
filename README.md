@@ -32,7 +32,7 @@ authorize the account, go to your [cabinet](https://console.green-api.com/) and 
 
 ## Installation
 
-**Make sure that you have Go installed with a version of 1.20 or newer**
+**Make sure that you have Go installed with a version of 1.23 or newer**
 ```shell
 go version
 ```
