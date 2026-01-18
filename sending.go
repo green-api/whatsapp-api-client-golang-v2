@@ -20,6 +20,7 @@ type RequestSendMessage struct {
 	Message         string `json:"message"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
 	LinkPreview     *bool  `json:"linkPreview,omitempty"`
+	TypingTime      int    `json:"typingTime,omitempty"`
 }
 
 type SendMessageOption func(*RequestSendMessage) error
@@ -40,6 +41,17 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalMessageTypingTime(typingTime int) SendMessageOption {
+	return func(r *RequestSendMessage) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending a text message.
 //
 // https://green-api.com/en/docs/api/sending/SendMessage/
@@ -48,6 +60,7 @@ func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 //
 //	OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
 //	OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//	OptionalMessageTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -91,6 +104,7 @@ type RequestSendPoll struct {
 	PollOptions     []PollOption `json:"options"`
 	MultipleAnswers *bool        `json:"multipleAnswers,omitempty"`
 	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
+	TypingTime      int          `json:"typingTime,omitempty"`
 }
 
 type SendPollOption func(*RequestSendPoll) error
@@ -111,6 +125,17 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalPollTypingTime(typingTime int) SendPollOption {
+	return func(r *RequestSendPoll) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending messages with a poll.
 //
 // https://green-api.com/en/docs/api/sending/SendPoll/
@@ -119,6 +144,7 @@ func OptionalPollQuotedMessageId(quotedMessageId string) SendPollOption {
 //
 //	OptionalMultipleAnswers(multipleAnswers bool) <- Allow multiple answers. Disabled by default.
 //	OptionalPollQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalPollTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendPoll(chatId, message string, pollOptions []string, options ...SendPollOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -181,6 +207,8 @@ type RequestSendFileByUpload struct {
 	FileName        string `json:"fileName"`
 	Caption         string `json:"caption,omitempty"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
+	TypingTime      int    `json:"typingTime,omitempty"`
+	TypingType      string `json:"typingType,omitempty"`
 }
 
 type SendFileByUploadOption func(*RequestSendFileByUpload) error
@@ -205,6 +233,34 @@ func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadO
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalUploadTypingTime(typingTime int) SendFileByUploadOption {
+	return func(r *RequestSendFileByUpload) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
+// Type of typing indication. Available values: "typing", "recording". Default: "typing"
+func OptionalUploadTypingType(typingType string) SendFileByUploadOption {
+	return func(r *RequestSendFileByUpload) error {
+		if typingType != "" {
+			allowedTypes := map[string]bool{
+				"typing":    true,
+				"recording": true,
+			}
+			if !allowedTypes[typingType] {
+				return fmt.Errorf("invalid typingType: %s. Allowed values: typing, recording", typingType)
+			}
+		}
+		r.TypingType = typingType
+		return nil
+	}
+}
+
 // Uploading and sending a file.
 //
 // https://green-api.com/en/docs/api/sending/SendFileByUpload/
@@ -213,6 +269,8 @@ func OptionalQuotedMessageIdSendUpload(quotedMessageId string) SendFileByUploadO
 //
 //	OptionalCaptionSendUpload(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
 //	OptionalQuotedMessageIdSendUpload(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalUploadTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+//	OptionalUploadTypingType(typingType string) <- Type of typing indication. Available values: "typing", "recording". Default: "typing"
 func (c SendingCategory) SendFileByUpload(chatId, filePath, fileName string, options ...SendFileByUploadOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -248,6 +306,8 @@ type RequestSendFileByUrl struct {
 	FileName        string `json:"fileName"`
 	Caption         string `json:"caption,omitempty"`
 	QuotedMessageId string `json:"quotedMessageId,omitempty"`
+	TypingTime      int    `json:"typingTime,omitempty"`
+	TypingType      string `json:"typingType,omitempty"`
 }
 
 type SendFileByUrlOption func(*RequestSendFileByUrl) error
@@ -272,6 +332,34 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalUrlTypingTime(typingTime int) SendFileByUrlOption {
+	return func(r *RequestSendFileByUrl) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
+// Type of typing indication. Available values: "typing", "recording". Default: "typing"
+func OptionalUrlTypingType(typingType string) SendFileByUrlOption {
+	return func(r *RequestSendFileByUrl) error {
+		if typingType != "" {
+			allowedTypes := map[string]bool{
+				"typing":    true,
+				"recording": true,
+			}
+			if !allowedTypes[typingType] {
+				return fmt.Errorf("invalid typingType: %s. Allowed values: typing, recording", typingType)
+			}
+		}
+		r.TypingType = typingType
+		return nil
+	}
+}
+
 // Sending a file by URL.
 //
 // https://green-api.com/en/docs/api/sending/SendFileByUrl/
@@ -280,6 +368,8 @@ func OptionalQuotedMessageIdSendUrl(quotedMessageId string) SendFileByUrlOption 
 //
 //	OptionalCaptionSendUrl(caption string) <- File caption. Caption added to video, images. The maximum field length is 20000 characters.
 //	OptionalQuotedMessageIdSendUrl(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalUrlTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+//	OptionalUrlTypingType(typingType string) <- Type of typing indication. Available values: "typing", "recording". Default: "typing"
 func (c SendingCategory) SendFileByUrl(chatId, urlFile, fileName string, options ...SendFileByUrlOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -344,6 +434,7 @@ type RequestSendLocation struct {
 	Latitude        float32 `json:"latitude"`
 	Longitude       float32 `json:"longitude"`
 	QuotedMessageId string  `json:"quotedMessageId,omitempty"`
+	TypingTime      int     `json:"typingTime,omitempty"`
 }
 
 type SendLocationOption func(*RequestSendLocation) error
@@ -372,6 +463,17 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalLocationTypingTime(typingTime int) SendLocationOption {
+	return func(r *RequestSendLocation) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending a location message.
 //
 // https://green-api.com/en/docs/api/sending/SendLocation/
@@ -381,6 +483,7 @@ func OptionalQuotedMessageIdLocation(quotedMessageId string) SendLocationOption 
 //	OptionalNameLocation(nameLocation string) <- Location name.
 //	OptionalAddress(address string) <- Location address.
 //	OptionalQuotedMessageIdLocation(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalLocationTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendLocation(chatId string, latitude, longitude float32, options ...SendLocationOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -422,6 +525,7 @@ type RequestSendContact struct {
 	ChatId          string  `json:"chatId"`
 	Contact         Contact `json:"contact"`
 	QuotedMessageId string  `json:"quotedMessageId,omitempty"`
+	TypingTime      int     `json:"typingTime,omitempty"`
 }
 
 type SendContactOption func(*RequestSendContact) error
@@ -434,6 +538,17 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalContactTypingTime(typingTime int) SendContactOption {
+	return func(r *RequestSendContact) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending a contact message.
 //
 // https://green-api.com/en/docs/api/sending/SendContact/
@@ -441,6 +556,7 @@ func OptionalQuotedMessageIdContact(quotedMessageId string) SendContactOption {
 // Add optional arguments by passing these functions:
 //
 //	OptionalQuotedMessageIdContact(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalContactTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendContact(chatId string, contact Contact, options ...SendContactOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -473,12 +589,30 @@ type RequestForwardMessages struct {
 	ChatId     string   `json:"chatId"`
 	ChatIdFrom string   `json:"chatIdFrom"`
 	Messages   []string `json:"messages"`
+	TypingTime int      `json:"typingTime,omitempty"`
+}
+
+type ForwardMessagesOption func(*RequestForwardMessages) error
+
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalForwardTypingTime(typingTime int) ForwardMessagesOption {
+	return func(r *RequestForwardMessages) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
 }
 
 // Forwarding messages from one chat to another.
 //
 // https://green-api.com/en/docs/api/sending/ForwardMessages/
-func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string) (*APIResponse, error) {
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalForwardTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func (c SendingCategory) ForwardMessages(chatId, chatIdFrom string, messages []string, options ...ForwardMessagesOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
 		return nil, err
@@ -516,6 +650,7 @@ type RequestSendInteractiveButtons struct {
 	Footer          string              `json:"footer,omitempty"`
 	Buttons         []InteractiveButton `json:"buttons"`
 	QuotedMessageId string              `json:"quotedMessageId,omitempty"`
+	TypingTime      int                 `json:"typingTime,omitempty"`
 }
 
 type SendInteractiveButtonsOption func(*RequestSendInteractiveButtons) error
@@ -544,6 +679,17 @@ func OptionalInteractiveQuotedMessageId(quotedMessageId string) SendInteractiveB
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalInteractiveTypingTime(typingTime int) SendInteractiveButtonsOption {
+	return func(r *RequestSendInteractiveButtons) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending interactive buttons.
 //
 // https://green-api.com/en/docs/api/sending/SendInteractiveButtons/
@@ -553,6 +699,7 @@ func OptionalInteractiveQuotedMessageId(quotedMessageId string) SendInteractiveB
 //	OptionalInteractiveHeader(header string) <- Message header.
 //	OptionalInteractiveFooter(footer string) <- Message footer.
 //	OptionalInteractiveQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalInteractiveTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendInteractiveButtons(chatId, body string, buttons []InteractiveButton, options ...SendInteractiveButtonsOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -652,6 +799,7 @@ type RequestSendInteractiveButtonsReply struct {
 	Footer          string                   `json:"footer,omitempty"`
 	Buttons         []InteractiveReplyButton `json:"buttons"`
 	QuotedMessageId string                   `json:"quotedMessageId,omitempty"`
+	TypingTime      int                      `json:"typingTime,omitempty"`
 }
 
 type SendInteractiveButtonsReplyOption func(*RequestSendInteractiveButtonsReply) error
@@ -680,6 +828,17 @@ func OptionalInteractiveReplyQuotedMessageId(quotedMessageId string) SendInterac
 	}
 }
 
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalInteractiveReplyTypingTime(typingTime int) SendInteractiveButtonsReplyOption {
+	return func(r *RequestSendInteractiveButtonsReply) error {
+		if typingTime != 0 && (typingTime < 1000 || typingTime > 20000) {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
 // Sending interactive reply buttons.
 //
 // https://green-api.com/en/docs/api/sending/SendInteractiveButtons/
@@ -689,6 +848,7 @@ func OptionalInteractiveReplyQuotedMessageId(quotedMessageId string) SendInterac
 //	OptionalInteractiveReplyHeader(header string) <- Message header.
 //	OptionalInteractiveReplyFooter(footer string) <- Message footer.
 //	OptionalInteractiveReplyQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+//	OptionalInteractiveReplyTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendInteractiveButtonsReply(chatId, body string, buttons []InteractiveReplyButton, options ...SendInteractiveButtonsReplyOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {

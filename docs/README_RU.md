@@ -26,7 +26,7 @@
 
 ## Установка
 
-**Убедитесь, что у вас установлена версия Go не ниже 1.20**
+**Убедитесь, что у вас установлена версия Go не ниже 1.23**
 ```shell
 go version
 ```
@@ -306,6 +306,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | Как создать группу                                        | [createGroup/main.go](/examples/createGroup/main.go)                                                     |
 | Как отправить текстовый статус                            | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                                               |
 | Как получить входящее уведомление                         | [receiveNotification/main.go](/examples/receiveNotification/main.go)                                     |
+| Как отправить уведомление о наборе текста или записи аудио | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
 | Как получить все инстансы на аккаунте                     | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                     |
 | Как создать инстанс                                       | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
 | Как удалить инстанс                                       | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)   |
@@ -361,6 +362,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().ArchiveChat`           | Метод архивирует чат                                                                                              | [ArchiveChat](https://green-api.com/docs/api/service/archiveChat/)                                       |
 | `Service().UnarchiveChat`         | Метод разархивирует чат                                                                                            | [UnarchiveChat](https://green-api.com/docs/api/service/unarchiveChat/)                                   |
 | `Service().SetDisappearingChat`   | Метод предназначен для изменения настроек исчезающих сообщений в чатах                                           | [SetDisappearingChat](https://green-api.com/docs/api/service/SetDisappearingChat/)                       |
+| `Service().SendTyping`            | Метод предназначен для отправки уведомления о наборе текста или записи аудио в чат                             | [SendTyping](https://green-api.com/en/docs/api/service/sendTyping/) |
 | `Partner().GetInstances`   | Метод предназначен для получения всех инстансов аккаунтов созданных партнёром.                                           | [GetInstances](https://green-api.com/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`   | Метод предназначен для создания инстанса от имени партнёра.                                           | [CreateInstance](https://green-api.com/docs/partners/createInstance/)                       |
 | `Partner().DeleteInstanceAccount`   | Метод предназначен для удаления инстанса аккаунта партнёра.                                           | [DeleteInstanceAccount](https://green-api.com/docs/partners/deleteInstanceAccount/)                       |

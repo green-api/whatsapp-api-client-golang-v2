@@ -32,7 +32,7 @@ authorize the account, go to your [cabinet](https://console.green-api.com/) and 
 
 ## Installation
 
-**Make sure that you have Go installed with a version of 1.20 or newer**
+**Make sure that you have Go installed with a version of 1.23 or newer**
 ```shell
 go version
 ```
@@ -311,6 +311,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | How to create a group                                            | [createGroup/main.go](examples/createGroup/main.go)                                                   |
 | How to send a text status                                        | [sendTextStatus/main.go](examples/sendTextStatus/main.go)                                             |
 | How to receive an incoming notification                          | [receiveNotification/main.go](examples/receiveNotification/main.go)                                   |
+| How to send a notification about typing or recording audio       | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
 | How to get all instances of the account                          | [partnerMethods/getInstances/main.go](examples/partnerMethods/getInstances/main.go)                   |
 | How to create an instance                                        | [partnerMethods/createInstance/main.go](examples/partnerMethods/createInstance/main.go)               |
 | How to delete an instance                                        | [partnerMethods/deleteInstanceAccount/main.go](examples/partnerMethods/deleteInstanceAccount/main.go) |
@@ -353,10 +354,10 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Sending().UploadFile`            | The method allows you to upload a file from the local file system, which can later be sent using the SendFileByUrl method | [UploadFile](https://green-api.com/en/docs/api/sending/UploadFile/)  |
 | `Sending().SendLocation`          | The method is designed to send a geolocation message                              | [SendLocation](https://green-api.com/en/docs/api/sending/SendLocation/)       |
 | `Sending().SendContact`           | The method is for sending a message with a contact                                | [SendContact](https://green-api.com/en/docs/api/sending/SendContact/)          |
-| `Sending().SendInteractiveButtons` | The method is for sending a message with interactive buttons                     | [SendInteractiveButtons](https://green-api.com/en/docs/api/sending/SendInteractiveButtons/) |
-| `Sending().SendInteractiveButtonsReply` | The method is for sending a message with interactive reply buttons | [SendInteractiveButtonsReply](https://green-api.com/en/docs/api/sending/SendInteractiveButtonsReply/) |
 | `Sending().ForwardMessages`       | The method is designed for forwarding messages to a personal or group chat        | [ForwardMessages](https://green-api.com/en/docs/api/sending/ForwardMessages/)           |
 | `Sending().SendPoll`              | The method is designed for sending messages with a poll to a private or group chat| [SendPoll](https://green-api.com/en/docs/api/sending/SendPoll/)                    |
+| `Sending().SendInteractiveButtons` | The method is for sending a message with interactive buttons                     | [SendInteractiveButtons](https://green-api.com/en/docs/api/sending/SendInteractiveButtons/) |
+| `Sending().SendInteractiveButtonsReply` | The method is for sending a message with interactive reply buttons | [SendInteractiveButtonsReply](https://green-api.com/en/docs/api/sending/SendInteractiveButtonsReply/) |
 | `Service().CheckWhatsapp`         | The method checks if there is a WhatsApp account on the phone number              | [CheckWhatsapp](https://green-api.com/en/docs/api/service/CheckWhatsapp/)          |
 | `Service().GetAvatar`             | The method returns the avatar of the correspondent or group chat                  | [GetAvatar](https://green-api.com/en/docs/api/service/GetAvatar/)                   |
 | `Service().GetContacts`           | The method is designed to get a list of contacts of the current account           | [GetContacts](https://green-api.com/en/docs/api/service/GetContacts/)                  |
@@ -366,6 +367,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().ArchiveChat`           | The method archives the chat                                                      | [ArchiveChat](https://green-api.com/en/docs/api/service/archiveChat/)             |
 | `Service().UnarchiveChat`         | The method unarchives the chat                                                    | [UnarchiveChat](https://green-api.com/en/docs/api/service/unarchiveChat/)           |
 | `Service().SetDisappearingChat`   | The method is designed to change the settings of disappearing messages in chats   | [SetDisappearingChat](https://green-api.com/en/docs/api/service/SetDisappearingChat/)       |
+| `Service().SendTyping`            | The method is used to send a notification about typing or recording audio         | [SendTyping](https://green-api.com/en/docs/api/service/sendTyping/) |
 | `Partner().GetInstances`          | The method is for getting all the account instances created by the partner.       | [GetInstances](https://green-api.com/en/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`        | The method is for creating an instance.                                           | [CreateInstance](https://green-api.com/en/docs/partners/createInstance/)            |
 | `Partner().DeleteInstanceAccount` | The method is for deleting an instance.                                           | [DeleteInstanceAccount](https://green-api.com/en/docs/partners/deleteInstanceAccount/)       |

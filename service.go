@@ -1,6 +1,9 @@
 package greenapi
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type ServiceCategory struct {
 	GreenAPI GreenAPIInterface
@@ -228,7 +231,8 @@ type RequestSetDisappearingChat struct {
 // https://green-api.com/en/docs/api/service/SetDisappearingChat/
 //
 // The standard settings of the application are to be used:
-//  0 (off), 86400 (24 hours), 604800 (7 days), 7776000 (90 days).
+//
+//	0 (off), 86400 (24 hours), 604800 (7 days), 7776000 (90 days).
 func (c ServiceCategory) SetDisappearingChat(chatId string, ephemeralExpiration int) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
 	if err != nil {
@@ -246,4 +250,75 @@ func (c ServiceCategory) SetDisappearingChat(chatId string, ephemeralExpiration 
 	}
 
 	return c.GreenAPI.Request("POST", "setDisappearingChat", jsonData)
+}
+
+// ------------------------------------------------------------------ SendTyping
+
+type RequestSendTyping struct {
+	ChatId     string `json:"chatId"`
+	TypingTime int    `json:"typingTime,omitempty"`
+	TypingType string `json:"typingType,omitempty"`
+}
+
+type SendTypingOption func(*RequestSendTyping) error
+
+// Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+func OptionalSendTypingTime(typingTime int) SendTypingOption {
+	return func(r *RequestSendTyping) error {
+		if typingTime < 1000 || typingTime > 20000 {
+			return fmt.Errorf("typingTime must be between 1000 and 20000 milliseconds, got: %d", typingTime)
+		}
+		r.TypingTime = typingTime
+		return nil
+	}
+}
+
+// Type of typing indication. Available values: "typing", "recording". Default: "typing"
+func OptionalSendTypingType(typingType string) SendTypingOption {
+	return func(r *RequestSendTyping) error {
+		allowedTypes := map[string]bool{
+			"typing":    true,
+			"recording": true,
+		}
+		if !allowedTypes[typingType] {
+			return fmt.Errorf("invalid typingType: %s. Allowed values: typing, recording", typingType)
+		}
+		r.TypingType = typingType
+		return nil
+	}
+}
+
+// Sending a typing indicator.
+//
+// This method allows you to show the user that you are typing a message or recording a voice message.
+//
+// https://green-api.com/en/docs/api/sending/SendTyping/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalSendTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
+//	OptionalSendTypingType(typingType string) <- Type of typing indication. Available values: "typing", "recording". Default: "typing"
+func (c ServiceCategory) SendTyping(chatId string, options ...SendTypingOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	r := &RequestSendTyping{
+		ChatId: chatId,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendTyping", jsonData)
 }
