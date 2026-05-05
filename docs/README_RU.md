@@ -180,6 +180,20 @@ response, _ := GreenAPI.Statuses().SendTextStatus(
 	)
 ```
 
+
+**Как добавить контакт:**
+
+Ссылка на пример: [addContact/main.go](examples/addContact/main.go)
+
+```go
+response, err := GreenAPI.Contacts().AddContact(
+		"79876543210@c.us",
+		"John",
+		greenapi.OptionalAddLastName("Doe"),
+		//greenapi.OptionalAddSaveInAddressbook(True)
+	)
+```
+
 **Как получить входящее уведомление:**
 
 Ссылка на пример: [receiveNotification/main.go](/examples/receiveNotification/main.go)
@@ -305,8 +319,9 @@ response, _ := GreenAPI.Sending().SendMessage(
 | Как установить настройки инстанса                         | [setSettings/main.go](/examples/setSettings/main.go)                                                     |
 | Как создать группу                                        | [createGroup/main.go](/examples/createGroup/main.go)                                                     |
 | Как отправить текстовый статус                            | [sendTextStatus/main.go](/examples/sendTextStatus/main.go)                                               |
+| Как добавить контакт                                      | [addContact/main.go](examples/addContact/main.go)                                                        |
 | Как получить входящее уведомление                         | [receiveNotification/main.go](/examples/receiveNotification/main.go)                                     |
-| Как отправить уведомление о наборе текста или записи аудио | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
+| Как отправить уведомление о наборе текста или записи аудио | [sendTyping/main.go](examples/sendTyping/main.go)                                                       |
 | Как получить все инстансы на аккаунте                     | [partnerMethods/getInstances/main.go](/examples/partnerMethods/getInstances/main.go)                     |
 | Как создать инстанс                                       | [partnerMethods/createInstance/main.go](/examples/partnerMethods/createInstance/main.go)                 |
 | Как удалить инстанс                                       | [partnerMethods/deleteInstanceAccount/main.go](/examples/partnerMethods/deleteInstanceAccount/main.go)   |
@@ -324,6 +339,9 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Account().QR`                    | Метод предназначен для получения QR-кода                                                                                   | [QR](https://green-api.com/docs/api/account/QR/)                                                         |
 | `Account().SetProfilePicture`     | Метод предназначен для установки аватара аккаунта                                                                   | [SetProfilePicture](https://green-api.com/docs/api/account/SetProfilePicture/)                           |
 | `Account().GetAuthorizationCode`  | Метод предназначен для авторизации инстанса по номеру телефона                                                           | [GetAuthorizationCode](https://green-api.com/docs/api/account/GetAuthorizationCode/)                     |                                  |
+| `Contacts.AddContact`             | Метод предназначен для добавления номера в контакты                                    | [AddContact](https://green-api.com/en/docs/api/contacts/AddContact/)   |
+| `Contacts.EditContact`            | Метод предназначен для редактирования номера в контактах                                  | [EditContact](https://green-api.com/en/docs/api/contacts/EditContact/) |
+| `Contacts.DeleteContact`          | Метод предназначен для удаления номера из контактов                               | [DeleteContact](https://green-api.com/en/docs/api/contacts/DeleteContact/)   |
 | `Groups().CreateGroup`            | Метод предназначен для создания группового чата                                                                             | [CreateGroup](https://green-api.com/docs/api/groups/CreateGroup/)                                        |
 | `Groups().UpdateGroupName`        | Метод изменяет наименование группового чата                                                                             | [UpdateGroupName](https://green-api.com/docs/api/groups/UpdateGroupName/)                                |
 | `Groups().GetGroupData`           | Метод получает данные группового чата                                                                                           | [GetGroupData](https://green-api.com/docs/api/groups/GetGroupData/)                                      |

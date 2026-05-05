@@ -185,6 +185,19 @@ response, _ := GreenAPI.Statuses().SendTextStatus(
 	)
 ```
 
+**How to add a contact:**
+
+Link to example: [addContact/main.go](examples/addContact/main.go)
+
+```go
+response, err := GreenAPI.Contacts().AddContact(
+		"79876543210@c.us",
+		"John",
+		greenapi.OptionalAddLastName("Doe"),
+		//greenapi.OptionalAddSaveInAddressbook(True)
+	)
+```
+
 **How to receive an incoming notification:**
 
 Link to example: [receiveNotification/main.go](examples/receiveNotification/main.go)
@@ -310,6 +323,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | How to set instance settings                                     | [setSettings/main.go](examples/setSettings/main.go)                                                   |
 | How to create a group                                            | [createGroup/main.go](examples/createGroup/main.go)                                                   |
 | How to send a text status                                        | [sendTextStatus/main.go](examples/sendTextStatus/main.go)                                             |
+| How to add a contact                                             | [addContact/main.go](examples/addContact/main.go)                                                     |
 | How to receive an incoming notification                          | [receiveNotification/main.go](examples/receiveNotification/main.go)                                   |
 | How to send a notification about typing or recording audio       | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
 | How to get all instances of the account                          | [partnerMethods/getInstances/main.go](examples/partnerMethods/getInstances/main.go)                   |
@@ -329,6 +343,9 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Account().QR`                    | The method is designed to get a QR code                                           | [QR](https://green-api.com/en/docs/api/account/QR/)    |
 | `Account().SetProfilePicture`     | The method is designed to set the avatar of the account                           | [SetProfilePicture](https://green-api.com/en/docs/api/account/SetProfilePicture/)        |
 | `Account().GetAuthorizationCode`  | The method is designed to authorize an instance by phone number                   | [GetAuthorizationCode](https://green-api.com/en/docs/api/account/GetAuthorizationCode/)  |  
+| `Contacts.AddContact`             | The method is used to add a number to contacts                                    | [AddContact](https://green-api.com/en/docs/api/contacts/AddContact/)   |
+| `Contacts.EditContact`            | The method is used to edit a number in contacts                                   | [EditContact](https://green-api.com/en/docs/api/contacts/EditContact/) |
+| `Contacts.DeleteContact`          | The method is used to remove a number from contacts                               | [DeleteContact](https://green-api.com/en/docs/api/contacts/DeleteContact/)   |
 | `Groups().CreateGroup`            | The method is designed to create a group chat                                     | [CreateGroup](https://green-api.com/en/docs/api/groups/CreateGroup/)   |
 | `Groups().UpdateGroupName`        | The method changes the name of the group chat                                     | [UpdateGroupName](https://green-api.com/en/docs/api/groups/UpdateGroupName/)    |
 | `Groups().GetGroupData`           | The method gets group chat data                                                   | [GetGroupData](https://green-api.com/en/docs/api/groups/GetGroupData/)     |
