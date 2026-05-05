@@ -7,6 +7,13 @@ func (c *GreenAPI) Account() AccountCategory {
 	return AccountCategory{GreenAPI: c}
 }
 
+// Contacts category presents methods for working with contacts.
+//
+// https://green-api.com/en/docs/api/contacts/
+func (c *GreenAPI) Contacts() ContactsCategory {
+	return ContactsCategory{GreenAPI: c}
+}
+
 // Sending category presents methods for sending different messages.
 //
 // https://green-api.com/en/docs/api/sending/
