@@ -135,5 +135,5 @@ func (c ContactsCategory) DeleteContact(chatId string) (*APIResponse, error) {
 		return nil, err
 	}
 
-	return c.GreenAPI.Request("POST", "editContact", jsonData)
+	return c.GreenAPI.Request("POST", "deleteContact", jsonData)
 }

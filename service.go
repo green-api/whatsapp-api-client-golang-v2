@@ -2,7 +2,9 @@ package greenapi
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+	"strings"
 )
 
 type ServiceCategory struct {
@@ -12,15 +14,51 @@ type ServiceCategory struct {
 // ------------------------------------------------------------------ CheckWhatsapp
 
 type RequestCheckWhatsapp struct {
-	PhoneNumber int `json:"phoneNumber"`
+	ChatId      *string `json:"chatId,omitempty"`
+	PhoneNumber *int    `json:"phoneNumber,omitempty"`
+	Force       *bool   `json:"force,omitempty"`
 }
 
-// Checking a WhatsApp account availability on a phone number.
+type CheckWhatsappOption func(*RequestCheckWhatsapp) error
+
+// Deprecated: Use chatId parameter
+func OptionalChatID(chatID string) CheckWhatsappOption {
+	return func(r *RequestCheckWhatsapp) error {
+		r.ChatId = &chatID
+		return nil
+	}
+}
+
+// Force check without cache. Default is false.
+func OptionalForce(force bool) CheckWhatsappOption {
+	return func(r *RequestCheckWhatsapp) error {
+		r.Force = &force
+		return nil
+	}
+}
+
+// Checking a WhatsApp account availability on a phone number or whatsapp chat ip.
 //
 // https://green-api.com/en/docs/api/service/CheckWhatsapp/
-func (c ServiceCategory) CheckWhatsapp(phoneNumber int) (*APIResponse, error) {
+// The `phone` function argument is optional and is retained for backward compatibility.
+// If `phone == 0`, then `WhatsappChatId` must be specified.
+// Add optional arguments by passing these functions:
+//
+//	OptionalChatID(chatID string) <- Specified if the phone == 0.
+//	OptionalForce(force bool) <- Force check without cache. Default is false.
+func (c ServiceCategory) CheckWhatsapp(phoneNumber int, options ...CheckWhatsappOption) (*APIResponse, error) {
 	r := &RequestCheckWhatsapp{
-		PhoneNumber: phoneNumber,
+		PhoneNumber: &phoneNumber,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if (r.PhoneNumber == nil || *r.PhoneNumber == 0) && r.ChatId == nil {
+		return nil, errors.New("CheckWhatsapp: phone and whatsappChatID is nil")
 	}
 
 	jsonData, err := json.Marshal(r)
@@ -60,11 +98,64 @@ func (c ServiceCategory) GetAvatar(chatId string) (*APIResponse, error) {
 
 // ------------------------------------------------------------------ GetContacts
 
+type RequestGetContacts struct {
+	Group *bool `json:"group,omitempty"`
+	Count int   `json:"count,omitempty"`
+}
+
+type GetContactsOption func(*RequestGetContacts) error
+
+// Filter contacts by type (groups or personal chats).
+func OptionalGetContactsGroup(group bool) GetContactsOption {
+	return func(r *RequestGetContacts) error {
+		r.Group = &group
+		return nil
+	}
+}
+
+// Limit the number of contacts returned.
+func OptionalGetContactsCount(count int) GetContactsOption {
+	return func(r *RequestGetContacts) error {
+		r.Count = count
+		return nil
+	}
+}
+
 // Getting a list of the current account contacts.
 //
 // https://green-api.com/en/docs/api/service/GetContacts/
-func (c ServiceCategory) GetContacts() (*APIResponse, error) {
-	return c.GreenAPI.Request("GET", "getContacts", nil)
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalGetContactsGroup(group bool) <- Filter contacts by type (groups or personal chats).
+//	OptionalGetContactsCount(count int) <- Limit the number of contacts returned.
+func (c ServiceCategory) GetContacts(options ...GetContactsOption) (*APIResponse, error) {
+	r := &RequestGetContacts{}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var addUrl string
+	var params []string
+	if r.Group != nil {
+		if *r.Group {
+			params = append(params, "group=true")
+		} else {
+			params = append(params, "group=false")
+		}
+	}
+	if r.Count != 0 {
+		params = append(params, fmt.Sprintf("count=%d", r.Count))
+	}
+	if len(params) > 0 {
+		addUrl = "?" + strings.Join(params, "&")
+	}
+
+	return c.GreenAPI.Request("GET", "getContacts", nil, WithGetParams(addUrl))
 }
 
 // ------------------------------------------------------------------ GetContactInfo
@@ -321,4 +412,41 @@ func (c ServiceCategory) SendTyping(chatId string, options ...SendTypingOption) 
 	}
 
 	return c.GreenAPI.Request("POST", "sendTyping", jsonData)
+}
+
+// ------------------------------------------------------------------ GetChats
+
+type GetChatsOption func(*int) error
+
+// Limit the number of chats returned.
+func OptionalChatsCount(count int) GetChatsOption {
+	return func(r *int) error {
+		*r = count
+		return nil
+	}
+}
+
+// Getting a list of chats.
+//
+// https://green-api.com/en/docs/api/service/GetChats/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalChatsCount(count int) <- Limit the number of chats returned.
+func (c ServiceCategory) GetChats(options ...GetChatsOption) (*APIResponse, error) {
+	var count int
+
+	for _, o := range options {
+		err := o(&count)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var addUrl string
+	if count != 0 {
+		addUrl = fmt.Sprintf("?count=%d", count)
+	}
+
+	return c.GreenAPI.Request("GET", "getChats", nil, WithGetParams(addUrl))
 }

@@ -93,6 +93,65 @@ func (c GroupsCategory) GetGroupData(groupId string) (*APIResponse, error) {
 	return c.GreenAPI.Request("POST", "getGroupData", jsonData)
 }
 
+// ------------------------------------------------------------------ UpdateGroupSettings
+
+type RequestUpdateGroupSettings struct {
+	GroupId                            string `json:"groupId"`
+	AllowParticipantsEditGroupSettings *bool  `json:"allowParticipantsEditGroupSettings,omitempty"`
+	AllowParticipantsSendMessages      *bool  `json:"allowParticipantsSendMessages,omitempty"`
+}
+
+type UpdateGroupSettingsOption func(*RequestUpdateGroupSettings) error
+
+// Allow participants to edit group settings.
+func OptionalAllowParticipantsEditGroupSettings(allow bool) UpdateGroupSettingsOption {
+	return func(r *RequestUpdateGroupSettings) error {
+		r.AllowParticipantsEditGroupSettings = &allow
+		return nil
+	}
+}
+
+// Allow participants to send messages.
+func OptionalAllowParticipantsSendMessages(allow bool) UpdateGroupSettingsOption {
+	return func(r *RequestUpdateGroupSettings) error {
+		r.AllowParticipantsSendMessages = &allow
+		return nil
+	}
+}
+
+// Updating group chat settings.
+//
+// https://green-api.com/en/docs/api/groups/UpdateGroupSettings/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalAllowParticipantsEditGroupSettings(allow bool) <- Allow participants to edit group settings.
+//	OptionalAllowParticipantsSendMessages(allow bool) <- Allow participants to send messages.
+func (c GroupsCategory) UpdateGroupSettings(groupId string, options ...UpdateGroupSettingsOption) (*APIResponse, error) {
+	err := ValidateChatId(groupId)
+	if err != nil {
+		return nil, err
+	}
+
+	r := &RequestUpdateGroupSettings{
+		GroupId: groupId,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "updateGroupSettings", jsonData)
+}
+
 // ------------------------------------------------------------------ GroupParticipant
 
 type RequestModifyGroupParticipant struct {

@@ -158,3 +158,69 @@ func (c JournalsCategory) LastOutgoingMessages(options ...LastMessagesOption) (*
 
 	return c.GreenAPI.Request("GET", "lastOutgoingMessages", jsonData, WithGetParams(addUrl))
 }
+
+// ------------------------------------------------------------------ LastIncomingCalls + LastOutgoingCalls
+
+type RequestLastCalls struct {
+	Minutes int `json:"minutes,omitempty"`
+}
+
+type LastCallsOption func(*RequestLastCalls) error
+
+// Time in minutes for which the calls should be displayed (default is 1440 minutes)
+func OptionalCallsMinutes(minutes int) LastCallsOption {
+	return func(r *RequestLastCalls) error {
+		r.Minutes = minutes
+		return nil
+	}
+}
+
+// Getting the last incoming calls of the account.
+//
+// https://green-api.com/en/docs/api/journals/LastIncomingCalls/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalCallsMinutes(minutes int) <- Time in minutes for which the calls should be displayed (default is 1440 minutes)
+func (c JournalsCategory) LastIncomingCalls(options ...LastCallsOption) (*APIResponse, error) {
+	r := &RequestLastCalls{}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var addUrl string
+	if r.Minutes != 0 {
+		addUrl = fmt.Sprintf("?minutes=%v", r.Minutes)
+	}
+
+	return c.GreenAPI.Request("GET", "lastIncomingCalls", nil, WithGetParams(addUrl))
+}
+
+// Getting the last outgoing calls of the account.
+//
+// https://green-api.com/en/docs/api/journals/LastOutgoingCalls/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalCallsMinutes(minutes int) <- Time in minutes for which the calls should be displayed (default is 1440 minutes)
+func (c JournalsCategory) LastOutgoingCalls(options ...LastCallsOption) (*APIResponse, error) {
+	r := &RequestLastCalls{}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var addUrl string
+	if r.Minutes != 0 {
+		addUrl = fmt.Sprintf("?minutes=%v", r.Minutes)
+	}
+
+	return c.GreenAPI.Request("GET", "lastOutgoingCalls", nil, WithGetParams(addUrl))
+}

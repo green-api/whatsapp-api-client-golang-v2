@@ -15,12 +15,22 @@ type SendingCategory struct {
 
 // ------------------------------------------------------------------ SendMessage
 
+type CustomPreview struct {
+	Title         string `json:"title,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Link          string `json:"link,omitempty"`
+	UrlFile       string `json:"urlFile,omitempty"`
+	JpegThumbnail string `json:"jpegThumbnail,omitempty"`
+}
+
 type RequestSendMessage struct {
-	ChatId          string `json:"chatId"`
-	Message         string `json:"message"`
-	QuotedMessageId string `json:"quotedMessageId,omitempty"`
-	LinkPreview     *bool  `json:"linkPreview,omitempty"`
-	TypingTime      int    `json:"typingTime,omitempty"`
+	ChatId          string         `json:"chatId"`
+	Message         string         `json:"message"`
+	QuotedMessageId string         `json:"quotedMessageId,omitempty"`
+	LinkPreview     *bool          `json:"linkPreview,omitempty"`
+	TypePreview     string         `json:"typePreview,omitempty"`
+	CustomPreview   *CustomPreview `json:"customPreview,omitempty"`
+	TypingTime      int            `json:"typingTime,omitempty"`
 }
 
 type SendMessageOption func(*RequestSendMessage) error
@@ -37,6 +47,25 @@ func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.LinkPreview = &linkPreview
+		return nil
+	}
+}
+
+// Link preview type. Available values: "large", "small".
+func OptionalTypePreview(typePreview string) SendMessageOption {
+	return func(r *RequestSendMessage) error {
+		if typePreview != "large" && typePreview != "small" {
+			return fmt.Errorf("invalid typePreview: %s. Allowed values: large, small", typePreview)
+		}
+		r.TypePreview = typePreview
+		return nil
+	}
+}
+
+// Custom link preview.
+func OptionalCustomPreview(customPreview CustomPreview) SendMessageOption {
+	return func(r *RequestSendMessage) error {
+		r.CustomPreview = &customPreview
 		return nil
 	}
 }
@@ -60,6 +89,8 @@ func OptionalMessageTypingTime(typingTime int) SendMessageOption {
 //
 //	OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
 //	OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//	OptionalTypePreview(typePreview string) <- Link preview type. Available values: "large", "small".
+//	OptionalCustomPreview(customPreview CustomPreview) <- Custom link preview.
 //	OptionalMessageTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
@@ -897,4 +928,270 @@ func (c SendingCategory) SendInteractiveButtonsReply(chatId, body string, button
 	}
 
 	return c.GreenAPI.Request("POST", "sendInteractiveButtonsReply", jsonData)
+}
+
+// ------------------------------------------------------------------ SendButtons
+
+type SendButton struct {
+	ButtonId   string `json:"buttonId"`
+	ButtonText string `json:"buttonText"`
+}
+
+type RequestSendButtons struct {
+	ChatId          string       `json:"chatId"`
+	Message         string       `json:"message"`
+	Footer          string       `json:"footer,omitempty"`
+	Buttons         []SendButton `json:"buttons"`
+	QuotedMessageId string       `json:"quotedMessageId,omitempty"`
+}
+
+type SendButtonsOption func(*RequestSendButtons) error
+
+// Message footer.
+func OptionalButtonsFooter(footer string) SendButtonsOption {
+	return func(r *RequestSendButtons) error {
+		r.Footer = footer
+		return nil
+	}
+}
+
+// If specified, the message will be sent quoting the specified chat message.
+func OptionalButtonsQuotedMessageId(quotedMessageId string) SendButtonsOption {
+	return func(r *RequestSendButtons) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+// Sending a message with buttons. Temporarily non-functional in the API (returns 403).
+//
+// https://green-api.com/en/docs/api/sending/SendButtons/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalButtonsFooter(footer string) <- Message footer.
+//	OptionalButtonsQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+func (c SendingCategory) SendButtons(chatId, message string, buttons []SendButton, options ...SendButtonsOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(message, 4096)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(buttons) == 0 {
+		return nil, fmt.Errorf("buttons cannot be empty")
+	} else if len(buttons) > 3 {
+		return nil, fmt.Errorf("cannot create more than 3 buttons")
+	}
+
+	for _, button := range buttons {
+		if len(button.ButtonText) > 25 {
+			return nil, fmt.Errorf(`"buttonText" should not exceed 25 characters`)
+		}
+	}
+
+	r := &RequestSendButtons{
+		ChatId:  chatId,
+		Message: message,
+		Buttons: buttons,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendButtons", jsonData)
+}
+
+// ------------------------------------------------------------------ SendTemplateButtons
+
+type UrlButton struct {
+	DisplayText string `json:"displayText"`
+	Url         string `json:"url"`
+}
+
+type CallButton struct {
+	DisplayText string `json:"displayText"`
+	PhoneNumber string `json:"phoneNumber"`
+}
+
+type QuickReplyButton struct {
+	DisplayText string `json:"displayText"`
+	Id          string `json:"id"`
+}
+
+type TemplateButton struct {
+	Index            int               `json:"index"`
+	UrlButton        *UrlButton        `json:"urlButton,omitempty"`
+	CallButton       *CallButton       `json:"callButton,omitempty"`
+	QuickReplyButton *QuickReplyButton `json:"quickReplyButton,omitempty"`
+}
+
+type RequestSendTemplateButtons struct {
+	ChatId          string           `json:"chatId"`
+	Message         string           `json:"message"`
+	Footer          string           `json:"footer,omitempty"`
+	TemplateButtons []TemplateButton `json:"templateButtons"`
+	QuotedMessageId string           `json:"quotedMessageId,omitempty"`
+}
+
+type SendTemplateButtonsOption func(*RequestSendTemplateButtons) error
+
+// Message footer.
+func OptionalTemplateFooter(footer string) SendTemplateButtonsOption {
+	return func(r *RequestSendTemplateButtons) error {
+		r.Footer = footer
+		return nil
+	}
+}
+
+// If specified, the message will be sent quoting the specified chat message.
+func OptionalTemplateQuotedMessageId(quotedMessageId string) SendTemplateButtonsOption {
+	return func(r *RequestSendTemplateButtons) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+// Sending a message with template buttons. Temporarily non-functional in the API (returns 403).
+//
+// https://green-api.com/en/docs/api/sending/SendTemplateButtons/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalTemplateFooter(footer string) <- Message footer.
+//	OptionalTemplateQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+func (c SendingCategory) SendTemplateButtons(chatId, message string, templateButtons []TemplateButton, options ...SendTemplateButtonsOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(message, 4096)
+	if err != nil {
+		return nil, err
+	}
+
+	r := &RequestSendTemplateButtons{
+		ChatId:          chatId,
+		Message:         message,
+		TemplateButtons: templateButtons,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendTemplateButtons", jsonData)
+}
+
+// ------------------------------------------------------------------ SendListMessage
+
+type ListRow struct {
+	Title       string `json:"title"`
+	RowId       string `json:"rowId"`
+	Description string `json:"description,omitempty"`
+}
+
+type ListSection struct {
+	Title string    `json:"title"`
+	Rows  []ListRow `json:"rows"`
+}
+
+type RequestSendListMessage struct {
+	ChatId          string        `json:"chatId"`
+	Message         string        `json:"message"`
+	Title           string        `json:"title,omitempty"`
+	Footer          string        `json:"footer,omitempty"`
+	ButtonText      string        `json:"buttonText"`
+	Sections        []ListSection `json:"sections"`
+	QuotedMessageId string        `json:"quotedMessageId,omitempty"`
+}
+
+type SendListMessageOption func(*RequestSendListMessage) error
+
+// Message title.
+func OptionalListTitle(title string) SendListMessageOption {
+	return func(r *RequestSendListMessage) error {
+		r.Title = title
+		return nil
+	}
+}
+
+// Message footer.
+func OptionalListFooter(footer string) SendListMessageOption {
+	return func(r *RequestSendListMessage) error {
+		r.Footer = footer
+		return nil
+	}
+}
+
+// If specified, the message will be sent quoting the specified chat message.
+func OptionalListQuotedMessageId(quotedMessageId string) SendListMessageOption {
+	return func(r *RequestSendListMessage) error {
+		r.QuotedMessageId = quotedMessageId
+		return nil
+	}
+}
+
+// Sending a message with a selection list. Temporarily non-functional in the API (returns 403).
+//
+// https://green-api.com/en/docs/api/sending/SendListMessage/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalListTitle(title string) <- Message title.
+//	OptionalListFooter(footer string) <- Message footer.
+//	OptionalListQuotedMessageId(quotedMessageId string) <- If specified, the message will be sent quoting the specified chat message.
+func (c SendingCategory) SendListMessage(chatId, message, buttonText string, sections []ListSection, options ...SendListMessageOption) (*APIResponse, error) {
+	err := ValidateChatId(chatId)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ValidateMessageLength(message, 4096)
+	if err != nil {
+		return nil, err
+	}
+
+	r := &RequestSendListMessage{
+		ChatId:     chatId,
+		Message:    message,
+		ButtonText: buttonText,
+		Sections:   sections,
+	}
+
+	for _, o := range options {
+		err := o(r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	jsonData, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.GreenAPI.Request("POST", "sendListMessage", jsonData)
 }
