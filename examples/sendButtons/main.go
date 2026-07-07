@@ -15,7 +15,18 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Service().CheckWhatsapp(0, greenapi.OptionalChatID("77057538541@c.us"))
+	buttons := []greenapi.SendButton{
+		{ButtonId: "1", ButtonText: "Option 1"},
+		{ButtonId: "2", ButtonText: "Option 2"},
+		{ButtonId: "3", ButtonText: "Option 3"},
+	}
+
+	response, err := GreenAPI.Sending().SendButtons(
+		"11001234567@c.us",
+		"Choose an option:",
+		buttons,
+		greenapi.OptionalButtonsFooter("Powered by Green API"),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

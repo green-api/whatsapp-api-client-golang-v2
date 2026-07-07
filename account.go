@@ -449,12 +449,3 @@ func (c AccountCategory) UpdateApiToken() (*APIResponse, error) {
 func (c AccountCategory) GetWaSettings() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "getWaSettings", nil)
 }
-
-// ------------------------------------------------------------------ GetDeviceInfo
-
-// Getting information about the device (phone). Temporarily non-functional in the API (returns 405).
-//
-// https://green-api.com/en/docs/api/phone/GetDeviceInfo/
-func (c AccountCategory) GetDeviceInfo() (*APIResponse, error) {
-	return c.GreenAPI.Request("GET", "getDeviceInfo", nil)
-}

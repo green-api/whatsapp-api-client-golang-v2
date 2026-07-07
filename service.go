@@ -21,7 +21,7 @@ type RequestCheckWhatsapp struct {
 
 type CheckWhatsappOption func(*RequestCheckWhatsapp) error
 
-// Deprecated: Use chatId parameter
+// Use chatId parameter
 func OptionalChatID(chatID string) CheckWhatsappOption {
 	return func(r *RequestCheckWhatsapp) error {
 		r.ChatId = &chatID
@@ -47,15 +47,16 @@ func OptionalForce(force bool) CheckWhatsappOption {
 //	OptionalChatID(chatID string) <- Specified if the phone == 0.
 //	OptionalForce(force bool) <- Force check without cache. Default is false.
 func (c ServiceCategory) CheckWhatsapp(phoneNumber int, options ...CheckWhatsappOption) (*APIResponse, error) {
-	r := &RequestCheckWhatsapp{
-		PhoneNumber: &phoneNumber,
-	}
+	r := &RequestCheckWhatsapp{}
 
 	for _, o := range options {
 		err := o(r)
 		if err != nil {
 			return nil, err
 		}
+	}
+	if phoneNumber != 0 {
+		r.PhoneNumber = &phoneNumber
 	}
 	if (r.PhoneNumber == nil || *r.PhoneNumber == 0) && r.ChatId == nil {
 		return nil, errors.New("CheckWhatsapp: phone and whatsappChatID is nil")

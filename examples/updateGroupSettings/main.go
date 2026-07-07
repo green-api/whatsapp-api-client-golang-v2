@@ -15,7 +15,11 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Service().CheckWhatsapp(0, greenapi.OptionalChatID("77057538541@c.us"))
+	response, err := GreenAPI.Groups().UpdateGroupSettings(
+		"11001234567-1587570015@g.us",
+		greenapi.OptionalAllowParticipantsEditGroupSettings(false),
+		greenapi.OptionalAllowParticipantsSendMessages(true),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
