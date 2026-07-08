@@ -15,7 +15,17 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Service().CheckWhatsapp(0, greenapi.OptionalChatID("11001211111@c.us"))
+	response, err := GreenAPI.Sending().SendMessage(
+		"11001234567@c.us",
+		"Check out this link: https://green-api.com",
+		greenapi.OptionalLinkPreview(true),
+		greenapi.OptionalTypePreview("large"),
+		greenapi.OptionalCustomPreview(greenapi.CustomPreview{
+			Title:       "Green API",
+			Description: "WhatsApp API Gateway",
+			Link:        "https://green-api.com",
+		}),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

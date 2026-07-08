@@ -2,6 +2,7 @@ package greenapi
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 type AccountCategory struct {
@@ -37,6 +38,9 @@ type RequestSetSettings struct {
 	IncomingCallWebhook               string  `json:"incomingCallWebhook,omitempty"`
 	EditedMessageWebhook              string  `json:"editedMessageWebhook,omitempty"`
 	DeletedMessageWebhook             string  `json:"deletedMessageWebhook,omitempty"`
+	AutoTyping                        uint    `json:"autoTyping,omitempty"`
+	LinkPreview                       bool    `json:"linkPreview,omitempty"`
+	EnableLidMode                     bool    `json:"enableLidMode,omitempty"`
 }
 
 type SetSettingsOption func(*RequestSetSettings) error
@@ -45,7 +49,7 @@ type SetSettingsOption func(*RequestSetSettings) error
 func OptionalWebhookUrl(webhookUrl string) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		err := ValidateURL(webhookUrl)
-		if err!=nil {
+		if err != nil {
 			return err
 		}
 		r.WebhookUrl = &webhookUrl
@@ -61,7 +65,7 @@ func OptionalWebhookUrlToken(webhookUrlToken string) SetSettingsOption {
 	}
 }
 
-// Message sending delay. 
+// Message sending delay.
 func OptionalDelaySendMessages(delaySendMessagesMilliseconds uint) SetSettingsOption {
 	return func(r *RequestSetSettings) error {
 		r.DelaySendMessagesMilliseconds = &delaySendMessagesMilliseconds
@@ -237,34 +241,59 @@ func OptionalDeletedMessageWebhook(deletedMessageWebhook bool) SetSettingsOption
 	}
 }
 
+// Automatically calculates the message typing time depending on the set value.
+func OptionalAutoTyping(autoTyping uint) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
+		r.AutoTyping = autoTyping
+		return nil
+	}
+}
+
+// This parameter controls the display of previews and links for sent message methods.
+func OptionalLinkPreviewBool(linkPreview bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
+		r.LinkPreview = linkPreview
+		return nil
+	}
+}
+
+// Working with chat IDs in the form @lid
+func OptionalEnableLidMode(enableLidMode bool) SetSettingsOption {
+	return func(r *RequestSetSettings) error {
+		r.EnableLidMode = enableLidMode
+		return nil
+	}
+}
+
 // Applying settings for an instance.
-// 
+//
 // https://green-api.com/en/docs/api/account/SetSettings/
 //
 // Add optional arguments by passing these functions:
-//  OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
-//  OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
-//  OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay. 
-//  OptionalMarkIncomingMessagesRead(markIncomingMessagesReaded bool) <- Mark incoming messages as read or not.
-//  OptionalMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) <- Mark incoming messages as read when posting a message to the chat via API.
-//  OptionalOutgoingWessebhook(outgoingWebhook bool) <- Get notifications about outgoing messages sending/delivering/reading statuses.
-//  OptionalOutgoingMageWebhook(outgoingMessageWebhook bool) <- Get notifications about messages sent from the phone.
-//  OptionalOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) <- Get notifications about messages sent from API.
-//  OptionalStateWebhook(stateWebhook bool) <- Get notifications about the instance authorization state change.
-//  OptionalIncomingWebhook(incomingWebhook bool) <- Get notifications about incoming messages and files.
-//  OptionalDeviceWebhook(deviceWebhook bool) <- Get notifications about the device (phone) and battery level.
-//  OptionalKeepOnlineStatus(keepOnlineStatus bool) <- Sets the 'Online' status for your Whatsapp account.
-//  OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
-//  OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
-//  OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
-//  OptionalEditedMessageWebhook(editedMessageWebhook bool) <- Get notifications about edited messages.
-//  OptionalDeletedMessageWebhook(deletedMessageWebhook bool) <- Get notifications about deleted messages.
+//
+//	OptionalWebhookUrl(webhookUrl string) <- URL for sending notifications.
+//	OptionalWebhookUrlToken(webhookUrlToken string) <- Token to access your notification server.
+//	OptionalDelaySendMesssages(delaySendMessagesMilliseconds int) <- Message sending delay.
+//	OptionalMarkIncomingMessagesRead(markIncomingMessagesReaded bool) <- Mark incoming messages as read or not.
+//	OptionalMarkIncomingMessagesReadOnReply(markIncomingMessagesReadedOnReply bool) <- Mark incoming messages as read when posting a message to the chat via API.
+//	OptionalOutgoingWessebhook(outgoingWebhook bool) <- Get notifications about outgoing messages sending/delivering/reading statuses.
+//	OptionalOutgoingMageWebhook(outgoingMessageWebhook bool) <- Get notifications about messages sent from the phone.
+//	OptionalOutgoingAPIMessageWebhook(outgoingAPIMessageWebhook bool) <- Get notifications about messages sent from API.
+//	OptionalStateWebhook(stateWebhook bool) <- Get notifications about the instance authorization state change.
+//	OptionalIncomingWebhook(incomingWebhook bool) <- Get notifications about incoming messages and files.
+//	OptionalDeviceWebhook(deviceWebhook bool) <- Get notifications about the device (phone) and battery level.
+//	OptionalKeepOnlineStatus(keepOnlineStatus bool) <- Sets the 'Online' status for your Whatsapp account.
+//	OptionalPollMessageWebhook(pollMessageWebhook bool) <- Get notifications about the creation of a poll and voting in the poll.
+//	OptionalIncomingBlockWebhook(incomingBlockWebhook bool) <- Get notifications about adding a chat to the list of blocked contacts.
+//	OptionalIncomingCallWebhook(incomingCallWebhook bool) <- Get notifications about incoming call statuses.
+//	OptionalEditedMessageWebhook(editedMessageWebhook bool) <- Get notifications about edited messages.
+//	OptionalDeletedMessageWebhook(deletedMessageWebhook bool) <- Get notifications about deleted messages.
 func (c AccountCategory) SetSettings(options ...SetSettingsOption) (*APIResponse, error) {
 
 	r := &RequestSetSettings{}
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -298,7 +327,7 @@ func (c AccountCategory) GetStatusInstance() (*APIResponse, error) {
 // ------------------------------------------------------------------ Reboot
 
 // Rebooting an instance.
-// 
+//
 // https://green-api.com/en/docs/api/account/Reboot/
 func (c AccountCategory) Reboot() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "reboot", nil)
@@ -307,7 +336,7 @@ func (c AccountCategory) Reboot() (*APIResponse, error) {
 // ------------------------------------------------------------------ Logout
 
 // Logging out an instance.
-// 
+//
 // https://green-api.com/docs/api/account/Logout/
 func (c AccountCategory) Logout() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "logout", nil)
@@ -316,7 +345,7 @@ func (c AccountCategory) Logout() (*APIResponse, error) {
 // ------------------------------------------------------------------ QR
 
 // Getting QR code for authorization.
-// 
+//
 // https://green-api.com/en/docs/api/account/QR/
 func (c AccountCategory) QR() (*APIResponse, error) {
 	return c.GreenAPI.Request("GET", "qr", nil)
@@ -351,7 +380,7 @@ type RequestSetProfilePicture struct {
 }
 
 // Setting a profile picture.
-// 
+//
 // https://green-api.com/en/docs/api/account/SetProfilePicture/
 func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error) {
 	r := &RequestSetProfilePicture{
@@ -364,6 +393,52 @@ func (c AccountCategory) SetProfilePicture(filepath string) (*APIResponse, error
 	}
 
 	return c.GreenAPI.Request("POST", "setProfilePicture", jsonData, WithFormData(true))
+}
+
+// ------------------------------------------------------------------ GetStateInstanceHistory
+
+type GetStateInstanceHistoryOption func(*int) error
+
+// The number of history records to get. The default is 100.
+func OptionalHistoryCount(count int) GetStateInstanceHistoryOption {
+	return func(r *int) error {
+		*r = count
+		return nil
+	}
+}
+
+// Getting the instance state history.
+//
+// https://green-api.com/en/docs/api/account/GetStateInstanceHistory/
+//
+// Add optional arguments by passing these functions:
+//
+//	OptionalHistoryCount(count int) <- The number of history records to get. The default is 100.
+func (c AccountCategory) GetStateInstanceHistory(options ...GetStateInstanceHistoryOption) (*APIResponse, error) {
+	var count int
+
+	for _, o := range options {
+		err := o(&count)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	var addUrl string
+	if count != 0 {
+		addUrl = fmt.Sprintf("?count=%d", count)
+	}
+
+	return c.GreenAPI.Request("GET", "getStateInstanceHistory", nil, WithGetParams(addUrl))
+}
+
+// ------------------------------------------------------------------ UpdateApiToken
+
+// Updating the API token for the instance.
+//
+// https://green-api.com/en/docs/api/account/UpdateApiToken/
+func (c AccountCategory) UpdateApiToken() (*APIResponse, error) {
+	return c.GreenAPI.Request("GET", "updateApiToken", nil)
 }
 
 // ------------------------------------------------------------------ GetWaSettings

@@ -15,7 +15,9 @@ func main() {
 		APITokenInstance: "d75b3a66374942c5b3c019c698abc2067e151558acbd412345",
 	}
 
-	response, err := GreenAPI.Service().CheckWhatsapp(0, greenapi.OptionalChatID("11001211111@c.us"))
+	response, err := GreenAPI.Journals().LastOutgoingCalls(
+		greenapi.OptionalCallsMinutes(1440),
+	)
 	if err != nil {
 		log.Fatal(err)
 	}

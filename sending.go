@@ -15,12 +15,22 @@ type SendingCategory struct {
 
 // ------------------------------------------------------------------ SendMessage
 
+type CustomPreview struct {
+	Title         string `json:"title,omitempty"`
+	Description   string `json:"description,omitempty"`
+	Link          string `json:"link,omitempty"`
+	UrlFile       string `json:"urlFile,omitempty"`
+	JpegThumbnail string `json:"jpegThumbnail,omitempty"`
+}
+
 type RequestSendMessage struct {
-	ChatId          string `json:"chatId"`
-	Message         string `json:"message"`
-	QuotedMessageId string `json:"quotedMessageId,omitempty"`
-	LinkPreview     *bool  `json:"linkPreview,omitempty"`
-	TypingTime      int    `json:"typingTime,omitempty"`
+	ChatId          string         `json:"chatId"`
+	Message         string         `json:"message"`
+	QuotedMessageId string         `json:"quotedMessageId,omitempty"`
+	LinkPreview     *bool          `json:"linkPreview,omitempty"`
+	TypePreview     string         `json:"typePreview,omitempty"`
+	CustomPreview   *CustomPreview `json:"customPreview,omitempty"`
+	TypingTime      int            `json:"typingTime,omitempty"`
 }
 
 type SendMessageOption func(*RequestSendMessage) error
@@ -37,6 +47,25 @@ func OptionalQuotedMessageId(quotedMessageId string) SendMessageOption {
 func OptionalLinkPreview(linkPreview bool) SendMessageOption {
 	return func(r *RequestSendMessage) error {
 		r.LinkPreview = &linkPreview
+		return nil
+	}
+}
+
+// Link preview type. Available values: "large", "small".
+func OptionalTypePreview(typePreview string) SendMessageOption {
+	return func(r *RequestSendMessage) error {
+		if typePreview != "large" && typePreview != "small" {
+			return fmt.Errorf("invalid typePreview: %s. Allowed values: large, small", typePreview)
+		}
+		r.TypePreview = typePreview
+		return nil
+	}
+}
+
+// Custom link preview.
+func OptionalCustomPreview(customPreview CustomPreview) SendMessageOption {
+	return func(r *RequestSendMessage) error {
+		r.CustomPreview = &customPreview
 		return nil
 	}
 }
@@ -60,6 +89,8 @@ func OptionalMessageTypingTime(typingTime int) SendMessageOption {
 //
 //	OptionalQuotedMessageId(quotedMessageId string) <- Quoted message ID. If present, the message will be sent quoting the specified chat message.
 //	OptionalLinkPreview(linkPreview bool) <- The parameter includes displaying a preview and a description of the link. Enabled by default.
+//	OptionalTypePreview(typePreview string) <- Link preview type. Available values: "large", "small".
+//	OptionalCustomPreview(customPreview CustomPreview) <- Custom link preview.
 //	OptionalMessageTypingTime(typingTime int) <- Duration of typing indication in milliseconds. Must be between 1000 and 20000 milliseconds.
 func (c SendingCategory) SendMessage(chatId, message string, options ...SendMessageOption) (*APIResponse, error) {
 	err := ValidateChatId(chatId)
