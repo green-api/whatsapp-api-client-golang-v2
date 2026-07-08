@@ -326,6 +326,15 @@ response, _ := GreenAPI.Sending().SendMessage(
 | How to add a contact                                             | [addContact/main.go](examples/addContact/main.go)                                                     |
 | How to receive an incoming notification                          | [receiveNotification/main.go](examples/receiveNotification/main.go)                                   |
 | How to send a notification about typing or recording audio       | [sendTyping/main.go](examples/sendTyping/main.go)                                                     |
+| How to get instance state history                                | [getStateInstanceHistory/main.go](examples/getStateInstanceHistory/main.go)                           |
+| How to update API token                                          | [updateApiToken/main.go](examples/updateApiToken/main.go)                                             |
+| How to get last incoming calls                                   | [lastIncomingCalls/main.go](examples/lastIncomingCalls/main.go)                                       |
+| How to get last outgoing calls                                   | [lastOutgoingCalls/main.go](examples/lastOutgoingCalls/main.go)                                       |
+| How to get webhooks count                                        | [getWebhooksCount/main.go](examples/getWebhooksCount/main.go)                                         |
+| How to clear webhooks queue                                      | [clearWebhooksQueue/main.go](examples/clearWebhooksQueue/main.go)                                     |
+| How to update group settings                                     | [updateGroupSettings/main.go](examples/updateGroupSettings/main.go)                                   |
+| How to get a list of chats                                       | [getChats/main.go](examples/getChats/main.go)                                                         |
+| How to get contacts with filtering                               | [getContacts/main.go](examples/getContacts/main.go)                                                   |
 | How to get all instances of the account                          | [partnerMethods/getInstances/main.go](examples/partnerMethods/getInstances/main.go)                   |
 | How to create an instance                                        | [partnerMethods/createInstance/main.go](examples/partnerMethods/createInstance/main.go)               |
 | How to delete an instance                                        | [partnerMethods/deleteInstanceAccount/main.go](examples/partnerMethods/deleteInstanceAccount/main.go) |
@@ -342,7 +351,10 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Account().Logout`                | The method is designed to unlogin the account                                     | [Logout](https://green-api.com/en/docs/api/account/Logout/)                            |
 | `Account().QR`                    | The method is designed to get a QR code                                           | [QR](https://green-api.com/en/docs/api/account/QR/)    |
 | `Account().SetProfilePicture`     | The method is designed to set the avatar of the account                           | [SetProfilePicture](https://green-api.com/en/docs/api/account/SetProfilePicture/)        |
-| `Account().GetAuthorizationCode`  | The method is designed to authorize an instance by phone number                   | [GetAuthorizationCode](https://green-api.com/en/docs/api/account/GetAuthorizationCode/)  |  
+| `Account().GetAuthorizationCode`  | The method is designed to authorize an instance by phone number                   | [GetAuthorizationCode](https://green-api.com/en/docs/api/account/GetAuthorizationCode/)  |
+| `Account().GetStateInstanceHistory` | The method is designed to get the instance state history                        | [GetStateInstanceHistory](https://green-api.com/en/docs/api/account/GetStateInstanceHistory/) |
+| `Account().UpdateApiToken`        | The method is designed to update the API token of the instance                   | [UpdateApiToken](https://green-api.com/en/docs/api/account/UpdateApiToken/)              |
+| `Account().GetDeviceInfo`         | The method is designed to get information about the device                        | [GetDeviceInfo](https://green-api.com/en/docs/api/phone/GetDeviceInfo/)                  |
 | `Contacts.AddContact`             | The method is used to add a number to contacts                                    | [AddContact](https://green-api.com/en/docs/api/contacts/AddContact/)   |
 | `Contacts.EditContact`            | The method is used to edit a number in contacts                                   | [EditContact](https://green-api.com/en/docs/api/contacts/EditContact/) |
 | `Contacts.DeleteContact`          | The method is used to remove a number from contacts                               | [DeleteContact](https://green-api.com/en/docs/api/contacts/DeleteContact/)   |
@@ -354,13 +366,18 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Groups().SetGroupAdmin`          | The method designates a member of a group chat as an administrator                | [SetGroupAdmin](https://green-api.com/en/docs/api/groups/SetGroupAdmin/)    |
 | `Groups().RemoveAdmin`            | The method deprives the participant of group chat administration rights           | [RemoveAdmin](https://green-api.com/en/docs/api/groups/RemoveAdmin/)           |
 | `Groups().SetGroupPicture`        | The method sets the avatar of the group                                           | [SetGroupPicture](https://green-api.com/en/docs/api/groups/SetGroupPicture/)             |
+| `Groups().UpdateGroupSettings`    | The method is designed to update group chat settings                              | [UpdateGroupSettings](https://green-api.com/en/docs/api/groups/UpdateGroupSettings/) |
 | `Groups().LeaveGroup`             | The method logs the user of the current account out of the group chat             | [LeaveGroup](https://green-api.com/en/docs/api/groups/LeaveGroup/)                |
 | `Journals().GetChatHistory`       | The method returns the chat message history                                       | [GetChatHistory](https://green-api.com/en/docs/api/journals/GetChatHistory/)        |
 | `Journals().GetMessage`           | The method returns a chat message                                                 | [GetMessage](https://green-api.com/en/docs/api/journals/GetMessage/)              |
 | `Journals().LastIncomingMessages` | The method returns the most recent incoming messages of the account               | [LastIncomingMessages](https://green-api.com/en/docs/api/journals/LastIncomingMessages/)  |
 | `Journals().LastOutgoingMessages` | The method returns the last sent messages of the account                          | [LastOutgoingMessages](https://green-api.com/en/docs/api/journals/LastOutgoingMessages/)     |
+| `Journals().LastIncomingCalls`    | The method returns the last incoming calls of the account                         | [LastIncomingCalls](https://green-api.com/en/docs/api/journals/LastIncomingCalls/)            |
+| `Journals().LastOutgoingCalls`    | The method returns the last outgoing calls of the account                         | [LastOutgoingCalls](https://green-api.com/en/docs/api/journals/LastOutgoingCalls/)            |
 | `Queues().ShowMessagesQueue`      | The method is designed to get the list of messages that are in the queue to be sent | [ShowMessagesQueue](https://green-api.com/en/docs/api/queues/ShowMessagesQueue/)    |
 | `Queues().ClearMessagesQueue`     | The method is designed to clear the queue of messages to be sent                  | [ClearMessagesQueue](https://green-api.com/en/docs/api/queues/ClearMessagesQueue/)        |
+| `Queues().GetWebhooksCount`       | The method is designed to get the number of webhooks in the queue                 | [GetWebhooksCount](https://green-api.com/en/docs/api/queues/GetWebhooksCount/)             |
+| `Queues().ClearWebhooksQueue`     | The method is designed to clear the webhooks queue                                | [ClearWebhooksQueue](https://green-api.com/en/docs/api/queues/ClearWebhooksQueue/)         |
 | `ReadMark().ReadChat`             | The method is designed to mark chat messages as read                              | [ReadChat](https://green-api.com/en/docs/api/marks/ReadChat/)    |
 | `Receiving().ReceiveNotification` | The method is designed to receive a single incoming notification from the notification queue | [ReceiveNotification](https://green-api.com/en/docs/api/receiving/technology-http-api/ReceiveNotification/) |
 | `Receiving().DeleteNotification`  | The method is designed to remove an incoming notification from the notification queue | [DeleteNotification](https://green-api.com/en/docs/api/receiving/technology-http-api/DeleteNotification/)   |
@@ -375,6 +392,9 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Sending().SendPoll`              | The method is designed for sending messages with a poll to a private or group chat| [SendPoll](https://green-api.com/en/docs/api/sending/SendPoll/)                    |
 | `Sending().SendInteractiveButtons` | The method is for sending a message with interactive buttons                     | [SendInteractiveButtons](https://green-api.com/en/docs/api/sending/SendInteractiveButtons/) |
 | `Sending().SendInteractiveButtonsReply` | The method is for sending a message with interactive reply buttons | [SendInteractiveButtonsReply](https://green-api.com/en/docs/api/sending/SendInteractiveButtonsReply/) |
+| `Sending().SendButtons`           | The method is for sending a message with buttons (temporarily non-functional)    | [SendButtons](https://green-api.com/en/docs/api/sending/SendButtons/)                    |
+| `Sending().SendTemplateButtons`   | The method is for sending a message with template buttons (temporarily non-functional) | [SendTemplateButtons](https://green-api.com/en/docs/api/sending/SendTemplateButtons/) |
+| `Sending().SendListMessage`       | The method is for sending a message with a selection list (temporarily non-functional) | [SendListMessage](https://green-api.com/en/docs/api/sending/SendListMessage/)       |
 | `Service().CheckWhatsapp`         | The method checks if there is a WhatsApp account on the phone number              | [CheckWhatsapp](https://green-api.com/en/docs/api/service/CheckWhatsapp/)          |
 | `Service().GetAvatar`             | The method returns the avatar of the correspondent or group chat                  | [GetAvatar](https://green-api.com/en/docs/api/service/GetAvatar/)                   |
 | `Service().GetContacts`           | The method is designed to get a list of contacts of the current account           | [GetContacts](https://green-api.com/en/docs/api/service/GetContacts/)                  |
@@ -384,6 +404,7 @@ response, _ := GreenAPI.Sending().SendMessage(
 | `Service().ArchiveChat`           | The method archives the chat                                                      | [ArchiveChat](https://green-api.com/en/docs/api/service/archiveChat/)             |
 | `Service().UnarchiveChat`         | The method unarchives the chat                                                    | [UnarchiveChat](https://green-api.com/en/docs/api/service/unarchiveChat/)           |
 | `Service().SetDisappearingChat`   | The method is designed to change the settings of disappearing messages in chats   | [SetDisappearingChat](https://green-api.com/en/docs/api/service/SetDisappearingChat/)       |
+| `Service().GetChats`              | The method is designed to get a list of chats                                     | [GetChats](https://green-api.com/en/docs/api/service/GetChats/)                          |
 | `Service().SendTyping`            | The method is used to send a notification about typing or recording audio         | [SendTyping](https://green-api.com/en/docs/api/service/sendTyping/) |
 | `Partner().GetInstances`          | The method is for getting all the account instances created by the partner.       | [GetInstances](https://green-api.com/en/docs/partners/getInstances/)                       |
 | `Partner().CreateInstance`        | The method is for creating an instance.                                           | [CreateInstance](https://green-api.com/en/docs/partners/createInstance/)            |
