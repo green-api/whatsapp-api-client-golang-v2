@@ -8,6 +8,8 @@ your [personal cabinet](https://console.green-api.com/) to use the library. Ther
 
 You can find the `v1` version here - https://github.com/green-api/whatsapp-api-client-golang
 
+Voice calls are available through `voip.New(voip.Config{...})`: REST commands, reconnecting `callsRtc` signaling, and WebRTC audio. See [VoIP documentation and runnable examples](voip/README.md).
+
 ## API
 
 The documentation for the REST API can be found at the [link](https://green-api.com/en/docs/api). The library is a wrapper
