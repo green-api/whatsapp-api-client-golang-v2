@@ -12,7 +12,7 @@ import (
 type SessionDescription = webrtc.SessionDescription
 type IceCandidate = webrtc.ICECandidateInit
 
-// IceServer accepts the same string-or-list URLs as aiortc.
+// IceServer accepts one or more ICE server URLs.
 type IceServer struct {
 	URLs       []string `json:"urls"`
 	Username   string   `json:"username,omitempty"`
@@ -49,6 +49,9 @@ func (s *IceServer) UnmarshalJSON(b []byte) error {
 type Bridge interface {
 	AddTrack(LocalAudioTrack) error
 	OnTrack(func(RemoteAudioTrack))
+	// OnError reports peer failures, including ICE and media failures.
+	// Implementations must call the handler when the active bridge fails.
+	OnError(func(error))
 	CreateOffer() (SessionDescription, error)
 	SetLocalDescription(context.Context, SessionDescription) error
 	LocalDescription() *SessionDescription
@@ -56,29 +59,6 @@ type Bridge interface {
 	SetRemoteDescription(SessionDescription) error
 	AddIceCandidate(*IceCandidate) error
 	Close() error
-}
-
-// AiortcBridge corresponds to Python rtc.AiortcBridge; Pion details live in rtc_adapter.go.
-type AiortcBridge struct{ *RTCAdapter }
-
-func NewAiortcBridge(servers []IceServer) (*AiortcBridge, error) {
-	a, e := newRTCAdapter(servers)
-
-	if e != nil {
-		return nil, e
-	}
-
-	return &AiortcBridge{a}, nil
-}
-
-func (b *AiortcBridge) LocalCandidates() []IceCandidate {
-	d := b.LocalDescription()
-
-	if d == nil {
-		return nil
-	}
-
-	return candidatesFromSDP(d.SDP)
 }
 
 func candidatesFromSDP(sdp string) []IceCandidate {

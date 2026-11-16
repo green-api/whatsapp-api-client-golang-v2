@@ -83,7 +83,7 @@ func TestCallsConnectionWithRealServerAndAudio(t *testing.T) {
 
 			defer socket.CloseNow()
 
-			peer, e := voip.NewAiortcBridge(nil)
+			peer, e := voip.NewRTCAdapter(nil)
 
 			if e != nil {
 				t.Error(e)

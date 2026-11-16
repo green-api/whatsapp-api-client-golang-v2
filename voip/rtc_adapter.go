@@ -3,6 +3,7 @@ package voip
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -14,21 +15,23 @@ import (
 	"github.com/pion/webrtc/v4/pkg/media/samplebuilder"
 )
 
-// RTCAdapter implements only the aiortc boundary used by rtc.py. Audio remains
+// RTCAdapter implements the media transport. Audio remains
 // application-owned; PCM codecs are injected to keep this package CGo-free.
 type RTCAdapter struct {
-	peer         *webrtc.PeerConnection
-	mu           sync.Mutex
-	onTrack      func(RemoteAudioTrack)
-	onError      func(error)
-	closed       bool
-	ctx          context.Context
-	cancel       context.CancelFunc
-	wg           sync.WaitGroup
-	codecFactory CodecFactory
-	channels     int
-	once         sync.Once
-	closeErr     error
+	peer          *webrtc.PeerConnection
+	mu            sync.Mutex
+	onTrack       func(RemoteAudioTrack)
+	onError       func(error)
+	closed        bool
+	ctx           context.Context
+	cancel        context.CancelFunc
+	wg            sync.WaitGroup
+	codecFactory  CodecFactory
+	channels      int
+	once          sync.Once
+	connectedOnce sync.Once
+	closeErr      error
+	connected     chan struct{}
 }
 
 // PCMTrack associates an application PCM source with its codec configuration.
@@ -42,14 +45,29 @@ func NewPCMTrack(source LocalAudioTrack, factory CodecFactory, channels int) *PC
 	return &PCMTrack{source, factory, channels}
 }
 
-func newRTCAdapter(servers []IceServer) (*RTCAdapter, error) {
+// NewRTCAdapter creates a Pion implementation of Bridge.
+func NewRTCAdapter(servers []IceServer) (*RTCAdapter, error) {
+	peer, err := newPeer(servers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, cancel := context.WithCancel(context.Background())
+	a := &RTCAdapter{peer: peer, ctx: ctx, cancel: cancel, connected: make(chan struct{})}
+	peer.OnConnectionStateChange(a.onConnectionState)
+	peer.OnTrack(a.onRemoteTrack)
+
+	return a, nil
+}
+
+func newPeer(servers []IceServer) (*webrtc.PeerConnection, error) {
 	var ice []webrtc.ICEServer
 
 	for _, s := range servers {
 		ice = append(ice, webrtc.ICEServer{URLs: s.URLs, Username: s.Username, Credential: s.Credential})
 	}
-	// aiortc offers Opus first, then G722/PCMU/PCMA. This PCM adapter negotiates
-	// Opus only, the codec used by the GREEN-API audio bridge.
+	// The GREEN-API audio bridge negotiates Opus.
 
 	engine := &webrtc.MediaEngine{}
 
@@ -64,52 +82,50 @@ func newRTCAdapter(servers []IceServer) (*RTCAdapter, error) {
 	}
 
 	api := webrtc.NewAPI(webrtc.WithMediaEngine(engine), webrtc.WithInterceptorRegistry(registry))
-	peer, e := api.NewPeerConnection(webrtc.Configuration{ICEServers: ice})
+	return api.NewPeerConnection(webrtc.Configuration{ICEServers: ice})
+}
 
-	if e != nil {
-		return nil, e
+func (a *RTCAdapter) onConnectionState(state webrtc.PeerConnectionState) {
+	switch state {
+	case webrtc.PeerConnectionStateConnected:
+		a.connectedOnce.Do(func() { close(a.connected) })
+	case webrtc.PeerConnectionStateFailed:
+		a.reportError(fmt.Errorf("peer connection failed (ICE state: %s)", a.peer.ICEConnectionState()))
+		a.cancel()
+	}
+}
+
+func (a *RTCAdapter) onRemoteTrack(track *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
+	a.mu.Lock()
+
+	if a.closed {
+		a.mu.Unlock()
+		return
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	a := &RTCAdapter{peer: peer, ctx: ctx, cancel: cancel}
+	a.wg.Add(1)
+	factory, channels, fn := a.codecFactory, a.channels, a.onTrack
+	a.mu.Unlock()
 
-	peer.OnTrack(func(t *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
-		a.mu.Lock()
+	defer a.wg.Done()
 
-		if a.closed {
-			a.mu.Unlock()
+	if factory == nil || fn == nil {
+		return
+	}
 
-			return
-		}
+	codec, err := factory(channels)
 
-		a.wg.Add(1)
-		factory, channels, fn := a.codecFactory, a.channels, a.onTrack
+	if err != nil {
+		a.reportError(err)
+		return
+	}
 
-		defer a.wg.Done()
+	remote := &decodedTrack{frames: make(chan AudioFrame, 32), done: make(chan struct{})}
+	a.wg.Add(1)
 
-		a.mu.Unlock()
+	go func() { defer a.wg.Done(); remote.consume(a.ctx, track, codec, channels) }()
 
-		if factory == nil || fn == nil {
-			return
-		}
-
-		codec, e := factory(channels)
-
-		if e != nil {
-			a.reportError(e)
-
-			return
-		}
-
-		remote := &decodedTrack{frames: make(chan AudioFrame, 32), done: make(chan struct{})}
-		a.wg.Add(1)
-
-		go func() { defer a.wg.Done(); remote.consume(a.ctx, t, codec, channels) }()
-
-		fn(remote)
-	})
-
-	return a, nil
+	fn(remote)
 }
 
 func (a *RTCAdapter) OnTrack(fn func(RemoteAudioTrack)) { a.mu.Lock(); a.onTrack = fn; a.mu.Unlock() }
@@ -118,7 +134,6 @@ func (a *RTCAdapter) AddTrack(source LocalAudioTrack) error {
 
 	if a.closed {
 		a.mu.Unlock()
-
 		return errors.New("peer closed")
 	}
 
@@ -126,127 +141,115 @@ func (a *RTCAdapter) AddTrack(source LocalAudioTrack) error {
 	a.mu.Unlock()
 
 	defer a.wg.Done()
-
 	pcm, ok := source.(*PCMTrack)
 
 	if !ok || pcm.CodecFactory == nil || pcm.LocalAudioTrack == nil || (pcm.Channels != 1 && pcm.Channels != 2) {
 		return errors.New("local track must be NewPCMTrack(source, codecFactory, 1 or 2)")
 	}
 
-	codec, e := pcm.CodecFactory(pcm.Channels)
+	codec, err := pcm.CodecFactory(pcm.Channels)
 
-	if e != nil {
-		return e
+	if err != nil {
+		return err
 	}
 
 	a.mu.Lock()
 	a.codecFactory = pcm.CodecFactory
 	a.channels = pcm.Channels
 	a.mu.Unlock()
-	track, e := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypeOpus, ClockRate: 48000, Channels: 2}, "audio", "green-api")
 
-	if e != nil {
-		return e
+	track, err := webrtc.NewTrackLocalStaticSample(webrtc.RTPCodecCapability{MimeType: webrtc.MimeTypeOpus, ClockRate: 48000, Channels: 2}, "audio", "green-api")
+
+	if err != nil {
+		return err
 	}
 
-	sender, e := a.peer.AddTrack(track)
+	sender, err := a.peer.AddTrack(track)
 
-	if e != nil {
-		return e
+	if err != nil {
+		return err
 	}
 
 	a.wg.Add(2)
 
-	go func() {
-		defer a.wg.Done()
-
-		b := make([]byte, 1500)
-
-		for {
-			if _, _, e := sender.Read(b); e != nil {
-				return
-			}
-		}
-	}()
-
-	go func() {
-		defer a.wg.Done()
-
-		ticker := time.NewTicker(20 * time.Millisecond)
-
-		defer ticker.Stop()
-
-		if waitForPeer(a.ctx, a.peer) != nil {
-			return
-		}
-
-		var pending []int16
-
-		for {
-			frame, e := source.Recv(a.ctx)
-
-			if e != nil {
-				if a.ctx.Err() == nil && !errors.Is(e, io.EOF) {
-					a.reportError(e)
-				}
-
-				return
-			}
-
-			if frame.SampleRate != 48000 || frame.Channels != pcm.Channels {
-				a.reportError(errors.New("PCM frames must use 48000 Hz and the configured channel count"))
-
-				return
-			}
-
-			pending = append(pending, frame.Samples...)
-			size := 960 * pcm.Channels
-
-			for len(pending) >= size {
-				packet, e := codec.Encode(pending[:size], 960)
-
-				if e != nil {
-					a.reportError(e)
-
-					return
-				}
-
-				pending = pending[size:]
-
-				select {
-				case <-a.ctx.Done():
-					return
-
-				case <-ticker.C:
-				}
-
-				if e = track.WriteSample(media.Sample{Data: packet, Duration: 20 * time.Millisecond}); e != nil {
-					return
-				}
-			}
-		}
-	}()
+	go func() { defer a.wg.Done(); a.readSender(sender) }()
+	go func() { defer a.wg.Done(); a.sendAudio(source, codec, track, pcm.Channels) }()
 
 	return nil
 }
 
-func waitForPeer(ctx context.Context, peer *webrtc.PeerConnection) error {
-	ticker := time.NewTicker(5 * time.Millisecond)
-
-	defer ticker.Stop()
+func (a *RTCAdapter) readSender(sender *webrtc.RTPSender) {
+	data := make([]byte, 1500)
 
 	for {
-		if peer.ConnectionState() == webrtc.PeerConnectionStateConnected {
-			return nil
-		}
-
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-
-		case <-ticker.C:
+		if _, _, err := sender.Read(data); err != nil {
+			return
 		}
 	}
+}
+
+func (a *RTCAdapter) sendAudio(source LocalAudioTrack, codec AudioCodec, track *webrtc.TrackLocalStaticSample, channels int) {
+	select {
+	case <-a.connected:
+	case <-a.ctx.Done():
+		return
+	}
+	ticker := time.NewTicker(20 * time.Millisecond)
+	defer ticker.Stop()
+	var pending []int16
+	for {
+		frame, err := source.Recv(a.ctx)
+
+		if err != nil {
+			if a.ctx.Err() == nil && !errors.Is(err, io.EOF) {
+				a.reportError(err)
+			}
+
+			return
+		}
+
+		if frame.SampleRate != 48000 || frame.Channels != channels {
+			a.reportError(errors.New("PCM frames must use 48000 Hz and the configured channel count"))
+			return
+		}
+
+		pending = append(pending, frame.Samples...)
+		pending, err = a.writeAudio(pending, codec, track, channels, ticker.C)
+
+		if err != nil {
+			if a.ctx.Err() == nil {
+				a.reportError(err)
+			}
+
+			return
+		}
+	}
+}
+
+func (a *RTCAdapter) writeAudio(pending []int16, codec AudioCodec, track *webrtc.TrackLocalStaticSample, channels int, tick <-chan time.Time) ([]int16, error) {
+	size := 960 * channels
+
+	for len(pending) >= size {
+		packet, err := codec.Encode(pending[:size], 960)
+
+		if err != nil {
+			return pending, err
+		}
+
+		pending = pending[size:]
+
+		select {
+		case <-a.ctx.Done():
+			return pending, a.ctx.Err()
+		case <-tick:
+		}
+
+		if err = track.WriteSample(media.Sample{Data: packet, Duration: 20 * time.Millisecond}); err != nil {
+			return pending, err
+		}
+	}
+
+	return pending, nil
 }
 
 func (a *RTCAdapter) CreateOffer() (SessionDescription, error)  { return a.peer.CreateOffer(nil) }
@@ -271,6 +274,14 @@ func (a *RTCAdapter) SetLocalDescription(ctx context.Context, d SessionDescripti
 }
 
 func (a *RTCAdapter) LocalDescription() *SessionDescription { return a.peer.LocalDescription() }
+func (a *RTCAdapter) LocalCandidates() []IceCandidate {
+	description := a.LocalDescription()
+	if description == nil {
+		return nil
+	}
+	return candidatesFromSDP(description.SDP)
+}
+
 func (a *RTCAdapter) SetRemoteDescription(d SessionDescription) error {
 	return a.peer.SetRemoteDescription(d)
 }

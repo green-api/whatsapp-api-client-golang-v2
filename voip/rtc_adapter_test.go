@@ -45,7 +45,7 @@ func TestTwoRealPeersExchangeDecodedAudio(t *testing.T) {
 
 	defer cancel()
 
-	caller, e := voip.NewAiortcBridge(nil)
+	caller, e := voip.NewRTCAdapter(nil)
 
 	if e != nil {
 		t.Fatal(e)
@@ -53,7 +53,7 @@ func TestTwoRealPeersExchangeDecodedAudio(t *testing.T) {
 
 	defer caller.Close()
 
-	callee, e := voip.NewAiortcBridge(nil)
+	callee, e := voip.NewRTCAdapter(nil)
 
 	if e != nil {
 		t.Fatal(e)
@@ -97,7 +97,7 @@ func TestTwoRealPeersExchangeDecodedAudio(t *testing.T) {
 		}
 	})
 
-	for _, peer := range []*voip.AiortcBridge{caller, callee} {
+	for _, peer := range []*voip.RTCAdapter{caller, callee} {
 		if e = peer.AddTrack(voip.NewPCMTrack(&tone{}, opus.New, 1)); e != nil {
 			t.Fatal(e)
 		}

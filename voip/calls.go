@@ -1,4 +1,4 @@
-// Package voip ports the GREEN-API Python tools/voip protocol and lifecycle.
+// Package voip provides GREEN-API voice call commands and media signaling.
 package voip
 
 import (
@@ -12,6 +12,7 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"runtime/debug"
 	"strings"
 	"sync"
 	"time"
@@ -49,7 +50,29 @@ type Voip struct {
 	client *http.Client
 }
 
-// readDeadlineConn implements aiohttp's idle socket-read timeout, not a total deadline.
+// RequestError keeps the original cause available through errors.Is and errors.As.
+type RequestError struct {
+	Endpoint, Action string
+	Err              error
+}
+
+func (e *RequestError) Error() string {
+	cause := e.Err
+
+	for {
+		var urlError *url.Error
+		if !errors.As(cause, &urlError) {
+			break
+		}
+		cause = urlError.Err
+	}
+
+	return fmt.Sprintf("%s: %s: %v", e.Endpoint, e.Action, cause)
+}
+
+func (e *RequestError) Unwrap() error { return e.Err }
+
+// readDeadlineConn sets a new idle read deadline for each socket read.
 type readDeadlineConn struct{ net.Conn }
 
 func (c readDeadlineConn) Read(p []byte) (int, error) {
@@ -115,13 +138,35 @@ func (v *Voip) WebsocketUrl() (string, error) {
 }
 
 func (v *Voip) request(ctx context.Context, method, endpoint string, payload any, out any) error {
+	req, err := v.newRequest(ctx, method, endpoint, payload)
+
+	if err != nil {
+		return err
+	}
+
+	resp, err := v.client.Do(req)
+
+	if err != nil {
+		if ctx.Err() != nil {
+			return ctx.Err()
+		}
+
+		return &RequestError{endpoint, "connection failed", err}
+	}
+
+	defer resp.Body.Close()
+
+	return readResponse(endpoint, resp, out)
+}
+
+func (v *Voip) newRequest(ctx context.Context, method, endpoint string, payload any) (*http.Request, error) {
 	var body io.Reader
 
 	if payload != nil {
 		b, e := json.Marshal(payload)
 
 		if e != nil {
-			return e
+			return nil, &RequestError{endpoint, "encode request failed", e}
 		}
 
 		body = bytes.NewReader(b)
@@ -130,7 +175,7 @@ func (v *Voip) request(ctx context.Context, method, endpoint string, payload any
 	req, e := http.NewRequestWithContext(ctx, method, v.endpoint(endpoint), body)
 
 	if e != nil {
-		return fmt.Errorf("%s: invalid request", endpoint)
+		return nil, &RequestError{endpoint, "invalid request", e}
 	}
 
 	req.Header.Set("User-Agent", "GREEN-API_SDK_GO/1.0")
@@ -139,22 +184,14 @@ func (v *Voip) request(ctx context.Context, method, endpoint string, payload any
 		req.Header.Set("Content-Type", "application/json")
 	}
 
-	resp, e := v.client.Do(req)
+	return req, nil
+}
 
-	if e != nil {
-		if ctx.Err() != nil {
-			return ctx.Err()
-		}
-
-		return fmt.Errorf("%s: connection failed", endpoint)
-	}
-
-	defer resp.Body.Close()
-
+func readResponse(endpoint string, resp *http.Response, out any) error {
 	b, e := io.ReadAll(resp.Body)
 
 	if e != nil {
-		return fmt.Errorf("%s: reading response failed", endpoint)
+		return &RequestError{endpoint, "reading response failed", e}
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
@@ -171,7 +208,11 @@ func (v *Voip) request(ctx context.Context, method, endpoint string, payload any
 		out = &discard
 	}
 
-	return json.Unmarshal(b, out)
+	if e := json.Unmarshal(b, out); e != nil {
+		return &RequestError{endpoint, "invalid response", e}
+	}
+
+	return nil
 }
 
 func (v *Voip) GetStateAsync(ctx context.Context) (CallState, error) {
@@ -223,32 +264,39 @@ type callbackEntry struct {
 
 type pendingBridge struct {
 	done              chan error
-	bridgeGeneration  uint64
+	bridgeGeneration  int
 	startContext      context.Context
 	mediaContext      context.Context
 	stopStartupCancel func() bool
 }
 
+var errSocketDisconnected = errors.New("Socket disconnected during negotiation")
+
 // CallsConnection owns one callsRtc socket and its current audio bridge.
-// op serializes protocol mutations; slow startup work runs outside it, as Python awaits do.
+// op serializes protocol mutations; slow startup work runs outside it.
 type CallsConnection struct {
-	attachments                                                  *attachmentGroup
-	voip                                                         *Voip
-	socket                                                       signalingSocket
-	audioFactory                                                 AudioFactory
-	bridgeFactory                                                func([]IceServer) (Bridge, error)
-	op                                                           sync.Mutex
-	mu                                                           sync.RWMutex
-	state                                                        *CallState
-	peerConnection                                               Bridge
-	audio                                                        *CallAudio
-	pendingBridge                                                *pendingBridge
-	pendingRemoteCandidates                                      []*IceCandidate
-	remoteDescriptionSet, resumePending, refusalReported, closed bool
-	bridgeGeneration                                             uint64
-	bridgeCancel                                                 context.CancelFunc
-	callbacks                                                    map[string][]callbackEntry
-	nextCallback                                                 uint64
+	attachments             *attachmentGroup
+	voip                    *Voip
+	socket                  signalingSocket
+	audioFactory            AudioFactory
+	bridgeFactory           func([]IceServer) (Bridge, error)
+	op                      sync.Mutex
+	mu                      sync.RWMutex
+	state                   *CallState
+	peerConnection          Bridge
+	audio                   *CallAudio
+	pendingBridge           *pendingBridge
+	pendingRemoteCandidates []*IceCandidate
+	remoteDescriptionSet    bool
+	resumePending           bool
+	resumeStarting          bool
+	refusalReported         bool
+	closed                  bool
+	bridgeGeneration        int
+	resumeGeneration        int
+	bridgeCancel            context.CancelFunc
+	callbacks               map[string][]callbackEntry
+	nextCallback            uint64
 }
 
 type signalingSocket interface {
@@ -263,7 +311,7 @@ func (v *Voip) Connect(factory AudioFactory) *CallsConnection {
 	s := NewReconnectingSocket(u)
 	s.urlError = e
 
-	return newCallsConnection(v, factory, s, func(servers []IceServer) (Bridge, error) { return NewAiortcBridge(servers) })
+	return newCallsConnection(v, factory, s, func(servers []IceServer) (Bridge, error) { return NewRTCAdapter(servers) })
 }
 
 func newCallsConnection(v *Voip, f AudioFactory, s signalingSocket, b func([]IceServer) (Bridge, error)) *CallsConnection {
@@ -280,7 +328,7 @@ func newCallsConnection(v *Voip, f AudioFactory, s signalingSocket, b func([]Ice
 	return c
 }
 
-// On matches a synchronous Python callback. It must not block or call lifecycle methods;
+// On runs callbacks synchronously. It must not block or call lifecycle methods;
 // use OnAsync for callbacks that start/stop audio or issue other blocking operations.
 // The returned function unregisters this exact callback (Go functions aren't comparable).
 func (c *CallsConnection) On(name string, fn Callback) func() { return c.addCallback(name, fn, false) }
@@ -326,8 +374,8 @@ func (c *CallsConnection) emit(name string, d any) {
 	for _, e := range entries {
 		invoke := func() {
 			defer func() {
-				if recover() != nil {
-					c.voip.config.Logger.Error("VoIP callback panicked", "event", name)
+				if value := recover(); value != nil {
+					c.voip.config.Logger.Error("VoIP callback panicked", "event", name, "panic_type", fmt.Sprintf("%T", value), "stack", string(debug.Stack()))
 				}
 			}()
 
@@ -391,11 +439,11 @@ func (c *CallsConnection) StartAudioAsync(ctx context.Context) error {
 	return c.startAudioAsync(ctx, nil)
 }
 
-func (c *CallsConnection) startAudioAsync(ctx context.Context, expected *uint64) error {
+func (c *CallsConnection) startAudioAsync(ctx context.Context, expectedGeneration *int) error {
 	c.op.Lock()
 	c.mu.Lock()
 
-	if c.closed || c.peerConnection != nil || c.pendingBridge != nil || (expected != nil && c.bridgeGeneration != *expected) {
+	if c.closed || c.peerConnection != nil || c.pendingBridge != nil || (expectedGeneration != nil && c.bridgeGeneration != *expectedGeneration) {
 		c.mu.Unlock()
 		c.op.Unlock()
 
@@ -450,7 +498,7 @@ func (c *CallsConnection) awaitPendingStart(ctx context.Context, p *pendingBridg
 	}
 }
 
-func (c *CallsConnection) current(p *pendingBridge) bool {
+func (c *CallsConnection) isCurrentBridge(p *pendingBridge) bool {
 	c.mu.RLock()
 
 	defer c.mu.RUnlock()
@@ -495,7 +543,7 @@ func (c *CallsConnection) prepareAudio(p *pendingBridge) (*CallAudio, error) {
 
 	c.op.Lock()
 
-	if !c.current(p) {
+	if !c.isCurrentBridge(p) {
 		c.op.Unlock()
 		_ = audio.Close()
 
@@ -517,7 +565,7 @@ func (c *CallsConnection) preparePeer(ctx context.Context, p *pendingBridge, aud
 		return nil, err
 	}
 
-	if !c.current(p) {
+	if !c.isCurrentBridge(p) {
 		return nil, errors.New("audio bridge superseded")
 	}
 
@@ -529,7 +577,7 @@ func (c *CallsConnection) preparePeer(ctx context.Context, p *pendingBridge, aud
 
 	c.op.Lock()
 
-	if !c.current(p) {
+	if !c.isCurrentBridge(p) {
 		c.op.Unlock()
 		_ = peer.Close()
 
@@ -552,12 +600,12 @@ func (c *CallsConnection) preparePeer(ctx context.Context, p *pendingBridge, aud
 
 func (c *CallsConnection) bindPeer(p *pendingBridge, audio *CallAudio, peer Bridge, attachments *attachmentGroup) {
 	peer.OnTrack(func(track RemoteAudioTrack) {
-		if !c.current(p) {
+		if !c.isCurrentBridge(p) {
 			return
 		}
 
 		attachments.start(func(attachCtx context.Context) {
-			if !c.current(p) {
+			if !c.isCurrentBridge(p) {
 				return
 			}
 
@@ -569,13 +617,33 @@ func (c *CallsConnection) bindPeer(p *pendingBridge, audio *CallAudio, peer Brid
 		})
 	})
 
-	if reporter, ok := peer.(interface{ OnError(func(error)) }); ok {
-		reporter.OnError(func(err error) {
-			if c.current(p) {
-				c.emit("error", ErrorDetail{err.Error()})
-			}
-		})
+	peer.OnError(func(err error) {
+		go c.onPeerError(p.bridgeGeneration, peer, err)
+	})
+}
+
+func (c *CallsConnection) onPeerError(generation int, peer Bridge, err error) {
+	c.op.Lock()
+	c.mu.RLock()
+	current := !c.closed && c.bridgeGeneration == generation && c.peerConnection == peer
+	actual := c.bridgeGeneration
+	c.mu.RUnlock()
+
+	if !current {
+		c.op.Unlock()
+		c.voip.config.Logger.Debug("Ignoring old peer error", "generation", generation, "current_generation", actual)
+		return
 	}
+
+	c.rejectPending(err)
+	closeErr := c.teardownBridge(false)
+	c.op.Unlock()
+
+	if closeErr != nil {
+		c.voip.config.Logger.Warn("Could not close failed audio bridge", "generation", generation, "error", closeErr)
+	}
+
+	c.emit("error", ErrorDetail{Message: err.Error()})
 }
 
 func (c *CallsConnection) sendOffer(ctx context.Context, p *pendingBridge, peer Bridge) error {
@@ -585,7 +653,7 @@ func (c *CallsConnection) sendOffer(ctx context.Context, p *pendingBridge, peer 
 		return err
 	}
 
-	if !c.current(p) {
+	if !c.isCurrentBridge(p) {
 		return errors.New("audio bridge superseded")
 	}
 
@@ -597,7 +665,7 @@ func (c *CallsConnection) sendOffer(ctx context.Context, p *pendingBridge, peer 
 
 	defer c.op.Unlock()
 
-	if !c.current(p) {
+	if !c.isCurrentBridge(p) {
 		return errors.New("audio bridge superseded")
 	}
 
@@ -680,6 +748,7 @@ func (c *CallsConnection) StopAudioAsync() error {
 	defer c.op.Unlock()
 
 	c.resumePending = false
+	c.resumeStarting = false
 	c.rejectPending(errors.New("Audio bridge stopped"))
 
 	return c.teardownBridge(true)
@@ -699,6 +768,7 @@ func (c *CallsConnection) CloseAsync() error {
 	c.closed = true
 	c.mu.Unlock()
 	c.resumePending = false
+	c.resumeStarting = false
 	c.rejectPending(errors.New("CallsConnection closed"))
 	e := c.teardownBridge(false)
 	c.op.Unlock()
@@ -715,14 +785,16 @@ type EndCallDetail struct {
 	Cause  string `json:"cause,omitempty"`
 }
 
+type callsMessage struct {
+	Type      string             `json:"type"`
+	State     CallState          `json:"state"`
+	Answer    SessionDescription `json:"answer"`
+	Candidate *IceCandidate      `json:"candidate"`
+	Message   string             `json:"message"`
+}
+
 func (c *CallsConnection) onMessage(raw json.RawMessage) {
-	var m struct {
-		Type      string             `json:"type"`
-		State     CallState          `json:"state"`
-		Answer    SessionDescription `json:"answer"`
-		Candidate *IceCandidate      `json:"candidate"`
-		Message   string             `json:"message"`
-	}
+	var m callsMessage
 
 	if json.Unmarshal(raw, &m) != nil {
 		return
@@ -745,34 +817,47 @@ func (c *CallsConnection) onMessage(raw json.RawMessage) {
 		c.onState(m.State)
 
 	case "answer":
+		if remote {
+			c.voip.config.Logger.Warn("Ignoring duplicate callsRtc answer", "generation", c.bridgeGeneration)
+			break
+		}
 		c.onAnswer(peer, m.Answer)
 
 	case "ice-candidate":
-		if remote && peer != nil {
-			if e := peer.AddIceCandidate(m.Candidate); e != nil {
-				c.rejectPending(e)
-				_ = c.teardownBridge(false)
-				c.emit("error", ErrorDetail{e.Error()})
-			}
-		} else if !remote {
-			c.mu.Lock()
-			c.pendingRemoteCandidates = append(c.pendingRemoteCandidates, m.Candidate)
-			c.mu.Unlock()
-		}
+		c.onIceCandidate(peer, remote, m.Candidate)
 
 	case "error":
-		c.mu.RLock()
-		pending := c.pendingBridge != nil
-		c.mu.RUnlock()
-
-		if pending {
-			c.rejectPending(errors.New(m.Message))
-			_ = c.teardownBridge(false)
-		} else {
-			c.refusalReported = true
-			c.emit("error", ErrorDetail{m.Message})
-		}
+		c.onServerError(m.Message)
 	}
+}
+
+func (c *CallsConnection) onIceCandidate(peer Bridge, remote bool, candidate *IceCandidate) {
+	if remote && peer != nil {
+		if err := peer.AddIceCandidate(candidate); err != nil {
+			c.rejectPending(err)
+			_ = c.teardownBridge(false)
+			c.emit("error", ErrorDetail{Message: err.Error()})
+		}
+	} else if !remote {
+		c.mu.Lock()
+		c.pendingRemoteCandidates = append(c.pendingRemoteCandidates, candidate)
+		c.mu.Unlock()
+	}
+}
+
+func (c *CallsConnection) onServerError(message string) {
+	c.mu.RLock()
+	pending := c.pendingBridge != nil
+	c.mu.RUnlock()
+
+	if pending {
+		c.rejectPending(errors.New(message))
+		_ = c.teardownBridge(false)
+		return
+	}
+
+	c.refusalReported = true
+	c.emit("error", ErrorDetail{Message: message})
 }
 
 func (c *CallsConnection) onAnswer(peer Bridge, answer SessionDescription) {
@@ -840,6 +925,7 @@ func (c *CallsConnection) onState(s CallState) {
 
 	if isCall(previous) && !isCall(s.State) {
 		c.resumePending = false
+		c.resumeStarting = false
 		c.rejectPending(errors.New("Call ended during negotiation"))
 
 		if e := c.teardownBridge(true); e != nil {
@@ -855,15 +941,34 @@ func (c *CallsConnection) onState(s CallState) {
 	canResume := c.peerConnection == nil && c.pendingBridge == nil
 	c.mu.RUnlock()
 
-	if c.resumePending && isCall(s.State) && canResume {
-		c.resumePending = false
+	if c.resumePending && !c.resumeStarting && isCall(s.State) && canResume {
 		generation := c.bridgeGeneration
+		c.resumeStarting = true
+		c.resumeGeneration = generation
+		go c.resumeAudio(generation)
+	}
+}
 
-		go func() {
-			if e := c.startAudioAsync(context.Background(), &generation); e != nil {
-				c.emit("error", ErrorDetail{e.Error()})
-			}
-		}()
+func (c *CallsConnection) resumeAudio(generation int) {
+	err := c.startAudioAsync(context.Background(), &generation)
+	c.op.Lock()
+	c.mu.RLock()
+	closed := c.closed
+	c.mu.RUnlock()
+	report := c.resumeGeneration == generation && c.resumePending && !closed
+
+	if c.resumeGeneration == generation {
+		c.resumeStarting = false
+
+		if err == nil && c.bridgeGeneration == generation {
+			c.resumePending = false
+		}
+	}
+
+	c.op.Unlock()
+
+	if report && err != nil && !errors.Is(err, context.Canceled) && !errors.Is(err, errSocketDisconnected) {
+		c.emit("error", ErrorDetail{Message: err.Error()})
 	}
 }
 
@@ -888,9 +993,13 @@ func (c *CallsConnection) onSocketDisconnect(d DisconnectDetail) {
 	}
 
 	if isCall(previous) {
-		c.resumePending = hasPeer
-		c.rejectPending(errors.New("Socket disconnected during negotiation"))
+		if hasPeer {
+			c.resumePending = true
+		}
+
+		c.rejectPending(errSocketDisconnected)
 		_ = c.teardownBridge(false)
+		c.resumeStarting = false
 
 		if d.Permanent {
 			c.resumePending = false

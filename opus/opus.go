@@ -5,7 +5,7 @@
 package opus
 
 import (
-	"fmt"
+	"errors"
 
 	"github.com/green-api/whatsapp-api-client-golang-v2/voip"
 	"layeh.com/gopus"
@@ -19,7 +19,7 @@ type codec struct {
 
 func New(channels int) (voip.AudioCodec, error) {
 	if channels != 1 && channels != 2 {
-		return nil, fmt.Errorf("Opus channels must be 1 or 2")
+		return nil, errors.New("Opus channels must be 1 or 2")
 	}
 
 	e, err := gopus.NewEncoder(48000, channels, gopus.Audio)
@@ -44,7 +44,7 @@ func New(channels int) (voip.AudioCodec, error) {
 
 func (c *codec) Encode(pcm []int16, frameSize int) ([]byte, error) {
 	if len(pcm) != frameSize*c.channels {
-		return nil, fmt.Errorf("invalid PCM frame size")
+		return nil, errors.New("invalid PCM frame size")
 	}
 
 	return c.encoder.Encode(pcm, frameSize, 4000)

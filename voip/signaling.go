@@ -4,7 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
+	"net/http"
+	"runtime/debug"
 	"sync"
 	"time"
 
@@ -22,6 +25,25 @@ type DisconnectDetail struct {
 	Permanent bool   `json:"permanent"`
 }
 
+// HandshakeRefusedError keeps the HTTP response and the WebSocket dial error.
+// Its message omits the request URL because that URL contains the API token.
+type HandshakeRefusedError struct {
+	Response *http.Response
+	Err      error
+}
+
+func (e *HandshakeRefusedError) Error() string {
+	return fmt.Sprintf("callsRtc handshake refused: HTTP %d", e.StatusCode())
+}
+
+func (e *HandshakeRefusedError) Unwrap() error { return e.Err }
+func (e *HandshakeRefusedError) StatusCode() int {
+	if e.Response == nil {
+		return 0
+	}
+	return e.Response.StatusCode
+}
+
 type socketConn interface {
 	Read(context.Context) (websocket.MessageType, []byte, error)
 	Write(context.Context, websocket.MessageType, []byte) error
@@ -32,6 +54,7 @@ type socketConn interface {
 type ReconnectingSocket struct {
 	url                      string
 	urlError                 error
+	stopError                error
 	mu                       sync.Mutex
 	socket                   socketConn
 	closed, refused, started bool
@@ -52,7 +75,11 @@ func NewReconnectingSocket(url string) *ReconnectingSocket {
 
 		defer cancel()
 
-		c, _, e := websocket.Dial(ctx, url, &websocket.DialOptions{CompressionMode: websocket.CompressionContextTakeover})
+		c, response, e := websocket.Dial(ctx, url, &websocket.DialOptions{CompressionMode: websocket.CompressionContextTakeover})
+
+		if e != nil && response != nil && (response.StatusCode == http.StatusUnauthorized || response.StatusCode == http.StatusForbidden) {
+			return nil, &HandshakeRefusedError{Response: response, Err: e}
+		}
 
 		if e == nil {
 			c.SetReadLimit(1 << 20)
@@ -90,8 +117,8 @@ func (s *ReconnectingSocket) dispatch(name string, d any) {
 	for _, fn := range listeners {
 		func() {
 			defer func() {
-				if recover() != nil {
-					slog.Error("callsRtc handler panicked", "event", name)
+				if value := recover(); value != nil {
+					slog.Error("callsRtc handler panicked", "event", name, "panic_type", fmt.Sprintf("%T", value), "stack", string(debug.Stack()))
 				}
 			}()
 
@@ -124,10 +151,13 @@ func (s *ReconnectingSocket) OpenAsync(ctx context.Context) error {
 	}
 
 	s.mu.Unlock()
+	return s.waitForConnection(ctx)
+}
 
+func (s *ReconnectingSocket) waitForConnection(ctx context.Context) error {
 	for {
 		s.mu.Lock()
-		connected, closed := s.socket != nil, s.closed
+		connected, closed, stopError := s.socket != nil, s.closed, s.stopError
 		changed := s.changed
 		s.mu.Unlock()
 
@@ -139,16 +169,39 @@ func (s *ReconnectingSocket) OpenAsync(ctx context.Context) error {
 			return errors.New("ReconnectingSocket is closed")
 		}
 
+		if stopError != nil {
+			return stopError
+		}
+
 		select {
 		case <-changed:
 
 		case <-s.done:
-			return errors.New("callsRtc connection was refused or closed")
+			return s.connectionStopped()
 
 		case <-ctx.Done():
+			s.mu.Lock()
+			stopError := s.stopError
+			s.mu.Unlock()
+
+			if stopError != nil {
+				return stopError
+			}
+
 			return ctx.Err()
 		}
 	}
+}
+
+func (s *ReconnectingSocket) connectionStopped() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.stopError != nil {
+		return s.stopError
+	}
+
+	return errors.New("callsRtc connection was refused or closed")
 }
 
 func (s *ReconnectingSocket) Send(ctx context.Context, data any) error {
@@ -199,107 +252,26 @@ func (s *ReconnectingSocket) CloseAsync() error {
 
 func (s *ReconnectingSocket) connect() {
 	defer close(s.done)
-
 	backoff := InitialBackoff
 
 	for s.ctx.Err() == nil {
-		socket, e := s.factory(s.ctx, s.url)
+		socket, err := s.factory(s.ctx, s.url)
+		var refusal *HandshakeRefusedError
 
-		if e == nil {
-			s.mu.Lock()
+		if errors.As(err, &refusal) {
+			s.reportHandshakeRefusal(refusal, err)
+			return
+		}
 
-			if s.closed {
-				s.mu.Unlock()
-				_ = socket.Close(websocket.StatusNormalClosure, "")
-
+		if err == nil {
+			if !s.openSocket(socket) {
 				return
 			}
 
-			s.socket = socket
-			s.signal()
-			s.mu.Unlock()
 			backoff = InitialBackoff
-			life, cancel := context.WithCancel(s.ctx)
-			heartbeatDone := make(chan struct{})
+			err = s.readSocket(socket)
 
-			go func() {
-				defer close(heartbeatDone)
-
-				ticker := time.NewTicker(20 * time.Second)
-
-				defer ticker.Stop()
-
-				for {
-					select {
-					case <-life.Done():
-						return
-
-					case <-ticker.C:
-						pingCtx, stop := context.WithTimeout(life, 20*time.Second)
-						err := socket.Ping(pingCtx)
-						stop()
-
-						if err != nil {
-							_ = socket.Close(websocket.StatusInternalError, "keepalive timeout")
-
-							return
-						}
-					}
-				}
-			}()
-
-			s.dispatch("connect", nil)
-
-			for s.ctx.Err() == nil {
-				_, b, err := socket.Read(s.ctx)
-
-				if err != nil {
-					e = err
-
-					break
-				}
-
-				if json.Valid(b) {
-					s.dispatch("message", json.RawMessage(append([]byte(nil), b...)))
-				}
-			}
-
-			cancel()
-
-			<-heartbeatDone
-
-			s.mu.Lock()
-			s.socket = nil
-			s.signal()
-			closed := s.closed
-			s.mu.Unlock()
-			_ = socket.Close(websocket.StatusNormalClosure, "")
-
-			if closed {
-				return
-			}
-
-			code := int(websocket.CloseStatus(e))
-
-			if code < 0 {
-				code = 1006
-			}
-
-			reason := "connection closed"
-
-			var closeErr websocket.CloseError
-
-			if errors.As(e, &closeErr) && closeErr.Reason != "" {
-				reason = closeErr.Reason
-			}
-
-			permanent := code >= PermanentCloseMin && code <= PermanentCloseMax
-			s.mu.Lock()
-			s.refused = s.refused || permanent
-			s.mu.Unlock()
-			s.dispatch("disconnect", DisconnectDetail{reason, code, permanent})
-
-			if permanent {
+			if s.closeSocket(socket) || s.reportSocketClose(err) {
 				return
 			}
 		} else if s.ctx.Err() == nil {
@@ -310,10 +282,109 @@ func (s *ReconnectingSocket) connect() {
 			return
 		}
 
-		backoff *= 2
+		backoff = min(backoff*2, MaxBackoff)
+	}
+}
 
-		if backoff > MaxBackoff {
-			backoff = MaxBackoff
+func (s *ReconnectingSocket) reportHandshakeRefusal(refusal *HandshakeRefusedError, err error) {
+	s.mu.Lock()
+	s.refused = true
+	s.stopError = err
+	s.signal()
+	s.mu.Unlock()
+	s.dispatch("disconnect", DisconnectDetail{Reason: refusal.Error(), Code: refusal.StatusCode(), Permanent: true})
+}
+
+func (s *ReconnectingSocket) openSocket(socket socketConn) bool {
+	s.mu.Lock()
+
+	if s.closed {
+		s.mu.Unlock()
+		_ = socket.Close(websocket.StatusNormalClosure, "")
+		return false
+	}
+
+	s.socket = socket
+	s.signal()
+	s.mu.Unlock()
+	s.dispatch("connect", nil)
+
+	return true
+}
+
+func (s *ReconnectingSocket) readSocket(socket socketConn) error {
+	life, cancel := context.WithCancel(s.ctx)
+	heartbeatDone := make(chan struct{})
+
+	go func() { defer close(heartbeatDone); s.heartbeat(life, socket) }()
+	defer func() { cancel(); <-heartbeatDone }()
+
+	for s.ctx.Err() == nil {
+		_, data, err := socket.Read(s.ctx)
+
+		if err != nil {
+			return err
+		}
+
+		if json.Valid(data) {
+			s.dispatch("message", json.RawMessage(append([]byte(nil), data...)))
 		}
 	}
+
+	return s.ctx.Err()
+}
+
+func (s *ReconnectingSocket) heartbeat(ctx context.Context, socket socketConn) {
+	ticker := time.NewTicker(20 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			pingCtx, stop := context.WithTimeout(ctx, 20*time.Second)
+			err := socket.Ping(pingCtx)
+			stop()
+
+			if err != nil {
+				_ = socket.Close(websocket.StatusInternalError, "keepalive timeout")
+				return
+			}
+		}
+	}
+}
+
+func (s *ReconnectingSocket) closeSocket(socket socketConn) bool {
+	s.mu.Lock()
+	s.socket = nil
+	s.signal()
+	closed := s.closed
+	s.mu.Unlock()
+	_ = socket.Close(websocket.StatusNormalClosure, "")
+
+	return closed
+}
+
+func (s *ReconnectingSocket) reportSocketClose(err error) bool {
+	code := int(websocket.CloseStatus(err))
+
+	if code < 0 {
+		code = 1006
+	}
+
+	reason := "connection closed"
+	var closeErr websocket.CloseError
+
+	if errors.As(err, &closeErr) && closeErr.Reason != "" {
+		reason = closeErr.Reason
+	}
+
+	permanent := code >= PermanentCloseMin && code <= PermanentCloseMax
+	s.mu.Lock()
+	s.refused = s.refused || permanent
+	s.mu.Unlock()
+	s.dispatch("disconnect", DisconnectDetail{reason, code, permanent})
+
+	return permanent
 }

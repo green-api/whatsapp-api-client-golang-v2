@@ -3,13 +3,15 @@ package voip
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
+	"runtime/debug"
 	"sync"
 )
 
 // AudioFrame is interleaved signed 16-bit PCM. PTS is in samples per channel.
-// The adapter supports the aiortc audio clock: 48 kHz, mono or stereo.
+// The adapter supports 48 kHz, mono or stereo.
 type AudioFrame struct {
 	Samples              []int16
 	SampleRate, Channels int
@@ -43,8 +45,26 @@ type FrameAudioSink struct {
 	onError func(error)
 }
 
-func NewFrameAudioSink(onFrame func(context.Context, AudioFrame) error) *FrameAudioSink {
-	return &FrameAudioSink{onFrame: onFrame, onError: func(error) { slog.Error("Remote audio frame consumer failed") }}
+func NewFrameAudioSink(onFrame func(context.Context, AudioFrame) error, onError ...func(error)) *FrameAudioSink {
+	report := func(e error) {
+		slog.Error("Remote audio frame consumer failed", "error_type", fmt.Sprintf("%T", e), "error", e)
+	}
+
+	if len(onError) > 0 && onError[0] != nil {
+		report = onError[0]
+	}
+
+	return &FrameAudioSink{onFrame: onFrame, onError: report}
+}
+
+func (s *FrameAudioSink) reportError(err error) {
+	defer func() {
+		if value := recover(); value != nil {
+			slog.Error("Remote audio error handler panicked", "panic_type", fmt.Sprintf("%T", value), "stack", string(debug.Stack()))
+		}
+	}()
+
+	s.onError(err)
 }
 
 func (s *FrameAudioSink) AttachAsync(ctx context.Context, track RemoteAudioTrack) error {
@@ -68,8 +88,9 @@ func (s *FrameAudioSink) AttachAsync(ctx context.Context, track RemoteAudioTrack
 		defer s.wg.Done()
 
 		defer func() {
-			if recover() != nil {
-				slog.Error("Remote audio frame callback panicked")
+			if value := recover(); value != nil {
+				slog.Error("Remote audio frame callback panicked", "panic_type", fmt.Sprintf("%T", value), "stack", string(debug.Stack()))
+				s.reportError(fmt.Errorf("remote audio frame callback panicked: %T", value))
 			}
 		}()
 
@@ -84,7 +105,7 @@ func (s *FrameAudioSink) AttachAsync(ctx context.Context, track RemoteAudioTrack
 
 			if e != nil {
 				if !errors.Is(e, io.EOF) && ctx.Err() == nil && s.onError != nil {
-					s.onError(e)
+					s.reportError(e)
 				}
 
 				return
@@ -119,7 +140,7 @@ type AudioCodec interface {
 
 type CodecFactory func(channels int) (AudioCodec, error)
 
-// attachmentGroup mirrors Python's tracked remote attachment tasks. No new task
+// attachmentGroup tracks remote attachment tasks. No new task
 // may enter once teardown starts; callbacks must honor their context.
 type attachmentGroup struct {
 	mu     sync.Mutex
@@ -150,8 +171,8 @@ func (g *attachmentGroup) start(fn func(context.Context)) {
 		defer g.wg.Done()
 
 		defer func() {
-			if recover() != nil {
-				slog.Error("Remote audio attachment panicked")
+			if value := recover(); value != nil {
+				slog.Error("Remote audio attachment panicked", "panic_type", fmt.Sprintf("%T", value), "stack", string(debug.Stack()))
 			}
 		}()
 

@@ -4,9 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"github.com/pion/webrtc/v4"
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"reflect"
 	"strings"
 	"sync"
@@ -58,6 +60,7 @@ type fakeBridge struct {
 	closed       bool
 	onTrack      func(RemoteAudioTrack)
 	badCandidate bool
+	onError      func(error)
 }
 
 func (b *fakeBridge) record(s string)                                               { b.mu.Lock(); b.calls = append(b.calls, s); b.mu.Unlock() }
@@ -79,7 +82,16 @@ func (b *fakeBridge) AddIceCandidate(*IceCandidate) error {
 	return nil
 }
 
-func (b *fakeBridge) Close() error { b.mu.Lock(); b.closed = true; b.mu.Unlock(); return nil }
+func (b *fakeBridge) Close() error           { b.mu.Lock(); b.closed = true; b.mu.Unlock(); return nil }
+func (b *fakeBridge) OnError(fn func(error)) { b.mu.Lock(); b.onError = fn; b.mu.Unlock() }
+func (b *fakeBridge) fail(err error) {
+	b.mu.Lock()
+	fn := b.onError
+	b.mu.Unlock()
+	if fn != nil {
+		fn(err)
+	}
+}
 
 type harness struct {
 	c                       *CallsConnection
@@ -339,6 +351,132 @@ func TestReconnectFreshAudioAndOldTrack(t *testing.T) {
 		t.Fatal(h.audioCount, h.closedAudio)
 	}
 }
+
+func TestRepeatedDisconnectKeepsPendingResume(t *testing.T) {
+	h := newHarness(t)
+	h.s.message(`{"type":"state","state":{"state":"on-call"}}`)
+	first := h.start(t)
+	answer(h)
+	result(t, first, false)
+	ended := 0
+	errors := make(chan ErrorDetail, 2)
+	h.c.On("end_call", func(any) { ended++ })
+	h.c.On("error", func(value any) { errors <- value.(ErrorDetail) })
+	h.s.listeners["disconnect"](DisconnectDetail{Code: 1006})
+	h.s.message(`{"type":"state","state":{"state":"on-call"}}`)
+	waitFor(t, func() bool { return h.s.count() == 2 })
+	h.s.listeners["disconnect"](DisconnectDetail{Code: 1006})
+	h.c.op.Lock()
+	pending := h.c.resumePending
+	h.c.op.Unlock()
+	if ended != 0 || h.c.State() == nil || !pending {
+		t.Fatal("second disconnect ended a resumable call")
+	}
+	h.s.message(`{"type":"state","state":{"state":"on-call"}}`)
+	waitFor(t, func() bool { return h.s.count() == 3 })
+	answer(h)
+	waitFor(t, func() bool {
+		h.c.op.Lock()
+		defer h.c.op.Unlock()
+		return h.c.HasAudioBridge() && !h.c.resumePending
+	})
+	h.mu.Lock()
+	count := h.audioCount
+	h.mu.Unlock()
+	if ended != 0 || count != 3 {
+		t.Fatal("call did not resume after repeated disconnect")
+	}
+	select {
+	case event := <-errors:
+		t.Fatalf("transient disconnect became an error: %+v", event)
+	case <-time.After(20 * time.Millisecond):
+	}
+}
+
+func TestDuplicateAnswerKeepsCurrentBridge(t *testing.T) {
+	h := newHarness(t)
+	done := h.start(t)
+	answer(h)
+	result(t, done, false)
+	answer(h)
+	h.mu.Lock()
+	peer := h.bridges[0]
+	h.mu.Unlock()
+	peer.mu.Lock()
+	closed, calls := peer.closed, append([]string(nil), peer.calls...)
+	peer.mu.Unlock()
+	if closed || !h.c.HasAudioBridge() || !reflect.DeepEqual(calls, []string{"answer"}) {
+		t.Fatalf("duplicate answer changed bridge: closed=%v calls=%v", closed, calls)
+	}
+}
+
+func TestPeerFailureClosesOnlyItsOwnBridge(t *testing.T) {
+	h := newHarness(t)
+	done := h.start(t)
+	answer(h)
+	result(t, done, false)
+	h.mu.Lock()
+	old := h.bridges[0]
+	h.mu.Unlock()
+	events := make(chan ErrorDetail, 2)
+	h.c.On("error", func(value any) { events <- value.(ErrorDetail) })
+	old.fail(errors.New("ICE failed"))
+	waitFor(t, func() bool { return !h.c.HasAudioBridge() })
+	if (<-events).Message != "ICE failed" {
+		t.Fatal("peer failure was not reported")
+	}
+	done = h.start(t)
+	answer(h)
+	result(t, done, false)
+	old.fail(errors.New("late failure"))
+	if !h.c.HasAudioBridge() {
+		t.Fatal("old peer error closed the new bridge")
+	}
+}
+
+func TestRTCFailureReportsErrorAndStopsMedia(t *testing.T) {
+	adapter, err := NewRTCAdapter(nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer adapter.Close()
+	reported := make(chan error, 1)
+	adapter.OnError(func(err error) { reported <- err })
+	adapter.onConnectionState(webrtc.PeerConnectionStateFailed)
+	select {
+	case err := <-reported:
+		if !strings.Contains(err.Error(), "peer connection failed") {
+			t.Fatal(err)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("RTC failure was not reported")
+	}
+	select {
+	case <-adapter.ctx.Done():
+	default:
+		t.Fatal("RTC media did not stop")
+	}
+}
+
+func TestRequestErrorKeepsOriginalURLCause(t *testing.T) {
+	token := "private-token"
+	original := &url.Error{Op: "Get", URL: "https://host/" + token, Err: errors.New("dial refused")}
+	client := &http.Client{Transport: roundTripFunc(func(*http.Request) (*http.Response, error) { return nil, original })}
+	v := New(Config{Host: "https://host", IDInstance: "1", APITokenInstance: token, HTTPClient: client})
+	_, err := v.GetStateAsync(context.Background())
+	var request *RequestError
+	var gotURL *url.Error
+	if !errors.As(err, &request) || !errors.As(err, &gotURL) || !errors.Is(err, original) {
+		t.Fatalf("original error lost: %v", err)
+	}
+	if strings.Contains(err.Error(), token) || request.Endpoint != "callsState" {
+		t.Fatalf("unsafe or unhelpful error: %v", err)
+	}
+}
+
+type roundTripFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripFunc) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
 
 func TestPermanentRefusalAndPendingDisconnect(t *testing.T) {
 	for _, permanent := range []bool{false, true} {

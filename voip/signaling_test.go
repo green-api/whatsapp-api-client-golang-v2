@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/coder/websocket"
+	"net/http"
+	"net/http/httptest"
 	"sync"
 	"testing"
 	"time"
@@ -146,6 +148,66 @@ func TestBackoffCapAndOpenTimeoutKeepsRetrying(t *testing.T) {
 	}
 
 	_ = s.CloseAsync()
+}
+
+func TestHandshakeRefusalStopsRetryAndKeepsHTTPResponse(t *testing.T) {
+	for _, status := range []int{http.StatusUnauthorized, http.StatusForbidden} {
+		t.Run(http.StatusText(status), func(t *testing.T) {
+			requests := 0
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				requests++
+				w.WriteHeader(status)
+			}))
+			defer server.Close()
+			s := NewReconnectingSocket(server.URL)
+			defer s.CloseAsync()
+			events := make(chan DisconnectDetail, 1)
+			s.On("disconnect", func(value any) { events <- value.(DisconnectDetail) })
+			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			err := s.OpenAsync(ctx)
+			var refusal *HandshakeRefusedError
+			if !errors.As(err, &refusal) || refusal.Response.StatusCode != status || refusal.Err == nil || !s.Refused() {
+				t.Fatalf("handshake cause lost: %v", err)
+			}
+			select {
+			case event := <-events:
+				if !event.Permanent || event.Code != status {
+					t.Fatal(event)
+				}
+			case <-ctx.Done():
+				t.Fatal("permanent disconnect event missing")
+			}
+			if requests != 1 {
+				t.Fatalf("handshake retried %d times", requests)
+			}
+		})
+	}
+}
+
+func TestHandshakeRefusalReachesCallErrorEvent(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer server.Close()
+	connection := New(Config{Host: server.URL, IDInstance: "1", APITokenInstance: "token"}).Connect(nil)
+	defer connection.CloseAsync()
+	events := make(chan ErrorDetail, 1)
+	connection.On("error", func(value any) { events <- value.(ErrorDetail) })
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	var refusal *HandshakeRefusedError
+	if err := connection.OpenAsync(ctx); !errors.As(err, &refusal) {
+		t.Fatalf("expected handshake refusal, got %v", err)
+	}
+	select {
+	case event := <-events:
+		if event.Message != refusal.Error() {
+			t.Fatal(event)
+		}
+	case <-ctx.Done():
+		t.Fatal("call error event missing")
+	}
 }
 
 func TestOrderedFrames(t *testing.T) {

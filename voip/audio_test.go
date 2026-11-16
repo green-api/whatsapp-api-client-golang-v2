@@ -2,6 +2,7 @@ package voip
 
 import (
 	"context"
+	"errors"
 	"io"
 	"sync/atomic"
 	"testing"
@@ -59,6 +60,24 @@ func TestFrameSinkWaitsForCallbackCancellation(t *testing.T) {
 
 	case <-time.After(time.Second):
 		t.Fatal("sink close hung")
+	}
+}
+
+func TestFrameSinkReportsOriginalCallbackError(t *testing.T) {
+	want := errors.New("audio sink failed")
+	reported := make(chan error, 1)
+	sink := NewFrameAudioSink(func(context.Context, AudioFrame) error { return want }, func(err error) { reported <- err })
+	defer sink.CloseAsync()
+	if err := sink.AttachAsync(context.Background(), &oneFrame{}); err != nil {
+		t.Fatal(err)
+	}
+	select {
+	case got := <-reported:
+		if !errors.Is(got, want) {
+			t.Fatalf("callback cause lost: %v", got)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("callback error was not reported")
 	}
 }
 
