@@ -10,6 +10,8 @@ You can find the `v1` version here - https://github.com/green-api/whatsapp-api-c
 
 Voice calls are available through `voip.New(voip.Config{...})`: REST commands, reconnecting `callsRtc` signaling, and WebRTC audio. See [VoIP documentation and runnable examples](voip/README.md).
 
+AI agents working with this repository should read [AGENTS.md](AGENTS.md) before changing code.
+
 ## API
 
 The documentation for the REST API can be found at the [link](https://green-api.com/en/docs/api). The library is a wrapper

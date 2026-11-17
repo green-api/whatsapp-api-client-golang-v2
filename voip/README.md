@@ -2,6 +2,8 @@
 
 The `voip` package contains REST call commands (`calls.go`), reconnecting signaling (`signaling.go`), SDP and ICE mapping (`rtc.go`), audio contracts (`audio.go`), and a Pion media adapter (`rtc_adapter.go`). Methods named `Async` wait for their result; use a goroutine when concurrent execution is needed.
 
+AI agents working with this repository should read [AGENTS.md](../AGENTS.md) before changing code.
+
 ## Calling the API
 
 ```go
