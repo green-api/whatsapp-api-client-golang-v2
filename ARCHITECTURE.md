@@ -43,7 +43,7 @@ There is no root executable, webhook server, database, durable handler loop, mic
 
 **Ownership and cancellation:** each call creates a `fasthttp.Client`; active timeout fields are not configured. Public category calls have no context parameter. Requests and responses are acquired from pools and released on return. The implementation assigns `resp.Body()` and `resp.Header.StatusMessage()` directly into the envelope without copying. In particular, fasthttp's `Response.Body` contract says its bytes are valid only until release. This is an existing lifetime defect/risk, not a guarantee of independently owned response bytes. Changes to this code must account for buffer reuse; copying only in a consumer after return cannot establish safe ownership during concurrent pool reuse. This documentation does not repair the transport.
 
-**Compatibility and verification:** URL suffix order, option encoding, status-vs-error behavior and response byte ownership affect all consumers. There are no root SDK tests in this checkout. Local HTTP-server tests can capture paths, methods and JSON and return controlled status/body variants; package-local fakes can implement the otherwise restricted request interface. A transport fix should test repeated and concurrent requests retaining earlier responses, including multipart and partner paths. Do not infer successful WhatsApp delivery from an HTTP fixture.
+**Compatibility and verification:** URL suffix order, option encoding, status-vs-error behavior and response byte ownership affect all consumers. Local HTTP-server tests can capture paths, methods and JSON and return controlled status/body variants; package-local fakes can implement the otherwise restricted request interface. A transport fix should test repeated and concurrent requests retaining earlier responses, including multipart and partner paths. Do not infer successful WhatsApp delivery from an HTTP fixture.
 
 ## 4) Multipart and media flow
 
@@ -63,13 +63,13 @@ consumer → inspect status / decode / process according to application policy
 consumer → DeleteNotification(receiptID) → one DELETE → APIResponse
 ```
 
-**Entry and sequence:** `ReceivingCategory.ReceiveNotification` applies options, includes `?receiveTimeout=N` only when nonzero, and passes marshaled request data to `Request`. `OptionalReceiveTimeout` documents 5–60 seconds/default 5 but does not validate bounds. `DeleteNotification` appends `/{receiptID}` through `WithGetParams` to the assembled endpoint: `/waInstance{ID}/deleteNotification/{token}/{receiptID}`. The receipt is not inserted before the token.
+**Entry and sequence:** `ReceivingCategory.ReceiveNotification` applies options, includes `?receiveTimeout=N` only when nonzero, and sends a GET request without a body. `OptionalReceiveTimeout` documents 5–60 seconds/default 5 but does not validate bounds. `DeleteNotification` appends `/{receiptID}` through `WithGetParams` to the assembled endpoint: `/waInstance{ID}/deleteNotification/{token}/{receiptID}`. The receipt is not inserted before the token.
 
 **Output and ownership:** both operations return the root raw response envelope. No polling goroutine, dispatch, receipt storage or automatic acknowledgement exists. The application owns decoding, processing, duplicate handling and deletion timing. `examples/receiveNotification/main.go` demonstrates a single poll, not a durable consumer.
 
 **Failure semantics:** root transport and status policy apply. A processing failure does not trigger any SDK action; an application that deletes before completing its chosen processing boundary risks losing recoverability. Conversely, a delete failure can leave processing uncertain. Queue retention, redelivery, ordering and exactly-once behavior are provider properties not established by this code. Adding automatic deletion would change the product contract, not just simplify a helper.
 
-**Verification:** local request tests should cover omitted and explicit timeout, exact GET/body/query behavior, DELETE suffix and error statuses. Consumer workflow tests should cover processing failure before deletion, deletion failure and duplicate input under the consumer's chosen policy. No root test suite currently supplies those guarantees.
+**Verification:** the root regression test checks that the polling GET has no body, omits the timeout when absent or zero, and includes an explicit timeout in the query. Changes to deletion or response handling should cover the DELETE suffix and error statuses. Consumer workflow tests should cover processing failure before deletion, deletion failure and duplicate input under the consumer's chosen policy.
 
 ## 6) VoIP REST and signaling flow
 
