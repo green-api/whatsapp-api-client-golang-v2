@@ -37,6 +37,8 @@ There is no root executable, webhook server, database, durable handler loop, mic
 
 **Entry and sequence:** `GreenAPI.Sending()` → `SendingCategory.SendMessage` → validation/options → `json.Marshal` → `GreenAPIInterface.Request` → `GreenAPI.request` → `fasthttp.Client.Do`. Other categories follow the same broad pattern; inspect the specific wrapper for validation and fields.
 
+General chat ID validation accepts `@c.us`, `@g.us` and `@lid`. Group IDs use `@g.us`, while group participants and status recipients use personal IDs (`@c.us` or `@lid`). Contact creation, editing and deletion use phone-based IDs (`@c.us`). These checks preserve the supplied IDs in request payloads.
+
 `Request` applies `requestOptions` and passes query, MIME/filename, form-data and media-host choices to the transport. The normal URL is `{APIURL}/waInstance{IDInstance}/{APIMethod}/{APITokenInstance}`. Media routing substitutes `MediaURL`. `GetParams` is appended verbatim; it is not always a query string. `PartnerRequest` instead uses the fixed partner URL with a partner token and a client name containing the configured email.
 
 **Output and side effects:** `APIResponse` carries status code, status-message bytes, raw JSON body and a local timestamp. A remote operation may already have happened even if the response is lost. Non-2xx HTTP responses remain response data with a nil Go transport error. Validation, encoding, option and network failures return errors. There is no automatic retry or command queue.
