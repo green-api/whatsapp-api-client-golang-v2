@@ -32,12 +32,11 @@ func OptionalReceiveTimeout(seconds int) ReceiveNotificationOption {
 // Add optional arguments by passing these functions:
 //  OptionalReceiveTimeout(seconds int) <- Notification waiting timeout, takes a value from 5 to 60 seconds (5 seconds by default)
 func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOption) (*APIResponse, error) {
-
 	r := &RequestReceiveNotification{}
 
 	for _, o := range options {
 		err := o(r)
-		if err!=nil {
+		if err != nil {
 			return nil, err
 		}
 	}
@@ -47,12 +46,7 @@ func (c ReceivingCategory) ReceiveNotification(options ...ReceiveNotificationOpt
 		addUrl = fmt.Sprintf("?receiveTimeout=%v", r.ReceiveTimeout)
 	}
 
-	jsonData, err := json.Marshal(r)
-	if err != nil {
-		return nil, err
-	}
-
-	return c.GreenAPI.Request("GET", "receiveNotification", jsonData, WithGetParams(addUrl))
+	return c.GreenAPI.Request("GET", "receiveNotification", nil, WithGetParams(addUrl))
 }
 
 // ------------------------------------------------------------------ DeleteNotification

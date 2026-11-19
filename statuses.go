@@ -39,11 +39,8 @@ func OptionalFont(font string) SendTextStatusOption {
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsTextStatus(participants []string) SendTextStatusOption {
 	return func(r *RequestSendTextStatus) error {
-		for _, participant := range participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return err
-			}
+		if err := validatePersonalChatIDs(participants...); err != nil {
+			return err
 		}
 
 		r.Participants = participants
@@ -107,11 +104,8 @@ func OptionalBackgroundColorVoice(backgroundColor string) SendVoiceStatusOption 
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsVoiceStatus(participants []string) SendVoiceStatusOption {
 	return func(r *RequestSendVoiceStatus) error {
-		for _, participant := range participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return err
-			}
+		if err := validatePersonalChatIDs(participants...); err != nil {
+			return err
 		}
 
 		r.Participants = participants
@@ -179,11 +173,8 @@ func OptionalCaptionMediaStatus(caption string) SendMediaStatusOption {
 // An array of strings with contact IDs for whom the status will be available. If the field value is empty, the status will be available to all contacts.
 func OptionalParticipantsMediaStatus(participants []string) SendMediaStatusOption {
 	return func(r *RequestSendMediaStatus) error {
-		for _, participant := range participants {
-			err := ValidateChatId(participant)
-			if err!=nil {
-				return err
-			}
+		if err := validatePersonalChatIDs(participants...); err != nil {
+			return err
 		}
 
 		r.Participants = participants

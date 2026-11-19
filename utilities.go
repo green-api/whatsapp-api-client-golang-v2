@@ -3,14 +3,32 @@ package greenapi
 import (
 	"fmt"
 	"net/url"
+	"slices"
 	"strings"
 )
 
+// ValidateChatId checks the suffix of each WhatsApp chat ID.
 func ValidateChatId(chatId ...string) error {
+	return validateChatIDSuffixes(chatId, "@c.us", "@g.us", "@lid")
+}
 
-	for _, chat := range chatId {
-		if !strings.HasSuffix(chat, "@c.us") && !strings.HasSuffix(chat, "@g.us") {
-			return fmt.Errorf("chatId must end with \"@c.us\" or \"@g.us\"\ngot %s instead", chat)
+func validateGroupID(groupID string) error {
+	return validateChatIDSuffixes([]string{groupID}, "@g.us")
+}
+
+func validatePersonalChatIDs(chatIDs ...string) error {
+	return validateChatIDSuffixes(chatIDs, "@c.us", "@lid")
+}
+
+func validatePhoneChatID(chatID string) error {
+	return validateChatIDSuffixes([]string{chatID}, "@c.us")
+}
+
+func validateChatIDSuffixes(chatIDs []string, suffixes ...string) error {
+	for _, chatID := range chatIDs {
+		at := strings.LastIndexByte(chatID, '@')
+		if at < 0 || !slices.Contains(suffixes, chatID[at:]) {
+			return fmt.Errorf("chatId must end with %s\ngot %s instead", strings.Join(suffixes, " or "), chatID)
 		}
 	}
 	return nil

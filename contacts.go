@@ -36,7 +36,7 @@ func OptionalAddSaveInAddressbook(saveInAddressbook bool) AddContactOption {
 }
 
 func (c ContactsCategory) AddContact(chatId, firstName string, options ...AddContactOption) (*APIResponse, error) {
-	err := ValidateChatId(chatId)
+	err := validatePhoneChatID(chatId)
 	if err != nil {
 		return nil, err
 	}
@@ -89,7 +89,7 @@ func OptionalEditSaveInAddressbook(saveInAddressbook bool) EditContactOption {
 }
 
 func (c ContactsCategory) EditContact(chatId, firstName string, options ...EditContactOption) (*APIResponse, error) {
-	err := ValidateChatId(chatId)
+	err := validatePhoneChatID(chatId)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +121,7 @@ type RequestDeleteContact struct {
 }
 
 func (c ContactsCategory) DeleteContact(chatId string) (*APIResponse, error) {
-	err := ValidateChatId(chatId)
+	err := validatePhoneChatID(chatId)
 	if err != nil {
 		return nil, err
 	}
