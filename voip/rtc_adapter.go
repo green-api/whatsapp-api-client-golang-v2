@@ -348,7 +348,9 @@ func (t *decodedTrack) consume(ctx context.Context, remote *webrtc.TrackRemote, 
 
 	builder := samplebuilder.New(10, &codecs.OpusPacket{}, 48000)
 
-	var pts int64
+	var first uint32
+
+	started := false
 
 	for {
 		packet, _, e := remote.ReadRTP()
@@ -380,8 +382,11 @@ func (t *decodedTrack) consume(ctx context.Context, remote *webrtc.TrackRemote, 
 				return
 			}
 
-			frame := AudioFrame{Samples: pcm, SampleRate: 48000, Channels: channels, PTS: pts}
-			pts += int64(len(pcm) / channels)
+			if !started {
+				first, started = sample.PacketTimestamp, true
+			}
+
+			frame := AudioFrame{Samples: pcm, SampleRate: 48000, Channels: channels, PTS: rtpOffset(first, sample.PacketTimestamp)}
 
 			select {
 			case t.frames <- frame:
@@ -392,6 +397,8 @@ func (t *decodedTrack) consume(ctx context.Context, remote *webrtc.TrackRemote, 
 		}
 	}
 }
+
+func rtpOffset(first, timestamp uint32) int64 { return int64(timestamp - first) }
 
 func (a *RTCAdapter) OnError(fn func(error)) { a.mu.Lock(); a.onError = fn; a.mu.Unlock() }
 func (a *RTCAdapter) reportError(err error) {
